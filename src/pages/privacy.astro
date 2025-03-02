@@ -1,0 +1,165 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Privacy Policy - Sonacove Meets">
+  <div class="container mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-3xl font-bold mb-8">Privacy Policy</h1>
+
+      <div class="prose prose-lg">
+        <p>
+          Last updated: {
+            new Date().toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })
+          }
+        </p>
+
+        <h2>1. Introduction</h2>
+        <p>
+          At Sonacove Meets, operated by Mohammed Ibrahim Ali under the business
+          name "Alfaz Studio", we take your privacy seriously. This Privacy
+          Policy explains how we collect, use, disclose, and safeguard your
+          information when you use our service.
+        </p>
+
+        <h2>2. Information We Collect</h2>
+        <p>
+          We collect only the minimal information necessary to provide our
+          service:
+        </p>
+        <ul>
+          <li>
+            <strong>Account Information:</strong> When you create an account, we
+            collect your email address and authentication information.
+          </li>
+          <li>
+            <strong>Payment Information:</strong> When you subscribe to our service,
+            our payment processor (Paddle) collects payment information. We do not
+            store your full payment details on our servers.
+          </li>
+          <li>
+            <strong>Usage Data:</strong> We collect basic information about how you
+            interact with our service, such as access times and features used.
+          </li>
+          <li>
+            <strong>Device Information:</strong> We collect information about the
+            device you use to access our service, including browser type, operating
+            system, and device identifiers.
+          </li>
+        </ul>
+
+        <h2>3. How We Use Your Information</h2>
+        <p>We use the information we collect to:</p>
+        <ul>
+          <li>Provide, maintain, and improve our service</li>
+          <li>Process and complete transactions</li>
+          <li>Send you technical notices and support messages</li>
+          <li>Respond to your comments and questions</li>
+          <li>
+            Protect against, identify, and prevent fraud and other illegal
+            activity
+          </li>
+        </ul>
+
+        <h2>4. Information Sharing</h2>
+        <p>
+          We do not sell, trade, or otherwise transfer your personal information
+          to third parties. We may share information in the following
+          circumstances:
+        </p>
+        <ul>
+          <li>
+            With service providers who perform services on our behalf (such as
+            Paddle for payment processing)
+          </li>
+          <li>To comply with legal obligations</li>
+          <li>To protect and defend our rights and property</li>
+          <li>With your consent or at your direction</li>
+        </ul>
+
+        <h2>5. Data Security</h2>
+        <p>
+          We implement appropriate technical and organizational measures to
+          protect the security of your personal information. However, no method
+          of transmission over the Internet or electronic storage is 100%
+          secure.
+        </p>
+
+        <h2>6. Your Rights</h2>
+        <p>
+          Depending on your location, you may have certain rights regarding your
+          personal information, including:
+        </p>
+        <ul>
+          <li>
+            The right to access and receive a copy of your personal information
+          </li>
+          <li>The right to rectify or update your personal information</li>
+          <li>The right to delete your personal information</li>
+          <li>
+            The right to restrict or object to our processing of your personal
+            information
+          </li>
+        </ul>
+
+        <h2>7. Children's Privacy</h2>
+        <p>
+          Our service is not directed to children under 13. We do not knowingly
+          collect personal information from children under 13.
+        </p>
+
+        <h2>8. Changes to This Privacy Policy</h2>
+        <p>
+          We may update our Privacy Policy from time to time. We will notify you
+          of any changes by posting the new Privacy Policy on this page.
+        </p>
+
+        <h2>9. Contact Us</h2>
+        <p>
+          If you have any questions about this Privacy Policy, please contact us
+          at privacy@sonacove.com.
+        </p>
+      </div>
+
+      <div class="mt-8">
+        <a
+          href="/"
+          class="text-primary-600 hover:text-primary-800 transition-colors"
+          >← Back to Home</a
+        >
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .prose {
+    max-width: 65ch;
+    color: #374151;
+  }
+  .prose h2 {
+    color: #1f2937;
+    font-weight: 600;
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+    font-size: 1.5em;
+  }
+  .prose p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+  .prose ul {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+    list-style-type: disc;
+  }
+  .prose li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+</style>

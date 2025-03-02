@@ -1,0 +1,74 @@
+---
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+const faqs: FAQ[] = [
+  {
+    question: "How is Sonacove Meets different from other meeting platforms?",
+    answer: "Sonacove Meets prioritizes speed, simplicity, and security. We don't require downloads, we don't track your data, and we ensure all communications are end-to-end encrypted."
+  },
+  {
+    question: "How much does Sonacove Meets cost?",
+    answer: "Sonacove Meets will cost $6 per month when we launch. This will include unlimited meeting duration, unlimited guests, and all premium features. Join our waitlist to be notified when we launch."
+  },
+  {
+    question: "Can I try Sonacove Meets before subscribing?",
+    answer: "No, Sonacove Meets is a paid-only service. However, we offer a satisfaction guarantee - if you're not happy with the service, you can request a refund within the first 14 days of your subscription."
+  },
+  {
+    question: "What happens if I cancel my subscription?",
+    answer: "If you cancel your subscription, you won't be charged for the next billing period, but you'll still have access to premium features until the end of your current billing period."
+  },
+  {
+    question: "Can I get a refund if I'm not satisfied?",
+    answer: "Yes, we offer refunds on a case-by-case basis. Please contact our support team at support@sonacove.com to request a refund."
+  },
+  {
+    question: "How many participants can join a meeting?",
+    answer: "Our meetings support up to 25 participants with video and 100 with audio only."
+  },
+  {
+    question: "What data do you collect about users?",
+    answer: "We collect only the minimal data required for authentication and billing. We never store meeting content, and we don't track user behavior or sell data to third parties."
+  },
+  {
+    question: "Can I use Sonacove Meets on mobile devices?",
+    answer: "Absolutely! Sonacove Meets works on all modern browsers, including mobile browsers on iOS and Android devices."
+  }
+];
+---
+
+<section class="py-16" id="faq">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Frequently Asked Questions</h2>
+    
+    <div class="max-w-3xl mx-auto">
+      {faqs.map((faq, index) => (
+        <div class="mb-6">
+          <details class="group">
+            <summary class="flex justify-between items-center font-medium cursor-pointer list-none bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all">
+              <span class="text-gray-800 font-semibold">{faq.question}</span>
+              <span class="transition group-open:rotate-180">
+                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24">
+                  <path d="M6 9l6 6 6-6"></path>
+                </svg>
+              </span>
+            </summary>
+            <p class="text-gray-600 mt-3 mb-4 px-4">{faq.answer}</p>
+          </details>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

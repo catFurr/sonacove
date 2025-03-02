@@ -1,0 +1,75 @@
+---
+---
+
+<section class="py-20 md:py-32">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col md:flex-row items-center">
+      <div class="md:w-1/2 mb-10 md:mb-0">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-4">
+          Fast, Simple, <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600">Secure</span> Online Meetings
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-lg">
+          Experience the next generation of online meetings with Sonacove Meets. Join our waitlist for early access to our premium service.
+        </p>
+        
+        <div class="max-w-md">
+          <form id="hero-waitlist-form" class="flex flex-col sm:flex-row gap-3">
+            <input 
+              type="email" 
+              id="hero-email" 
+              name="email" 
+              required
+              placeholder="Enter your email"
+              class="flex-grow px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+            />
+            <button 
+              type="submit" 
+              class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] whitespace-nowrap"
+            >
+              Join Waitlist
+            </button>
+          </form>
+          <p class="text-xs text-gray-500 mt-2">
+            We respect your privacy. No spam, ever.
+          </p>
+        </div>
+      </div>
+      <div class="md:w-1/2">
+        <div class="relative">
+          <div class="absolute -inset-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl blur opacity-30"></div>
+          <div class="relative bg-white p-2 rounded-2xl shadow-xl">
+            <img 
+              src="https://images.unsplash.com/photo-1609921212029-bb5a28e60960?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+              alt="Online meeting illustration" 
+              class="rounded-xl w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { addContactToBrevo, showSuccessMessage, showErrorMessage } from '../utils/brevo';
+
+  const heroForm = document.getElementById('hero-waitlist-form');
+  
+  heroForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('hero-email') as HTMLInputElement).value;
+    
+    try {
+      await addContactToBrevo(email, 'website_hero');
+      
+      // Show success message
+      const formContainer = heroForm.parentElement;
+      if (formContainer) {
+        showSuccessMessage(formContainer, true);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showErrorMessage(heroForm);
+    }
+  });
+</script>

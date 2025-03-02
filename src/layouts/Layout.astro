@@ -1,0 +1,74 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Sonacove Meets - Fast, simple, and secure online meetings with a focus on privacy.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sonacove.com/" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://sonacove.com/" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
+    <slot />
+    <footer class="py-6 text-center text-xs text-gray-500">
+      <div class="container mx-auto px-4">
+        <p>
+          © {new Date().getFullYear()} Sonacove Meets by Alfaz Studio. All rights
+          reserved.
+        </p>
+        <div class="mt-2 space-x-4">
+          <a href="/terms" class="hover:text-primary-600 transition-colors"
+            >Terms of Service</a
+          >
+          <a href="/privacy" class="hover:text-primary-600 transition-colors"
+            >Privacy Policy</a
+          >
+          <a href="/refund" class="hover:text-primary-600 transition-colors"
+            >Refund Policy</a
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Inter", sans-serif;
+  }
+</style>
