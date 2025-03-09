@@ -7,7 +7,7 @@
 export async function addContactToBrevo(email: string, source: string): Promise<any> {
   try {
     // Get webhook URL from environment variables
-    const webhookUrl = import.meta.env.BREVO_WEBHOOK_URL;
+    const webhookUrl = import.meta.env.PUBLIC_BREVO_WEBHOOK_URL;
     
     if (!webhookUrl) {
       console.error('Brevo webhook URL is not configured');

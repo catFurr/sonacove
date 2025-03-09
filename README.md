@@ -74,7 +74,7 @@ yarn install
 3. Create a `.env` file in the root directory with the following variables:
 
 ```
-BREVO_WEBHOOK_URL=your_brevo_webhook_here
+PUBLIC_BREVO_WEBHOOK_URL=your_brevo_webhook_here
 ```
 
 4. Start the development server:
@@ -97,7 +97,7 @@ yarn dev
    - Build command: `npm run build`
    - Build output directory: `dist`
 6. Add environment variables:
-   - `BREVO_WEBHOOK_URL`: Your Brevo webhook url
+   - `PUBLIC_BREVO_WEBHOOK_URL`: Your Brevo webhook url
 7. Deploy
 
 ### Manual Deployment
@@ -130,7 +130,7 @@ wrangler pages publish dist
 
 ## Environment Variables
 
-- `BREVO_WEBHOOK_URL`: Your Brevo webhook URL for email collection
+- `PUBLIC_BREVO_WEBHOOK_URL`: Your Brevo webhook URL for email collection
 
 ## License
 
