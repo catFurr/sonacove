@@ -29,6 +29,7 @@
               Join Waitlist
             </button>
           </form>
+          <div id="hero-form-message" class="mt-2"></div>
           <p class="text-xs text-gray-500 mt-2">
             We respect your privacy. No spam, ever.
           </p>
@@ -54,6 +55,7 @@
   import { addContactToBrevo, showSuccessMessage, showErrorMessage } from '../utils/brevo';
 
   const heroForm = document.getElementById('hero-waitlist-form');
+  const messageContainer = document.getElementById('hero-form-message');
   
   heroForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -63,13 +65,12 @@
       await addContactToBrevo(email, 'website_hero');
       
       // Show success message
-      const formContainer = heroForm.parentElement;
-      if (formContainer) {
-        showSuccessMessage(formContainer, true);
+      if (messageContainer) {
+        showSuccessMessage(messageContainer, true);
       }
     } catch (error) {
       console.error('Error:', error);
-      showErrorMessage(heroForm);
+      showErrorMessage(heroForm!);
     }
   });
 </script>

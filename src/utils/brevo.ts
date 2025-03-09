@@ -29,7 +29,17 @@ export async function addContactToBrevo(email: string, source: string): Promise<
       throw new Error('Network response was not ok');
     }
 
-    return await response.json();
+    // Check the content type of the response
+    const contentType = response.headers.get('content-type');
+    
+    // If it's JSON, parse it; otherwise, return the text
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      // For text responses like "Accepted", just return an object with a success flag
+      const text = await response.text();
+      return { success: true, message: text };
+    }
   } catch (error) {
     console.error('Error adding contact to Brevo:', error);
     throw error;
@@ -68,11 +78,33 @@ export function showSuccessMessage(element: HTMLElement, isCompact: boolean = fa
  */
 export function showErrorMessage(element: HTMLElement): void {
   // Remove any existing error messages first
-  const existingErrors = element.querySelectorAll('.brevo-error-message');
+  const existingErrors = document.querySelectorAll('.brevo-error-message');
   existingErrors.forEach(el => el.remove());
   
+  // Create a container for the error message
+  const errorContainer = document.createElement('div');
+  errorContainer.className = 'mt-2 w-full brevo-error-message';
+  
+  // Create the error message
   const errorMessage = document.createElement('p');
-  errorMessage.className = 'text-red-500 text-sm mt-2 brevo-error-message';
+  errorMessage.className = 'text-red-500 text-sm text-center';
   errorMessage.textContent = 'There was an error. Please try again.';
-  element.appendChild(errorMessage);
+  
+  // Append the error message to the container
+  errorContainer.appendChild(errorMessage);
+  
+  // For the hero form, we need to handle the layout differently
+  if (element.id === 'hero-waitlist-form') {
+    // Find the parent container that holds the form
+    const formContainer = element.parentElement;
+    if (formContainer) {
+      formContainer.appendChild(errorContainer);
+    } else {
+      // Fallback if parent not found
+      element.insertAdjacentElement('afterend', errorContainer);
+    }
+  } else {
+    // For other forms, just append after the form
+    element.insertAdjacentElement('afterend', errorContainer);
+  }
 }
