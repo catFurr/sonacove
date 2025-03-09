@@ -74,8 +74,7 @@ yarn install
 3. Create a `.env` file in the root directory with the following variables:
 
 ```
-BREVO_API_KEY=your_brevo_api_key_here
-BREVO_LIST_ID=your_brevo_list_id_here
+BREVO_WEBHOOK_URL=your_brevo_webhook_here
 ```
 
 4. Start the development server:
@@ -98,8 +97,7 @@ yarn dev
    - Build command: `npm run build`
    - Build output directory: `dist`
 6. Add environment variables:
-   - `BREVO_API_KEY`: Your Brevo API key
-   - `BREVO_LIST_ID`: Your Brevo list ID
+   - `BREVO_WEBHOOK_URL`: Your Brevo webhook url
 7. Deploy
 
 ### Manual Deployment
@@ -132,8 +130,7 @@ wrangler pages publish dist
 
 ## Environment Variables
 
-- `BREVO_API_KEY`: Your Brevo API key for email collection
-- `BREVO_LIST_ID`: The ID of the list in Brevo where contacts should be added
+- `BREVO_WEBHOOK_URL`: Your Brevo webhook URL for email collection
 
 ## License
 

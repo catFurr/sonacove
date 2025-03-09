@@ -1,32 +1,27 @@
 /**
- * Utility function to add a contact to Brevo (formerly Sendinblue)
+ * Utility function to add a contact to Brevo (formerly Sendinblue) via webhook
  * @param email - The email address to add
  * @param source - The source of the signup (e.g., 'website_hero', 'website_cta')
  * @returns Promise that resolves to the API response
  */
 export async function addContactToBrevo(email: string, source: string): Promise<any> {
   try {
-    // Get API key from environment variables
-    const apiKey = import.meta.env.BREVO_API_KEY;
-    const listId = parseInt(import.meta.env.BREVO_LIST_ID || '1');
+    // Get webhook URL from environment variables
+    const webhookUrl = import.meta.env.BREVO_WEBHOOK_URL;
     
-    if (!apiKey) {
-      console.error('Brevo API key is not configured');
-      throw new Error('API key not configured');
+    if (!webhookUrl) {
+      console.error('Brevo webhook URL is not configured');
+      throw new Error('Webhook URL not configured');
     }
     
-    const response = await fetch('https://api.brevo.com/v3/contacts', {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'api-key': apiKey
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         email: email,
-        attributes: {
-          SOURCE: source
-        },
-        listIds: [listId]
+        source: source
       })
     });
 
