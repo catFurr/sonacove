@@ -153,7 +153,7 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
       });
 
       // Clear the loading animation
-      container.innerHTML = '';
+      container.innerHTML = '<div style="min-height: 400px;"></div>';
 
       // 3. Log Paddle initialization attempt
       console.log('Attempting to initialize Paddle...');
@@ -181,7 +181,8 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
           displayMode: 'inline',
           theme: 'light',
           locale: 'en',
-          frameTarget: '#paddle-checkout-container',
+          frameTarget: 'paddle-checkout-container',
+          frameInitialHeight: 400,
           frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
           successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
         },
@@ -192,7 +193,7 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
 
       // 5. Attempt to open checkout with delay for debugging
       console.log('Attempting to open checkout...');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay to ensure DOM is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       try {
         await paddle.Checkout.open(checkoutConfig);
