@@ -6,7 +6,7 @@
 interface KeycloakTokenPayload {
   exp?: number;
   iss?: string;
-  aud?: string;
+  aud?: string | string[];
   sub: string;
   email: string;
   name?: string;
@@ -47,8 +47,12 @@ export async function validateKeycloakToken(token: string): Promise<boolean> {
       throw new Error("Invalid token issuer");
     }
     
-    // Check the audience (client_id)
-    if (payload.aud !== "jitsi-web") {
+    // Updated audience check to handle array
+    if (Array.isArray(payload.aud)) {
+      if (!payload.aud.includes("jitsi-web")) {
+        throw new Error("Invalid token audience");
+      }
+    } else if (payload.aud !== "jitsi-web") {
       throw new Error("Invalid token audience");
     }
     
