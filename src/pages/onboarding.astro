@@ -47,7 +47,7 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
         </p>
         
         <!-- Paddle checkout container -->
-        <div id="paddle-checkout-container" class="mt-6">
+        <div class="paddle-checkout-container mt-6">
           <div class="animate-pulse">
             <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
             <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
@@ -127,15 +127,15 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
       console.group('Paddle Checkout Debug');
       
       // 1. Check container existence and visibility
-      const container = document.getElementById('paddle-checkout-container');
+      const container = document.querySelector('.paddle-checkout-container');
       console.log('Container element:', container);
       if (container) {
         console.log('Container visibility:', window.getComputedStyle(container).display);
         console.log('Container dimensions:', {
-          width: container.offsetWidth,
-          height: container.offsetHeight,
-          clientWidth: container.clientWidth,
-          clientHeight: container.clientHeight
+          width: (container as HTMLElement).offsetWidth,
+          height: (container as HTMLElement).offsetHeight,
+          clientWidth: (container as HTMLElement).clientWidth,
+          clientHeight: (container as HTMLElement).clientHeight
         });
       }
 
@@ -182,7 +182,7 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
           theme: 'light',
           locale: 'en',
           frameTarget: 'paddle-checkout-container',
-          frameInitialHeight: 400,
+          frameInitialHeight: 450,
           frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
           successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
         },
@@ -209,7 +209,7 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
       console.error('Error in setupPaddleCheckout:', error);
       console.groupEnd();
 
-      const container = document.getElementById('paddle-checkout-container');
+      const container = document.querySelector('.paddle-checkout-container');
       if (container) {
         container.innerHTML = `
           <div class="text-red-600 p-4 border border-red-200 rounded-lg">
