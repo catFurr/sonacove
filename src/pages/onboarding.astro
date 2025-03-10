@@ -12,14 +12,6 @@ const redirectUri = "/onboarding/callback";
 // Simple URL without dynamic parameters
 const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=${responseType}`;
 
-// Check for auto-login query parameter
-const shouldAutoLogin = Astro.url.searchParams.get('auto_login') === 'true';
-
-// If auto_login is true and we don't have a token yet, redirect immediately
-if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
-  return Astro.redirect(keycloakAuthUrl);
-}
-
 ---
 
 <Layout title="Onboarding - Sonacove Meets">
@@ -62,6 +54,19 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
             <div class="h-10 bg-gray-200 rounded w-full"></div>
           </div>
         </div>
+
+        <!-- Skip payment option -->
+        <div class="mt-6 text-center">
+          <button 
+            id="skip-payment"
+            class="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Skip payment for now
+          </button>
+          <p class="text-xs text-gray-400 mt-1">
+            You can complete your subscription later, but some features will be limited.
+          </p>
+        </div>
       </div>
       
       <div id="error-content" style="display: none;" class="text-center">
@@ -91,7 +96,14 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
 <script>
   import type { Paddle } from '@paddle/paddle-js';
   import { initializePaddle } from '@paddle/paddle-js';
-  import { validateKeycloakToken } from "../utils/auth";
+  import { validateKeycloakToken, parseUserFromToken } from "../utils/auth";
+
+  // Storage key constants
+  const STORAGE_KEYS = {
+    AUTH_TOKEN: 'sonacove_auth_token',
+    USER_INFO: 'sonacove_user_info',
+    SUBSCRIPTION_STATUS: 'sonacove_subscription_status'
+  };
 
   async function init() {
     // Construct proper redirect URI using window.location
@@ -134,9 +146,16 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
         const isAuthenticated = await validateKeycloakToken(accessToken);
         
         if (isAuthenticated) {
+          // Store token and user info
+          const userInfo = parseUserFromToken(accessToken);
+          if (userInfo) {
+            localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+            localStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(userInfo));
+          }
+
           if (initialContent) initialContent.style.display = 'none';
           if (authenticatedContent) authenticatedContent.style.removeProperty('display');
-          await setupPaddleCheckout(accessToken);
+          await setupPaddleCheckout(accessToken, userInfo);
         } else {
           if (initialContent) initialContent.style.display = 'none';
           if (errorContent) errorContent.style.removeProperty('display');
@@ -153,12 +172,39 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
         }
       }
     } else {
+      // Check if we have stored credentials
+      const storedToken = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const storedUserInfo = localStorage.getItem(STORAGE_KEYS.USER_INFO);
+      
+      if (storedToken && storedUserInfo) {
+        try {
+          const isValid = await validateKeycloakToken(storedToken);
+          if (isValid) {
+            window.location.href = 'https://meet.sonacove.com';
+            return;
+          }
+        } catch (error) {
+          // Token invalid, clear storage
+          localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+          localStorage.removeItem(STORAGE_KEYS.USER_INFO);
+        }
+      }
+      
       if (initialContent) initialContent.style.removeProperty('display');
     }
   }
 
-  async function setupPaddleCheckout(accessToken: string) {
+  async function setupPaddleCheckout(accessToken: string, userInfo: any) {
     try {
+      // Make sure the container exists before initializing Paddle
+      const container = document.getElementById('paddle-checkout-container');
+      if (!container) {
+        throw new Error('Paddle checkout container not found');
+      }
+
+      // Clear the loading animation
+      container.innerHTML = '';
+
       const paddle = await initializePaddle({
         environment: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox',
         token: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
@@ -180,10 +226,33 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
         items: [{
           priceId: 'pri_01jp00qykqy6wyd54gxv369hdr',
           quantity: 1
-        }]
+        }],
+        customer: userInfo ? {
+          email: userInfo.email
+        } : undefined
       });
+
+      // Setup skip payment handler
+      const skipButton = document.getElementById('skip-payment');
+      if (skipButton) {
+        skipButton.addEventListener('click', () => {
+          localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, 'pending');
+          window.location.href = `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}&skipped=true`;
+        });
+      }
     } catch (error) {
-      console.error('Error initializing Paddle:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error initializing Paddle:', error);
+      // Show error in the paddle container instead of the loading animation
+      const container = document.getElementById('paddle-checkout-container');
+      if (container) {
+        container.innerHTML = `
+          <div class="text-red-600 p-4 border border-red-200 rounded-lg">
+            <p>Failed to load payment form.</p>
+            <p class="text-sm">${error instanceof Error ? error.message : 'Unknown error'}</p>
+          </div>
+        `;
+      }
+      
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       const errorContainer = document.getElementById('error-message');
       if (errorContainer) {

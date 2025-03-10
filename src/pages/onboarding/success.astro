@@ -10,20 +10,17 @@ import Layout from "../../layouts/Layout.astro";
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         
-        <h1 class="text-2xl font-bold mt-4 mb-2">Subscription Confirmed!</h1>
-        <p class="text-gray-600 mb-6">
-          Thank you for subscribing to Sonacove Meets. Your account is now active.
+        <h1 class="text-2xl font-bold mt-4 mb-2">Welcome aboard<span id="user-first-name"></span>!</h1>
+        <p class="text-gray-600 mb-6" id="success-message">
+          <!-- This will be populated based on whether payment was skipped or not -->
         </p>
         
         <div id="user-details" class="bg-gray-50 rounded-lg p-4 mb-6 text-left" style="display: none;">
           <p class="font-medium text-gray-800">Account Details:</p>
           <p class="text-gray-600">Email: <span id="user-email"></span></p>
           <p class="text-gray-600">Name: <span id="user-name"></span></p>
+          <p class="text-gray-600">Status: <span id="subscription-status"></span></p>
         </div>
-        
-        <p class="text-gray-600 mb-6">
-          You're all set! Click the button below to start using Sonacove Meets.
-        </p>
         
         <a 
           href="https://meet.sonacove.com" 
@@ -62,6 +59,7 @@ import Layout from "../../layouts/Layout.astro";
   async function init() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
+    const skipped = urlParams.get('skipped') === 'true';
     
     if (!token) {
       window.location.href = '/onboarding';
@@ -75,14 +73,30 @@ import Layout from "../../layouts/Layout.astro";
         if (user) {
           const emailElement = document.getElementById('user-email');
           const nameElement = document.getElementById('user-name');
+          const firstNameElement = document.getElementById('user-first-name');
+          const statusElement = document.getElementById('subscription-status');
+          const successMessage = document.getElementById('success-message');
           const userDetailsElement = document.getElementById('user-details');
           const successContent = document.getElementById('success-content');
 
-          if (emailElement && nameElement && userDetailsElement && successContent) {
+          if (emailElement && nameElement && userDetailsElement && successContent && successMessage && statusElement && firstNameElement) {
             emailElement.textContent = user.email;
             nameElement.textContent = user.name;
+            firstNameElement.textContent = `, ${user.name.split(' ')[0]}`;
+            
+            if (skipped) {
+              statusElement.textContent = 'Trial (Payment Pending)';
+              successMessage.textContent = `You're ready to start using Sonacove Meets in trial mode. You can complete your subscription anytime to unlock all features.`;
+            } else {
+              statusElement.textContent = 'Active';
+              successMessage.textContent = `Thank you for subscribing to Sonacove Meets. Your account is now fully activated with all premium features.`;
+            }
+
             userDetailsElement.style.removeProperty('display');
             successContent.style.removeProperty('display');
+
+            // Store the final status
+            localStorage.setItem('sonacove_subscription_status', skipped ? 'pending' : 'active');
           }
         }
       } else {
