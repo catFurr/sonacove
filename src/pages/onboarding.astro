@@ -4,11 +4,13 @@ import Layout from "../layouts/Layout.astro";
 // Define the Keycloak auth URL and parameters
 const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
 const clientId = "jitsi-web";
-const redirectUri = new URL("/onboarding/callback", Astro.url.origin).toString();
 const responseType = "token";
 
-// Construct the Keycloak auth URL
-const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
+// Base URL for redirect - this will be replaced client-side
+const redirectUri = "/onboarding/callback";
+
+// Simple URL without dynamic parameters
+const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=${responseType}`;
 
 // Check for auto-login query parameter
 const shouldAutoLogin = Astro.url.searchParams.get('auto_login') === 'true';
@@ -92,6 +94,19 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
   import { validateKeycloakToken } from "../utils/auth";
 
   async function init() {
+    // Construct proper redirect URI using window.location
+    const redirectUri = new URL("/onboarding/callback", window.location.origin).toString();
+    const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
+    const clientId = "jitsi-web";
+    const responseType = "token";
+    
+    const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
+
+    // Update all auth URL links in the page
+    document.querySelectorAll('a[href*="auth.sonacove.com"]').forEach(link => {
+      link.setAttribute('href', keycloakAuthUrl);
+    });
+
     // Extract token from URL if present
     let accessToken: string | null = null;
     if (window.location.hash) {
@@ -109,13 +124,6 @@ if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
     const hasToken = window.location.hash && window.location.hash.includes("access_token=");
 
     if (shouldAutoLogin && !hasToken) {
-      const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
-      const clientId = "jitsi-web";
-      const redirectUri = new URL("/onboarding/callback", window.location.origin).toString();
-      const responseType = "token";
-      
-      const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
-      
       window.location.href = keycloakAuthUrl;
       return;
     }
