@@ -105,6 +105,146 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
     SUBSCRIPTION_STATUS: 'sonacove_subscription_status'
   };
 
+  async function initializePaddleCheckout() {
+    console.log('Paddle Environment:', import.meta.env.PUBLIC_PADDLE_ENVIRONMENT);
+    console.log('Paddle Client Token exists:', !!import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN);
+
+    const environment = import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox';
+    const clientToken = import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN;
+
+    if (!clientToken) {
+      throw new Error('Paddle client token is not configured');
+    }
+
+    return await initializePaddle({
+      environment,
+      token: clientToken
+    });
+  }
+
+  async function setupPaddleCheckout(accessToken: string, userInfo: any) {
+    try {
+      console.group('Paddle Checkout Debug');
+      
+      // 1. Check container existence and visibility
+      const container = document.getElementById('paddle-checkout-container');
+      console.log('Container element:', container);
+      if (container) {
+        console.log('Container visibility:', window.getComputedStyle(container).display);
+        console.log('Container dimensions:', {
+          width: container.offsetWidth,
+          height: container.offsetHeight,
+          clientWidth: container.clientWidth,
+          clientHeight: container.clientHeight
+        });
+      }
+
+      if (!container) {
+        throw new Error('Paddle checkout container not found');
+      }
+
+      // 2. Log environment setup
+      console.log('Environment:', {
+        paddleEnv: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT,
+        hasToken: !!import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN,
+        windowInnerWidth: window.innerWidth,
+        windowInnerHeight: window.innerHeight,
+        url: window.location.href
+      });
+
+      // Clear the loading animation
+      container.innerHTML = '';
+
+      // 3. Log Paddle initialization attempt
+      console.log('Attempting to initialize Paddle...');
+      const paddle = await initializePaddle({
+        environment: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox',
+        token: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
+      }).catch(error => {
+        console.error('Paddle initialization error:', error);
+        throw error;
+      });
+
+      console.log('Paddle initialized:', !!paddle);
+
+      if (!paddle) {
+        throw new Error('Failed to initialize Paddle');
+      }
+
+      // 4. Log checkout configuration
+      const checkoutConfig: Parameters<typeof paddle.Checkout.open>[0] = {
+        items: [{
+          priceId: 'pri_01jp00qykqy6wyd54gxv369hdr',
+          quantity: 1
+        }],
+        settings: {
+          displayMode: 'inline',
+          theme: 'light',
+          locale: 'en',
+          frameTarget: '#paddle-checkout-container',
+          frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
+          successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
+        },
+        ...(userInfo?.email ? { customer: { email: userInfo.email } } : {})
+      };
+      
+      console.log('Checkout configuration:', checkoutConfig);
+
+      // 5. Attempt to open checkout with delay for debugging
+      console.log('Attempting to open checkout...');
+      await new Promise(resolve => setTimeout(resolve, 500)); // Small delay to ensure DOM is ready
+      
+      try {
+        await paddle.Checkout.open(checkoutConfig);
+      } catch (error) {
+        console.error('Paddle checkout open error:', error);
+        throw error;
+      }
+
+      console.log('Checkout opened successfully');
+      console.groupEnd();
+
+    } catch (error) {
+      console.error('Error in setupPaddleCheckout:', error);
+      console.groupEnd();
+
+      const container = document.getElementById('paddle-checkout-container');
+      if (container) {
+        container.innerHTML = `
+          <div class="text-red-600 p-4 border border-red-200 rounded-lg">
+            <p>Failed to load payment form.</p>
+            <p class="text-sm mt-2">Error details:</p>
+            <pre class="text-xs mt-1 p-2 bg-red-50 rounded">${
+              error instanceof Error 
+                ? `${error.message}\n${error.stack}` 
+                : JSON.stringify(error, null, 2)
+            }</pre>
+          </div>
+        `;
+      }
+
+      // 6. Log DOM state after error
+      console.group('DOM State After Error');
+      console.log('Container exists:', !!container);
+      console.log('Container HTML:', container?.innerHTML);
+      console.log('Document ready state:', document.readyState);
+      console.log('Authenticated content display:', 
+        document.getElementById('authenticated-content')?.style.display
+      );
+      console.groupEnd();
+    }
+  }
+
+  function setupSkipPayment(accessToken: string) {
+    const skipButton = document.getElementById('skip-payment');
+    if (skipButton) {
+      skipButton.addEventListener('click', () => {
+        localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, 'pending');
+        window.location.href = `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}&skipped=true`;
+      });
+    }
+  }
+
   async function init() {
     // Construct proper redirect URI using window.location
     const redirectUri = new URL("/onboarding/callback", window.location.origin).toString();
@@ -155,6 +295,11 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
 
           if (initialContent) initialContent.style.display = 'none';
           if (authenticatedContent) authenticatedContent.style.removeProperty('display');
+          
+          // Set up skip payment button regardless of Paddle status
+          setupSkipPayment(accessToken);
+          
+          // Set up Paddle checkout
           await setupPaddleCheckout(accessToken, userInfo);
         } else {
           if (initialContent) initialContent.style.display = 'none';
@@ -194,72 +339,24 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
     }
   }
 
-  async function setupPaddleCheckout(accessToken: string, userInfo: any) {
-    try {
-      // Make sure the container exists before initializing Paddle
-      const container = document.getElementById('paddle-checkout-container');
-      if (!container) {
-        throw new Error('Paddle checkout container not found');
-      }
+  // Add a global error handler to catch any unhandled errors
+  window.addEventListener('error', (event) => {
+    console.error('Global error caught:', {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      error: event.error
+    });
+  });
 
-      // Clear the loading animation
-      container.innerHTML = '';
-
-      const paddle = await initializePaddle({
-        environment: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox',
-        token: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
-      });
-
-      if (!paddle) {
-        throw new Error('Failed to initialize Paddle');
-      }
-
-      await paddle.Checkout.open({
-        settings: {
-          displayMode: 'inline',
-          theme: 'light',
-          locale: 'en',
-          frameTarget: 'paddle-checkout-container',
-          frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
-          successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
-        },
-        items: [{
-          priceId: 'pri_01jp00qykqy6wyd54gxv369hdr',
-          quantity: 1
-        }],
-        customer: userInfo ? {
-          email: userInfo.email
-        } : undefined
-      });
-
-      // Setup skip payment handler
-      const skipButton = document.getElementById('skip-payment');
-      if (skipButton) {
-        skipButton.addEventListener('click', () => {
-          localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, 'pending');
-          window.location.href = `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}&skipped=true`;
-        });
-      }
-    } catch (error) {
-      console.error('Error initializing Paddle:', error);
-      // Show error in the paddle container instead of the loading animation
-      const container = document.getElementById('paddle-checkout-container');
-      if (container) {
-        container.innerHTML = `
-          <div class="text-red-600 p-4 border border-red-200 rounded-lg">
-            <p>Failed to load payment form.</p>
-            <p class="text-sm">${error instanceof Error ? error.message : 'Unknown error'}</p>
-          </div>
-        `;
-      }
-      
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      const errorContainer = document.getElementById('error-message');
-      if (errorContainer) {
-        errorContainer.textContent = errorMessage;
-      }
-    }
-  }
+  // Add a global promise rejection handler
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', {
+      reason: event.reason,
+      promise: event.promise
+    });
+  });
 
   init();
 </script>
