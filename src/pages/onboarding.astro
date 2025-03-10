@@ -124,91 +124,46 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
 
   async function setupPaddleCheckout(accessToken: string, userInfo: any) {
     try {
-      console.group('Paddle Checkout Debug');
-      
-      // 1. Check container existence and visibility
       const container = document.querySelector('.paddle-checkout-container');
-      console.log('Container element:', container);
-      if (container) {
-        console.log('Container visibility:', window.getComputedStyle(container).display);
-        console.log('Container dimensions:', {
-          width: (container as HTMLElement).offsetWidth,
-          height: (container as HTMLElement).offsetHeight,
-          clientWidth: (container as HTMLElement).clientWidth,
-          clientHeight: (container as HTMLElement).clientHeight
-        });
-      }
-
+      
       if (!container) {
         throw new Error('Paddle checkout container not found');
       }
 
-      // 2. Log environment setup
-      console.log('Environment:', {
-        paddleEnv: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT,
-        hasToken: !!import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN,
-        windowInnerWidth: window.innerWidth,
-        windowInnerHeight: window.innerHeight,
-        url: window.location.href
-      });
-
       // Clear the loading animation
       container.innerHTML = '<div style="min-height: 400px;"></div>';
 
-      // 3. Log Paddle initialization attempt
-      console.log('Attempting to initialize Paddle...');
       const paddle = await initializePaddle({
         environment: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox',
         token: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
       }).catch(error => {
-        console.error('Paddle initialization error:', error);
         throw error;
       });
-
-      console.log('Paddle initialized:', !!paddle);
 
       if (!paddle) {
         throw new Error('Failed to initialize Paddle');
       }
 
-      // 4. Log checkout configuration
       const checkoutConfig: Parameters<typeof paddle.Checkout.open>[0] = {
         items: [{
-          priceId: 'pri_01jp00qykqy6wyd54gxv369hdr',
+          priceId: import.meta.env.PUBLIC_PADDLE_PRICE_ID,
           quantity: 1
         }],
         settings: {
-          displayMode: 'inline',
-          theme: 'light',
-          locale: 'en',
+          displayMode: 'overlay',
+        //   theme: 'light',
+        //   locale: 'en',
           frameTarget: 'paddle-checkout-container',
-          frameInitialHeight: 450,
+        //   frameInitialHeight: 450,
           frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
           successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
         },
         ...(userInfo?.email ? { customer: { email: userInfo.email } } : {})
       };
-      
-      console.log('Checkout configuration:', checkoutConfig);
 
-      // 5. Attempt to open checkout with delay for debugging
-      console.log('Attempting to open checkout...');
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      try {
-        await paddle.Checkout.open(checkoutConfig);
-      } catch (error) {
-        console.error('Paddle checkout open error:', error);
-        throw error;
-      }
-
-      console.log('Checkout opened successfully');
-      console.groupEnd();
+      await paddle.Checkout.open(checkoutConfig);
 
     } catch (error) {
-      console.error('Error in setupPaddleCheckout:', error);
-      console.groupEnd();
-
       const container = document.querySelector('.paddle-checkout-container');
       if (container) {
         container.innerHTML = `
@@ -223,16 +178,6 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
           </div>
         `;
       }
-
-      // 6. Log DOM state after error
-      console.group('DOM State After Error');
-      console.log('Container exists:', !!container);
-      console.log('Container HTML:', container?.innerHTML);
-      console.log('Document ready state:', document.readyState);
-      console.log('Authenticated content display:', 
-        document.getElementById('authenticated-content')?.style.display
-      );
-      console.groupEnd();
     }
   }
 
