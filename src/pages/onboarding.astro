@@ -1,0 +1,188 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// Define the Keycloak auth URL and parameters
+const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
+const clientId = "jitsi-web";
+const redirectUri = new URL("/onboarding/callback", Astro.url.origin).toString();
+const responseType = "token";
+
+// Construct the Keycloak auth URL
+const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
+
+// Check for auto-login query parameter
+const shouldAutoLogin = Astro.url.searchParams.get('auto_login') === 'true';
+
+// If auto_login is true and we don't have a token yet, redirect immediately
+if (shouldAutoLogin && !Astro.url.hash.includes("access_token=")) {
+  return Astro.redirect(keycloakAuthUrl);
+}
+
+---
+
+<Layout title="Onboarding - Sonacove Meets">
+  <div class="container mx-auto px-4 py-12">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden p-8">
+      <h1 class="text-2xl font-bold text-center mb-6">Welcome to Sonacove Meets</h1>
+
+      <div id="initial-content">
+        <p class="text-gray-600 mb-6 text-center">
+          To get started, please create an account or sign in.
+        </p>
+        <div class="flex justify-center">
+          <a 
+            href={keycloakAuthUrl}
+            class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+          >
+            Sign in with Keycloak
+          </a>
+        </div>
+      </div>
+
+      <div id="authenticated-content" style="display: none;" class="text-center">
+        <div class="mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 class="text-xl font-semibold mt-4">Authentication Successful!</h2>
+          <p class="text-gray-600 mt-2">You're now signed in to Sonacove Meets.</p>
+        </div>
+        
+        <p class="text-gray-600 mb-6">
+          Complete your subscription to get started with Sonacove Meets.
+        </p>
+        
+        <!-- Paddle checkout container -->
+        <div id="paddle-checkout-container" class="mt-6">
+          <div class="animate-pulse">
+            <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
+            <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
+            <div class="h-10 bg-gray-200 rounded w-full"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="error-content" style="display: none;" class="text-center">
+        <div class="mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 class="text-xl font-semibold mt-4">Authentication Failed</h2>
+          <p id="error-message" class="text-gray-600 mt-2">
+            We couldn't verify your authentication. Please try again.
+          </p>
+        </div>
+        
+        <div class="mt-6">
+          <a 
+            href={keycloakAuthUrl}
+            class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+          >
+            Try Again
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import type { Paddle } from '@paddle/paddle-js';
+  import { initializePaddle } from '@paddle/paddle-js';
+  import { validateKeycloakToken } from "../utils/auth";
+
+  async function init() {
+    // Extract token from URL if present
+    let accessToken: string | null = null;
+    if (window.location.hash) {
+      const fragmentParams = new URLSearchParams(window.location.hash.substring(1));
+      accessToken = fragmentParams.get("access_token");
+    }
+
+    const initialContent = document.getElementById('initial-content');
+    const authenticatedContent = document.getElementById('authenticated-content');
+    const errorContent = document.getElementById('error-content');
+
+    // Handle auto-login
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldAutoLogin = urlParams.get('auto_login') === 'true';
+    const hasToken = window.location.hash && window.location.hash.includes("access_token=");
+
+    if (shouldAutoLogin && !hasToken) {
+      const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
+      const clientId = "jitsi-web";
+      const redirectUri = new URL("/onboarding/callback", window.location.origin).toString();
+      const responseType = "token";
+      
+      const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
+      
+      window.location.href = keycloakAuthUrl;
+      return;
+    }
+
+    // If we have a token, validate it
+    if (accessToken) {
+      try {
+        const isAuthenticated = await validateKeycloakToken(accessToken);
+        
+        if (isAuthenticated) {
+          if (initialContent) initialContent.style.display = 'none';
+          if (authenticatedContent) authenticatedContent.style.removeProperty('display');
+          await setupPaddleCheckout(accessToken);
+        } else {
+          if (initialContent) initialContent.style.display = 'none';
+          if (errorContent) errorContent.style.removeProperty('display');
+        }
+      } catch (error) {
+        console.error("Error validating token:", error);
+        if (initialContent) initialContent.style.display = 'none';
+        if (errorContent) {
+          errorContent.style.removeProperty('display');
+          const errorMessage = document.getElementById('error-message');
+          if (errorMessage) {
+            errorMessage.textContent = error instanceof Error ? error.message : 'An unknown error occurred';
+          }
+        }
+      }
+    } else {
+      if (initialContent) initialContent.style.removeProperty('display');
+    }
+  }
+
+  async function setupPaddleCheckout(accessToken: string) {
+    try {
+      const paddle = await initializePaddle({
+        environment: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox',
+        token: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
+      });
+
+      if (!paddle) {
+        throw new Error('Failed to initialize Paddle');
+      }
+
+      await paddle.Checkout.open({
+        settings: {
+          displayMode: 'inline',
+          theme: 'light',
+          locale: 'en',
+          frameTarget: 'paddle-checkout-container',
+          frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
+          successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
+        },
+        items: [{
+          priceId: 'pri_01jp00qykqy6wyd54gxv369hdr',
+          quantity: 1
+        }]
+      });
+    } catch (error) {
+      console.error('Error initializing Paddle:', error instanceof Error ? error.message : 'Unknown error');
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorContainer = document.getElementById('error-message');
+      if (errorContainer) {
+        errorContainer.textContent = errorMessage;
+      }
+    }
+  }
+
+  init();
+</script>
