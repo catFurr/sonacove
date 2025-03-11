@@ -1,51 +1,39 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Define the Keycloak auth URL and parameters
-const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
-const clientId = "jitsi-web";
-const responseType = "token";
-
-// Base URL for redirect - this will be replaced client-side
-const redirectUri = "/onboarding/callback";
-
-// Simple URL without dynamic parameters
-const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=${responseType}`;
-
 ---
 
 <Layout title="Onboarding - Sonacove Meets">
   <div class="container mx-auto px-4 py-12">
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden p-8">
-      <h1 class="text-2xl font-bold text-center mb-6">Welcome to Sonacove Meets</h1>
+    <div
+      class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden p-8"
+    >
+      <h1 class="text-2xl font-bold text-center mb-6">
+        Welcome to Sonacove Meets
+      </h1>
 
+      <!-- Initial content - shown when no token is present -->
       <div id="initial-content">
         <p class="text-gray-600 mb-6 text-center">
-          To get started, please create an account or sign in.
+          To get started, please create an account.
         </p>
-        <div class="flex justify-center">
-          <a 
-            href={keycloakAuthUrl}
-            class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+        <div class="flex flex-col gap-3 justify-center">
+          <a
+            id="register-link"
+            href="#"
+            class="px-6 py-3 text-center bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
           >
-            Sign in with Keycloak
+            Create a new account
           </a>
         </div>
       </div>
 
-      <div id="authenticated-content" style="display: none;" class="text-center">
-        <div class="mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h2 class="text-xl font-semibold mt-4">Authentication Successful!</h2>
-          <p class="text-gray-600 mt-2">You're now signed in to Sonacove Meets.</p>
-        </div>
-        
-        <p class="text-gray-600 mb-6">
-          Complete your subscription to get started with Sonacove Meets.
+      <!-- Payment content - shown when token is valid -->
+      <div id="payment-content" style="display: none;">
+        <p class="text-gray-600 mb-6 text-center">
+          Complete your subscription to get started.
         </p>
-        
+
         <!-- Paddle checkout container -->
         <div class="paddle-checkout-container mt-6">
           <div class="animate-pulse">
@@ -55,37 +43,106 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
           </div>
         </div>
 
+        <!-- Reopen payment button (initially hidden) -->
+        <div
+          id="reopen-payment"
+          class="mt-6 text-center"
+          style="display: none;"
+        >
+          <button
+            id="reopen-payment-button"
+            class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+          >
+            Open payment form
+          </button>
+        </div>
+
         <!-- Skip payment option -->
         <div class="mt-6 text-center">
-          <button 
+          <button
             id="skip-payment"
             class="text-sm text-gray-500 hover:text-gray-700 underline"
           >
             Skip payment for now
           </button>
           <p class="text-xs text-gray-400 mt-1">
-            You can complete your subscription later, but some features will be limited.
+            You can complete your subscription later, but some features will be
+            limited.
           </p>
         </div>
       </div>
-      
+
+      <!-- Success content - shown after payment or skip -->
+      <div id="success-content" style="display: none;" class="text-center">
+        <div class="mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-16 w-16 text-green-500 mx-auto"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+
+          <h2 class="text-xl font-semibold mt-4">
+            Welcome aboard<span id="user-first-name"></span>!
+          </h2>
+          <p id="success-message" class="text-gray-600 mt-2">
+            <!-- This will be populated based on whether payment was skipped or not -->
+          </p>
+        </div>
+
+        <div id="user-details" class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+          <p class="font-medium text-gray-800">Account Details:</p>
+          <p class="text-gray-600">Email: <span id="user-email"></span></p>
+          <p class="text-gray-600">Name: <span id="user-name"></span></p>
+          <p class="text-gray-600">
+            Status: <span id="subscription-status"></span>
+          </p>
+        </div>
+
+        <a
+          href="https://meet.sonacove.com"
+          class="inline-block px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+        >
+          Go to Sonacove Meets
+        </a>
+      </div>
+
+      <!-- Error content - shown when token validation fails -->
       <div id="error-content" style="display: none;" class="text-center">
         <div class="mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-16 w-16 text-red-500 mx-auto"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <h2 class="text-xl font-semibold mt-4">Authentication Failed</h2>
           <p id="error-message" class="text-gray-600 mt-2">
             We couldn't verify your authentication. Please try again.
           </p>
         </div>
-        
+
         <div class="mt-6">
-          <a 
-            href={keycloakAuthUrl}
-            class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+          <a
+            id="error-register-link"
+            href="#"
+            class="px-6 py-3 text-center bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
           >
-            Try Again
+            Create a new account
           </a>
         </div>
       </div>
@@ -94,171 +151,330 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
 </Layout>
 
 <script>
-  import type { Paddle } from '@paddle/paddle-js';
-  import { initializePaddle } from '@paddle/paddle-js';
+  import { initializePaddle } from "@paddle/paddle-js";
   import { validateKeycloakToken, parseUserFromToken } from "../utils/auth";
 
   // Storage key constants
   const STORAGE_KEYS = {
-    AUTH_TOKEN: 'sonacove_auth_token',
-    USER_INFO: 'sonacove_user_info',
-    SUBSCRIPTION_STATUS: 'sonacove_subscription_status'
+    AUTH_TOKEN: "sonacove_auth_token",
+    USER_INFO: "sonacove_user_info",
+    SUBSCRIPTION_STATUS: "sonacove_subscription_status",
   };
 
-  async function initializePaddleCheckout() {
-    console.log('Paddle Environment:', import.meta.env.PUBLIC_PADDLE_ENVIRONMENT);
-    console.log('Paddle Client Token exists:', !!import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN);
+  // Global variables
+  let paddle: any = null;
+  let accessToken: string | null = null;
+  let userInfo: any = null;
 
-    const environment = import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox';
-    const clientToken = import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN;
+  /**
+   * Initialize Paddle checkout
+   */
+  async function initializePaddleInstance() {
+    try {
+    //   console.log(
+    //     "Paddle Environment:",
+    //     import.meta.env.PUBLIC_PADDLE_ENVIRONMENT
+    //   );
+    //   console.log(
+    //     "Paddle Client Token exists:",
+    //     !!import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
+    //   );
 
-    if (!clientToken) {
-      throw new Error('Paddle client token is not configured');
+      const environment =
+        import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || "sandbox";
+      const clientToken = import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN;
+
+      if (!clientToken) {
+        throw new Error("Paddle client token is not configured");
+      }
+
+      return await initializePaddle({
+        environment,
+        token: clientToken,
+      });
+    } catch (error) {
+      console.error("Error initializing Paddle:", error);
+      throw error;
     }
-
-    return await initializePaddle({
-      environment,
-      token: clientToken
-    });
   }
 
-  async function setupPaddleCheckout(accessToken: string, userInfo: any) {
+  /**
+   * Set up Paddle checkout
+   */
+  async function setupPaddleCheckout() {
     try {
-      const container = document.querySelector('.paddle-checkout-container');
-      
+      const container = document.querySelector(".paddle-checkout-container");
+
       if (!container) {
-        throw new Error('Paddle checkout container not found');
+        throw new Error("Paddle checkout container not found");
       }
 
       // Clear the loading animation
-      container.innerHTML = '<div style="min-height: 400px;"></div>';
+      container.innerHTML = '<div style="min-height: 10px;"></div>';
 
-      const paddle = await initializePaddle({
-        environment: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox',
-        token: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN
-      }).catch(error => {
-        throw error;
-      });
-
+      // Initialize Paddle if not already done
       if (!paddle) {
-        throw new Error('Failed to initialize Paddle');
+        paddle = await initializePaddleInstance();
       }
 
-      const checkoutConfig: Parameters<typeof paddle.Checkout.open>[0] = {
-        items: [{
-          priceId: import.meta.env.PUBLIC_PADDLE_PRICE_ID,
-          quantity: 1
-        }],
+      if (!paddle) {
+        throw new Error("Failed to initialize Paddle");
+      }
+
+      const checkoutConfig = {
+        items: [
+          {
+            priceId: import.meta.env.PUBLIC_PADDLE_PRICE_ID,
+            quantity: 1,
+          },
+        ],
         settings: {
-          displayMode: 'overlay',
-        //   theme: 'light',
-        //   locale: 'en',
-          frameTarget: 'paddle-checkout-container',
-        //   frameInitialHeight: 450,
-          frameStyle: 'width: 100%; min-height: 400px; background-color: transparent; border: none;',
-          successUrl: `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}`,
+          displayMode: "overlay",
+          frameTarget: "paddle-checkout-container",
+          frameStyle:
+            "width: 100%; min-height: 400px; background-color: transparent; border: none;",
+          successUrl: `${window.location.origin}/onboarding?success=true&token=${encodeURIComponent(accessToken || "")}`,
         },
-        ...(userInfo?.email ? { customer: { email: userInfo.email } } : {})
+        ...(userInfo?.email ? { customer: { email: userInfo.email } } : {}),
       };
 
+      // Open the checkout
       await paddle.Checkout.open(checkoutConfig);
 
+      // Show the reopen payment button in case user closes the checkout
+      const reopenPayment = document.getElementById("reopen-payment");
+      if (reopenPayment) {
+        reopenPayment.style.removeProperty("display");
+      }
     } catch (error) {
-      const container = document.querySelector('.paddle-checkout-container');
+      console.error("Error setting up Paddle checkout:", error);
+
+      // Show error in the container
+      const container = document.querySelector(".paddle-checkout-container");
       if (container) {
         container.innerHTML = `
           <div class="text-red-600 p-4 border border-red-200 rounded-lg">
             <p>Failed to load payment form.</p>
             <p class="text-sm mt-2">Error details:</p>
             <pre class="text-xs mt-1 p-2 bg-red-50 rounded">${
-              error instanceof Error 
-                ? `${error.message}\n${error.stack}` 
+              error instanceof Error
+                ? `${error.message}\n${error.stack}`
                 : JSON.stringify(error, null, 2)
             }</pre>
           </div>
         `;
       }
+
+      // Show the reopen payment button
+      const reopenPayment = document.getElementById("reopen-payment");
+      if (reopenPayment) {
+        reopenPayment.style.removeProperty("display");
+      }
     }
   }
 
-  function setupSkipPayment(accessToken: string) {
-    const skipButton = document.getElementById('skip-payment');
-    if (skipButton) {
-      skipButton.addEventListener('click', () => {
-        localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, 'pending');
-        window.location.href = `${window.location.origin}/onboarding/success?token=${encodeURIComponent(accessToken)}&skipped=true`;
+  /**
+   * Set up the reopen payment button
+   */
+  function setupReopenPaymentButton() {
+    const reopenButton = document.getElementById("reopen-payment-button");
+    if (reopenButton) {
+      reopenButton.addEventListener("click", () => {
+        setupPaddleCheckout();
       });
     }
   }
 
-  async function init() {
+  /**
+   * Set up the skip payment button
+   */
+  function setupSkipPayment() {
+    const skipButton = document.getElementById("skip-payment");
+    if (skipButton) {
+      skipButton.addEventListener("click", () => {
+        localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, "pending");
+        showSuccessContent(true);
+      });
+    }
+  }
+
+  /**
+   * Show the success content
+   */
+  function showSuccessContent(skipped = false) {
+    // Hide other content sections
+    const initialContent = document.getElementById("initial-content");
+    const paymentContent = document.getElementById("payment-content");
+    const errorContent = document.getElementById("error-content");
+    const successContent = document.getElementById("success-content");
+
+    if (initialContent) initialContent.style.display = "none";
+    if (paymentContent) paymentContent.style.display = "none";
+    if (errorContent) errorContent.style.display = "none";
+    if (successContent) successContent.style.removeProperty("display");
+
+    // Populate user details
+    if (userInfo) {
+      const emailElement = document.getElementById("user-email");
+      const nameElement = document.getElementById("user-name");
+      const firstNameElement = document.getElementById("user-first-name");
+      const statusElement = document.getElementById("subscription-status");
+      const successMessage = document.getElementById("success-message");
+
+      if (emailElement) emailElement.textContent = userInfo.email;
+      if (nameElement) nameElement.textContent = userInfo.name;
+
+      if (firstNameElement) {
+        const firstName = userInfo.name.split(" ")[0];
+        firstNameElement.textContent = `, ${firstName}`;
+      }
+
+      if (statusElement) {
+        statusElement.textContent = skipped
+          ? "Trial (Payment Pending)"
+          : "Active";
+      }
+
+      if (successMessage) {
+        if (skipped) {
+          successMessage.textContent = `You're ready to start using Sonacove Meets in trial mode. You can complete your subscription anytime to unlock all features.`;
+        } else {
+          successMessage.textContent = `Thank you for subscribing to Sonacove Meets. Your account is now fully activated with all premium features.`;
+        }
+      }
+    }
+
+    // Store the final status
+    localStorage.setItem(
+      STORAGE_KEYS.SUBSCRIPTION_STATUS,
+      skipped ? "pending" : "active"
+    );
+  }
+
+  /**
+   * Update registration URL with proper redirect URI
+   */
+  function updateRegistrationUrl() {
     // Construct proper redirect URI using window.location
-    const redirectUri = new URL("/onboarding/callback", window.location.origin).toString();
-    const keycloakBaseUrl = "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/auth";
+    const redirectUri = new URL(
+      "/onboarding",
+      window.location.origin
+    ).toString();
+    const keycloakBaseUrl =
+      "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect";
     const clientId = "jitsi-web";
     const responseType = "token";
-    
-    const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
 
-    // Update all auth URL links in the page
-    document.querySelectorAll('a[href*="auth.sonacove.com"]').forEach(link => {
-      link.setAttribute('href', keycloakAuthUrl);
-    });
+    // Create registration URL with proper redirect
+    const registrationUrl = `${keycloakBaseUrl}/registrations?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}`;
 
-    // Extract token from URL if present
-    let accessToken: string | null = null;
+    // Add login_hint if we have user email
+    const userEmail = userInfo?.email;
+    const registerUrlWithHint = userEmail
+      ? `${registrationUrl}&login_hint=${encodeURIComponent(userEmail)}`
+      : registrationUrl;
+
+    // Update all registration URL links in the page
+    document
+      .querySelectorAll("#register-link, #error-register-link")
+      .forEach((link) => {
+        link.setAttribute("href", registerUrlWithHint);
+      });
+  }
+
+  /**
+   * Main initialization function
+   */
+  async function init() {
+    // Check for success parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const isSuccess = urlParams.get("success") === "true";
+    const tokenFromQuery = urlParams.get("token");
+
+    // If success parameter is present, show success content
+    if (isSuccess && tokenFromQuery) {
+      accessToken = tokenFromQuery;
+      try {
+        const isAuthenticated = await validateKeycloakToken(accessToken);
+        if (isAuthenticated) {
+          userInfo = parseUserFromToken(accessToken);
+          if (userInfo) {
+            localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
+            localStorage.setItem(
+              STORAGE_KEYS.USER_INFO,
+              JSON.stringify(userInfo)
+            );
+          }
+          showSuccessContent(false);
+          return;
+        }
+      } catch (error) {
+        console.error("Error validating token from query:", error);
+      }
+    }
+
+    // Extract token from URL hash if present
     if (window.location.hash) {
-      const fragmentParams = new URLSearchParams(window.location.hash.substring(1));
+      const fragmentParams = new URLSearchParams(
+        window.location.hash.substring(1)
+      );
       accessToken = fragmentParams.get("access_token");
     }
 
-    const initialContent = document.getElementById('initial-content');
-    const authenticatedContent = document.getElementById('authenticated-content');
-    const errorContent = document.getElementById('error-content');
+    // Update registration URL with proper redirect
+    updateRegistrationUrl();
 
-    // Handle auto-login
-    const urlParams = new URLSearchParams(window.location.search);
-    const shouldAutoLogin = urlParams.get('auto_login') === 'true';
-    const hasToken = window.location.hash && window.location.hash.includes("access_token=");
-
-    if (shouldAutoLogin && !hasToken) {
-      window.location.href = keycloakAuthUrl;
-      return;
-    }
+    const initialContent = document.getElementById("initial-content");
+    const paymentContent = document.getElementById("payment-content");
+    const errorContent = document.getElementById("error-content");
 
     // If we have a token, validate it
     if (accessToken) {
       try {
         const isAuthenticated = await validateKeycloakToken(accessToken);
-        
+
         if (isAuthenticated) {
           // Store token and user info
-          const userInfo = parseUserFromToken(accessToken);
+          userInfo = parseUserFromToken(accessToken);
           if (userInfo) {
             localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
-            localStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(userInfo));
+            localStorage.setItem(
+              STORAGE_KEYS.USER_INFO,
+              JSON.stringify(userInfo)
+            );
+
+            // Update register URL with user email
+            updateRegistrationUrl();
           }
 
-          if (initialContent) initialContent.style.display = 'none';
-          if (authenticatedContent) authenticatedContent.style.removeProperty('display');
-          
-          // Set up skip payment button regardless of Paddle status
-          setupSkipPayment(accessToken);
-          
+          // Show payment content
+          if (initialContent) initialContent.style.display = "none";
+          if (paymentContent) paymentContent.style.removeProperty("display");
+
+          // Set up skip payment button
+          setupSkipPayment();
+
+          // Set up reopen payment button
+          setupReopenPaymentButton();
+
           // Set up Paddle checkout
-          await setupPaddleCheckout(accessToken, userInfo);
+          await setupPaddleCheckout();
         } else {
-          if (initialContent) initialContent.style.display = 'none';
-          if (errorContent) errorContent.style.removeProperty('display');
+          // Token is invalid
+          if (initialContent) initialContent.style.display = "none";
+          if (errorContent) errorContent.style.removeProperty("display");
         }
       } catch (error) {
         console.error("Error validating token:", error);
-        if (initialContent) initialContent.style.display = 'none';
+        if (initialContent) initialContent.style.display = "none";
         if (errorContent) {
-          errorContent.style.removeProperty('display');
-          const errorMessage = document.getElementById('error-message');
+          errorContent.style.removeProperty("display");
+          const errorMessage = document.getElementById("error-message");
           if (errorMessage) {
-            errorMessage.textContent = error instanceof Error ? error.message : 'An unknown error occurred';
+            errorMessage.textContent =
+              error instanceof Error
+                ? error.message
+                : "An unknown error occurred";
           }
         }
       }
@@ -266,12 +482,12 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
       // Check if we have stored credentials
       const storedToken = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
       const storedUserInfo = localStorage.getItem(STORAGE_KEYS.USER_INFO);
-      
+
       if (storedToken && storedUserInfo) {
         try {
           const isValid = await validateKeycloakToken(storedToken);
           if (isValid) {
-            window.location.href = 'https://meet.sonacove.com';
+            window.location.href = "https://meet.sonacove.com";
             return;
           }
         } catch (error) {
@@ -280,29 +496,31 @@ const keycloakAuthUrl = `${keycloakBaseUrl}?client_id=${clientId}&response_type=
           localStorage.removeItem(STORAGE_KEYS.USER_INFO);
         }
       }
-      
-      if (initialContent) initialContent.style.removeProperty('display');
+
+      // Show initial content
+      if (initialContent) initialContent.style.removeProperty("display");
     }
   }
 
   // Add a global error handler to catch any unhandled errors
-  window.addEventListener('error', (event) => {
-    console.error('Global error caught:', {
+  window.addEventListener("error", (event) => {
+    console.error("Global error caught:", {
       message: event.message,
       filename: event.filename,
       lineno: event.lineno,
       colno: event.colno,
-      error: event.error
+      error: event.error,
     });
   });
 
   // Add a global promise rejection handler
-  window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled promise rejection:', {
+  window.addEventListener("unhandledrejection", (event) => {
+    console.error("Unhandled promise rejection:", {
       reason: event.reason,
-      promise: event.promise
+      promise: event.promise,
     });
   });
 
+  // Initialize the page
   init();
 </script>
