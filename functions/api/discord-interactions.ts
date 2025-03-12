@@ -1,3 +1,4 @@
+import { PagesFunction } from '@cloudflare/workers-types';
 import nacl from 'tweetnacl';
 
 // Your Discord application's public key
@@ -19,7 +20,7 @@ interface DiscordInteraction {
   };
 }
 
-export async function onRequest(context: any) {
+export const onRequest: PagesFunction = async (context) => {
   const { request } = context;
   
   try {
