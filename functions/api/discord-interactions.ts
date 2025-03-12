@@ -1,12 +1,15 @@
-import { PagesFunction } from '@cloudflare/workers-types';
+import { KVNamespace, PagesFunction } from '@cloudflare/workers-types';
 import nacl from 'tweetnacl';
 
-// Your Discord application's public key
-const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY;
-// Brevo API key
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
 // Early Access list ID in Brevo
 const EARLY_ACCESS_LIST_ID = 5;
+
+interface Env {
+    DISCORD_PUBLIC_KEY: string;
+    BREVO_API_KEY: string;
+    DISCORD_BOT_TOKEN: string;
+    KV: KVNamespace;
+}
 
 interface DiscordInteraction {
   type: number;
@@ -20,8 +23,13 @@ interface DiscordInteraction {
   };
 }
 
-export const onRequest: PagesFunction = async (context) => {
-  const { request } = context;
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+  
+  // Update PUBLIC_KEY and BREVO_API_KEY with context.env values
+  const publicKey = env.DISCORD_PUBLIC_KEY || '';
+  const brevoApiKey = env.BREVO_API_KEY || '';
+  const discordBotToken = env.DISCORD_BOT_TOKEN || '';
   
   try {
     // Only handle POST requests
@@ -45,7 +53,7 @@ export const onRequest: PagesFunction = async (context) => {
     const isVerified = nacl.sign.detached.verify(
       new TextEncoder().encode(timestamp + body),
       hexToUint8Array(signature),
-      hexToUint8Array(PUBLIC_KEY || '')
+      hexToUint8Array(publicKey)
     );
     
     // If the signature is invalid, return a 401
@@ -78,7 +86,7 @@ export const onRequest: PagesFunction = async (context) => {
         
         // Process in the background so we can return PONG immediately
         context.waitUntil(
-          addContactToBrevoList(email, EARLY_ACCESS_LIST_ID)
+          addContactToBrevoList(email, EARLY_ACCESS_LIST_ID, brevoApiKey)
             .then(() => {
               console.log(`Successfully added ${email} to Early Access list`);
               
@@ -86,7 +94,8 @@ export const onRequest: PagesFunction = async (context) => {
               return updateDiscordMessage(
                 interaction.message!.id, 
                 interaction.message!.channel_id, 
-                `${messageContent}\n\n✅ Approved and added to Early Access list`
+                `${messageContent}\n\n✅ Approved and added to Early Access list`,
+                discordBotToken
               );
             })
             .catch(error => {
@@ -96,7 +105,8 @@ export const onRequest: PagesFunction = async (context) => {
               return updateDiscordMessage(
                 interaction.message!.id,
                 interaction.message!.channel_id,
-                `${messageContent}\n\n❌ Failed to add to Early Access list: ${error.message}`
+                `${messageContent}\n\n❌ Failed to add to Early Access list: ${error.message}`,
+                discordBotToken
               );
             })
         );
@@ -124,13 +134,13 @@ function hexToUint8Array(hex: string): Uint8Array {
 /**
  * Add a contact to a specific list in Brevo
  */
-async function addContactToBrevoList(email: string, listId: number) {
+async function addContactToBrevoList(email: string, listId: number, apiKey: string) {
   const response = await fetch('https://api.brevo.com/v3/contacts/lists/' + listId + '/contacts/add', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'api-key': BREVO_API_KEY || ''
+      'api-key': apiKey
     },
     body: JSON.stringify({
       emails: [email]
@@ -148,13 +158,11 @@ async function addContactToBrevoList(email: string, listId: number) {
 /**
  * Update a Discord message
  */
-async function updateDiscordMessage(messageId: string, channelId: string, content: string) {
-  const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
-  
+async function updateDiscordMessage(messageId: string, channelId: string, content: string, botToken: string) {
   const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`, {
     method: 'PATCH',
     headers: {
-      'Authorization': `Bot ${DISCORD_BOT_TOKEN || ''}`,
+      'Authorization': `Bot ${botToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
