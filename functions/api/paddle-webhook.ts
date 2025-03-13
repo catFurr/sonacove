@@ -6,6 +6,7 @@ interface Env {
   KEYCLOAK_CLIENT_SECRET: string;
   KV: KVNamespace;
   PUBLIC_PADDLE_ENVIRONMENT?: string;
+  PADDLE_API_KEY: string;
 }
 
 interface PaddleWebhookEvent {
@@ -519,7 +520,7 @@ async function fetchPaddleCustomer(
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.PADDLE_WEBHOOK_SECRET}`,
+        Authorization: `Bearer ${env.PADDLE_API_KEY}`,
       },
     });
 
