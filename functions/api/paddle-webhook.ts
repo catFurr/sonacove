@@ -389,7 +389,7 @@ async function getKeycloakToken(env: Env): Promise<string> {
 
   // Otherwise, get a new token
   const tokenEndpoint =
-    "https://auth.sonacove.com/realms/master/protocol/openid-connect/token";
+    "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/token";
 
   const formData = new URLSearchParams();
   formData.append("grant_type", "client_credentials");
