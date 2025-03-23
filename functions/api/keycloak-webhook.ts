@@ -21,6 +21,7 @@ export interface Env {
   PADDLE_API_KEY: string;
   PUBLIC_PADDLE_ENVIRONMENT?: string;
   BREVO_API_KEY: string;
+  KEYCLOAK_WEBHOOK_SECRET: string;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -30,16 +31,28 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return new Response("Method not allowed", { status: 405 });
     }
 
+    // Verify secret token
+    const authHeader = context.request.headers.get("Authorization");
+    const secretToken = authHeader?.replace("Bearer ", "");
+
+    if (!secretToken || secretToken !== context.env.KEYCLOAK_WEBHOOK_SECRET) {
+      console.error("Invalid or missing authentication token");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Parse the webhook payload
     const webhookEvent = (await context.request.json()) as KeycloakWebhookEvent;
 
-    // Verify this is a user update event
+    // Verify this is a user update event (not creation)
     if (
       webhookEvent.resourceType !== "USER" ||
-      !["CREATE", "UPDATE"].includes(webhookEvent.operationType)
+      webhookEvent.operationType !== "UPDATE"
     ) {
       return new Response(
-        JSON.stringify({ message: "Ignored non-user event" }),
+        JSON.stringify({ message: "Ignored non-update event" }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }

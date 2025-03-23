@@ -29,12 +29,19 @@ describe("Keycloak Webhook API", () => {
   const mockEnv = {
     PADDLE_API_KEY: "test-paddle-key",
     BREVO_API_KEY: "test-brevo-key",
+    KEYCLOAK_WEBHOOK_SECRET: "test-webhook-secret",
   };
 
-  const mockContext = (body: any, method = "POST") => ({
+  const mockContext = (body: any, method = "POST", includeAuth = true) => ({
     request: {
       method,
       json: () => Promise.resolve(body),
+      headers: {
+        get: (name: string) =>
+          name === "Authorization" && includeAuth
+            ? "Bearer test-webhook-secret"
+            : null,
+      },
     },
     env: mockEnv,
     waitUntil: (promise: Promise<any>) => promise,
@@ -52,6 +59,24 @@ describe("Keycloak Webhook API", () => {
     operationType: operationType,
     resourcePath: `/users/${userData.id}`,
     resourceType: "USER",
+  });
+
+  test("Should return 401 when no authentication provided", async () => {
+    const userData: Partial<KeycloakUser> = {
+      id: "user-123",
+      email: "john@example.com",
+      firstName: "John",
+      lastName: "Doe",
+    };
+
+    const webhookPayload = createWebhookPayload(userData);
+    const context = mockContext(webhookPayload, "POST", false); // No auth
+
+    const response = await handler(context);
+    expect(response.status).toBe(401);
+
+    const responseBody = await response.json();
+    expect(responseBody.error).toBe("Unauthorized");
   });
 
   test("Should return 405 for non-POST requests", async () => {
