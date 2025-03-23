@@ -1,9 +1,9 @@
 import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test";
-import { KeycloakClient } from "../components/keycloak.js";
+import { KeycloakClient } from "../functions/components/keycloak.js";
 import {
-  KeycloakUser,
-  KeycloakUserUpdate,
-} from "../components/keycloak-types.js";
+  type KeycloakUser,
+  type KeycloakUserUpdate,
+} from "../functions/components/keycloak-types.js";
 import { testEnv } from "./models.js";
 
 describe("KeycloakClient", () => {

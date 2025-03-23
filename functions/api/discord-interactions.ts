@@ -1,10 +1,11 @@
 import { KVNamespace, PagesFunction } from '@cloudflare/workers-types';
 import nacl from 'tweetnacl';
+import { BrevoClient } from '../components/brevo.js';
 
 // Early Access list ID in Brevo
 const EARLY_ACCESS_LIST_ID = 5;
 
-interface Env {
+export interface Env {
     DISCORD_PUBLIC_KEY: string;
     BREVO_API_KEY: string;
     DISCORD_BOT_TOKEN: string;
@@ -28,7 +29,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   
   // Update PUBLIC_KEY and BREVO_API_KEY with context.env values
   const publicKey = env.DISCORD_PUBLIC_KEY || '';
-  const brevoApiKey = env.BREVO_API_KEY || '';
   const discordBotToken = env.DISCORD_BOT_TOKEN || '';
   
   try {
@@ -86,10 +86,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         
         // Process in the background so we can return PONG immediately
         context.waitUntil(
-          addContactToBrevoList(email, EARLY_ACCESS_LIST_ID, brevoApiKey)
+          BrevoClient.addContactToList(email, EARLY_ACCESS_LIST_ID, env.BREVO_API_KEY)
             .then(() => {
               console.log(`Successfully added ${email} to Early Access list`);
-              
+
               // Update the original message to indicate approval
               return updateDiscordMessage(
                 interaction.message!.id, 
@@ -129,30 +129,6 @@ function hexToUint8Array(hex: string): Uint8Array {
   return new Uint8Array(
     hex.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || []
   );
-}
-
-/**
- * Add a contact to a specific list in Brevo
- */
-async function addContactToBrevoList(email: string, listId: number, apiKey: string) {
-  const response = await fetch('https://api.brevo.com/v3/contacts/lists/' + listId + '/contacts/add', {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'api-key': apiKey
-    },
-    body: JSON.stringify({
-      emails: [email]
-    })
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error((errorData as any).message || 'Failed to add contact to list');
-  }
-  
-  return response.json();
 }
 
 /**

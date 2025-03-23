@@ -1,5 +1,6 @@
 import { KVNamespace, PagesFunction } from "@cloudflare/workers-types";
 import { KeycloakClient } from "../components/keycloak.js";
+import { PaddleClient, PaddleWebhookEvent } from "../components/paddle.js";
 
 export interface Env {
   PADDLE_WEBHOOK_SECRET: string;
@@ -10,112 +11,8 @@ export interface Env {
   PADDLE_API_KEY: string;
 }
 
-interface PaddleWebhookEvent {
-  event_id: string;
-  event_type: string;
-  occurred_at: string;
-  notification_id: string;
-  data: {
-    id: string;
-    status?: string;
-    customer_id?: string;
-    collection_mode?: string;
-    scheduled_change?: any;
-    subscription_id?: string;
-    items?: Array<{
-      price: {
-        id: string;
-        product_id: string;
-      };
-      quantity: number;
-      status?: string;
-    }>;
-    // Other fields we don't need to extract
-  };
-}
-
-interface PaddleCustomer {
-  id: string;
-  status: string;
-  name: string | null;
-  email: string;
-  marketing_consent: boolean;
-  locale: string;
-  created_at: string;
-  updated_at: string;
-  custom_data: any | null;
-  import_meta: any | null;
-}
-
-interface PaddleCustomerResponse {
-  data: PaddleCustomer;
-  meta: {
-    request_id: string;
-  };
-}
-
 export const onRequest: PagesFunction<Env> = async (context) => {
-  const { request, env } = context;
-
-  // Only handle POST requests
-  if (request.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
-  try {
-    // Get the raw body as text for verification
-    const rawBody = await request.text();
-
-    // Get the Paddle-Signature header
-    const signatureHeader = request.headers.get("Paddle-Signature");
-
-    if (!signatureHeader) {
-      console.error("Missing Paddle-Signature header");
-      return new Response("Missing signature header", { status: 401 });
-    }
-
-    // Respond with 200 immediately to acknowledge receipt
-    // This follows Paddle's best practice to respond within 5 seconds
-    // We'll process the webhook asynchronously
-    const responsePromise = new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-
-    // Process the webhook asynchronously
-    context.waitUntil(processWebhook(rawBody, signatureHeader, env));
-
-    return responsePromise;
-  } catch (error) {
-    console.error("Error handling Paddle webhook:", error);
-    return new Response("Internal server error", { status: 500 });
-  }
-};
-
-/**
- * Process the webhook asynchronously
- */
-async function processWebhook(
-  rawBody: string,
-  signatureHeader: string,
-  env: Env
-): Promise<void> {
-  try {
-    // Verify the webhook signature
-    const isVerified = await verifyPaddleWebhook(
-      signatureHeader,
-      rawBody,
-      env.PADDLE_WEBHOOK_SECRET
-    );
-
-    if (!isVerified) {
-      console.error("Invalid Paddle webhook signature");
-      return;
-    }
-
-    // Parse the body as JSON
-    const event = JSON.parse(rawBody) as PaddleWebhookEvent;
-
+  const next = async (event: PaddleWebhookEvent) => {
     // Check if this is one of the events we want to handle
     const validEventTypes = [
       "transaction.created",
@@ -130,133 +27,23 @@ async function processWebhook(
     }
 
     // Extract the relevant information
-    const extractedData = extractPaddleData(event);
+    const extractedData = PaddleClient.extractWebhookData(event);
 
     // Log the extracted data for debugging
     console.log("Extracted Paddle data:", JSON.stringify(extractedData));
 
     // Process the subscription data and update Keycloak
     if (extractedData.subscription) {
-      await processSubscriptionUpdate(extractedData, env);
+      await processSubscriptionUpdate(extractedData, context.env);
     }
     // For now, we're only handling subscription events
     // We could add transaction handling later if needed
 
     console.log(`Successfully processed ${event.event_type} event`);
-  } catch (error) {
-    console.error("Error processing Paddle webhook:", error);
-  }
-}
-
-/**
- * Verify the Paddle webhook signature
- */
-async function verifyPaddleWebhook(
-  signatureHeader: string,
-  rawBody: string,
-  secretKey: string
-): Promise<boolean> {
-  try {
-    // 1. Parse the signature header
-    // Format: ts=timestamp;h1=signature
-    const parts = signatureHeader.split(";");
-    const timestamp = parts[0].split("=")[1];
-    const signature = parts[1].split("=")[1];
-
-    // Optional: Check if the timestamp is recent (within 5 seconds)
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (Math.abs(currentTime - parseInt(timestamp)) > 5) {
-      console.warn("Webhook timestamp is too old, possible replay attack");
-      return false;
-    }
-
-    // 2. Build the signed payload
-    // The signed payload is the timestamp + ':' + rawBody (not '.' as we had before)
-    const signedPayload = `${timestamp}:${rawBody}`;
-
-    // 3. Hash the signed payload with HMAC-SHA256
-    const encoder = new TextEncoder();
-    const data = encoder.encode(signedPayload);
-    const keyData = encoder.encode(secretKey);
-
-    // Import the secret key for HMAC
-    const cryptoKey = await crypto.subtle.importKey(
-      "raw",
-      keyData,
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign", "verify"]
-    );
-
-    // 4. Generate the signature
-    const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, data);
-
-    // Convert to hex string for comparison
-    const generatedSignature = Array.from(new Uint8Array(signatureBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    // 5. Compare signatures
-    return signature === generatedSignature;
-  } catch (error) {
-    console.error("Error verifying Paddle webhook:", error);
-    return false;
-  }
-}
-
-/**
- * Extract relevant data from the Paddle webhook event
- */
-function extractPaddleData(event: PaddleWebhookEvent) {
-  const { event_type, occurred_at, data } = event;
-
-  // Extract common fields
-  const extractedData: any = {
-    event_type,
-    occurred_at,
   };
 
-  // Extract subscription or transaction data
-  if (data) {
-    // For subscription events
-    if (event_type.startsWith("subscription.")) {
-      extractedData.subscription = {
-        id: data.id,
-        status: data.status,
-        collection_mode: data.collection_mode,
-        scheduled_change: data.scheduled_change,
-        customer_id: data.customer_id,
-        occurred_at: occurred_at,
-        items:
-          data.items?.map((item) => ({
-            price_id: item.price.id,
-            product_id: item.price.product_id,
-            quantity: item.quantity,
-            status: item.status,
-          })) || [],
-      };
-    }
-
-    // For transaction events
-    else if (event_type.startsWith("transaction.")) {
-      extractedData.transaction = {
-        id: data.id,
-        status: data.status,
-        customer_id: data.customer_id,
-        subscription_id: data.subscription_id,
-        occurred_at: occurred_at,
-        items:
-          data.items?.map((item) => ({
-            price_id: item.price.id,
-            product_id: item.price.product_id,
-            quantity: item.quantity,
-          })) || [],
-      };
-    }
-  }
-
-  return extractedData;
-}
+  return PaddleClient.processWebhook(context, next);
+};
 
 /**
  * Process subscription update and update user data in Keycloak
@@ -283,7 +70,10 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
         `No user found with subscription ID: ${subscriptionId}. Trying to fetch customer details...`
       );
       try {
-        const customerDetails = await fetchPaddleCustomer(customerId, env);
+        const customerDetails = await PaddleClient.fetchCustomer(
+          customerId,
+          env
+        );
         if (customerDetails && customerDetails.email) {
           // Find user by email
           user = await keycloak.getUser(customerDetails.email, subscriptionId);
@@ -350,45 +140,5 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
   } catch (error) {
     console.error("Error processing subscription update:", error);
     throw error;
-  }
-}
-
-/**
- * Fetch customer details from Paddle API
- */
-async function fetchPaddleCustomer(
-  customerId: string,
-  env: Env
-): Promise<PaddleCustomer | null> {
-  try {
-    // Determine if we're using sandbox or production
-    const environment = env.PUBLIC_PADDLE_ENVIRONMENT || "production";
-    const baseUrl =
-      environment === "sandbox"
-        ? "https://sandbox-api.paddle.com"
-        : "https://api.paddle.com";
-
-    const customerEndpoint = `${baseUrl}/customers/${customerId}`;
-
-    const response = await fetch(customerEndpoint, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${env.PADDLE_API_KEY}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Failed to fetch customer details: ${response.status} ${errorText}`
-      );
-    }
-
-    const customerResponse = (await response.json()) as PaddleCustomerResponse;
-    return customerResponse.data;
-  } catch (error) {
-    console.error(`Error fetching customer from Paddle: ${error}`);
-    return null;
   }
 }

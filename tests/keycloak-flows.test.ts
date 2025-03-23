@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from "bun:test";
-import { KeycloakClient } from "../components/keycloak.js";
+import { KeycloakClient } from "../functions/components/keycloak.js";
 import { testEnv } from "./models.js";
 
 // Define the test email as a constant for reuse
@@ -57,26 +57,42 @@ describe("Keycloak Flows", () => {
       },
     };
 
-    const result = await keycloakClient.updateUser(user, updates);
-    expect(result).toBe(true);
+    // Use try-finally to ensure cleanup happens even if test assertions fail
+    try {
+      const result = await keycloakClient.updateUser(user, updates);
+      expect(result).toBe(true);
 
-    // Verify the changes by getting the user again
-    const updatedUser = await keycloakClient.getUser(TEST_EMAIL);
-    expect(updatedUser).not.toBeNull();
+      // Verify the changes by getting the user again
+      const updatedUser = await keycloakClient.getUser(TEST_EMAIL);
+      expect(updatedUser).not.toBeNull();
 
-    if (updatedUser) {
-      expect(updatedUser.attributes?.paddle_subscription_status?.[0]).toBe(
-        testStatus
-      );
+      if (updatedUser) {
+        expect(updatedUser.attributes?.paddle_subscription_status?.[0]).toBe(
+          testStatus
+        );
+      }
+    } finally {
+      // Always restore the original value, even if the test fails
+      console.log(`Restoring original status: ${originalStatus}`);
 
-      // Restore the original value
-      const restoreUpdates = {
-        attributes: {
-          paddle_subscription_status: [originalStatus],
-        },
-      };
+      // Get the latest user state
+      const latestUser = await keycloakClient.getUser(TEST_EMAIL);
 
-      await keycloakClient.updateUser(updatedUser, restoreUpdates);
+      if (latestUser) {
+        const restoreUpdates = {
+          attributes: {
+            paddle_subscription_status: [originalStatus],
+          },
+        };
+
+        await keycloakClient.updateUser(latestUser, restoreUpdates);
+
+        // Verify restoration was successful
+        const restoredUser = await keycloakClient.getUser(TEST_EMAIL);
+        console.log(
+          `Status restored: ${restoredUser?.attributes?.paddle_subscription_status?.[0]}`
+        );
+      }
     }
   });
 });
