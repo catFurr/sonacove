@@ -1,7 +1,7 @@
 interface Env {
   PUBLIC_PADDLE_ENVIRONMENT?: string;
   PADDLE_API_KEY: string;
-  PADDLE_WEBHOOK_SECRET: string;
+  PADDLE_WEBHOOK_SECRET?: string;
 }
 
 export interface PaddleWebhookEvent {

@@ -1,5 +1,8 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { BrevoClient, type BrevoContactAttributes } from "../functions/components/brevo.js";
+import {
+  BrevoClient,
+  type BrevoContactAttributes,
+} from "../functions/components/brevo.js";
 
 // Test email constant - easy to update in one place
 const TEST_EMAIL = "mohammedbinahsan@gmail.com";
@@ -85,10 +88,18 @@ describe("BrevoClient", () => {
     expect(fetchedContact.email).toBe(randomEmail);
 
     // Check attributes that were confirmed to be set
-    expect(fetchedContact.attributes?.FIRSTNAME).toBe(testAttributes.FIRSTNAME || "");
-    expect(fetchedContact.attributes?.LASTNAME).toBe(testAttributes.LASTNAME || "");
-    expect(fetchedContact.attributes?.JOB_TITLE).toBe(testAttributes.JOB_TITLE || "");
-    expect(fetchedContact.attributes?.OPT_IN).toBe(testAttributes.OPT_IN || false);
+    expect(fetchedContact.attributes?.FIRSTNAME).toBe(
+      testAttributes.FIRSTNAME || ""
+    );
+    expect(fetchedContact.attributes?.LASTNAME).toBe(
+      testAttributes.LASTNAME || ""
+    );
+    expect(fetchedContact.attributes?.JOB_TITLE).toBe(
+      testAttributes.JOB_TITLE || ""
+    );
+    expect(fetchedContact.attributes?.OPT_IN).toBe(
+      testAttributes.OPT_IN || false
+    );
 
     // Note: DOUBLE_OPT-IN might not be returned by the API as observed in previous runs
   });
