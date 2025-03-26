@@ -4,24 +4,104 @@ import {
   BrevoClient,
   type BrevoContactAttributes,
 } from "../components/brevo.js";
+import { KeycloakClient } from "../components/keycloak.js";
 import { KeycloakUser } from "../components/keycloak-types.js";
 
 // Webhook payload from Keycloak
 interface KeycloakWebhookEvent {
+  id: string;
   time: number;
-  type: string;
   realmId: string;
-  representation: KeycloakUser;
-  operationType: string;
-  resourcePath: string;
-  resourceType: string;
+  realmName: string;
+  uid: string;
+  authDetails: {
+    realmId: string;
+    clientId: string;
+    userId: string;
+    ipAddress: string;
+    username: string;
+    sessionId?: string;
+  };
+  details: {
+    context?: string;
+    updated_first_name?: string;
+    previous_first_name?: string;
+    updated_last_name?: string;
+    previous_last_name?: string;
+    // Email verification fields
+    auth_method?: string;
+    token_id?: string;
+    action?: string;
+    response_type?: string;
+    redirect_uri?: string;
+    remember_me?: string;
+    code_id?: string;
+    email?: string;
+    response_mode?: string;
+    username?: string;
+    // Other fields that might be present in different event types
+    grant_type?: string;
+    refresh_token_type?: string;
+    access_token_expiration_time?: string;
+    updated_refresh_token_id?: string;
+    scope?: string;
+    age_of_refresh_token?: string;
+    refresh_token_id?: string;
+    refresh_token_sub?: string;
+    client_auth_method?: string;
+  };
+  type: string;
 }
 
 export interface Env {
   PADDLE_API_KEY: string;
   PUBLIC_PADDLE_ENVIRONMENT?: string;
+  PADDLE_WEBHOOK_SECRET: string;
   BREVO_API_KEY: string;
   KEYCLOAK_WEBHOOK_SECRET: string;
+  KEYCLOAK_CLIENT_ID: string;
+  KEYCLOAK_CLIENT_SECRET: string;
+  KV: KVNamespace;
+}
+
+/**
+ * Verifies the HMAC-SHA256 signature of the webhook request
+ */
+async function verifyWebhookSignature(
+  rawBody: string,
+  signature: string | null,
+  secret: string
+): Promise<boolean> {
+  if (!signature) {
+    console.error("Missing X-Keycloak-Signature header");
+    return false;
+  }
+
+  // Calculate expected signature
+  const encoder = new TextEncoder();
+  const key = encoder.encode(secret);
+  const message = encoder.encode(rawBody);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    key,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, message);
+
+  const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  if (signature !== expectedSignature) {
+    console.error("Invalid signature");
+    return false;
+  }
+
+  return true;
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -31,95 +111,185 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return new Response("Method not allowed", { status: 405 });
     }
 
-    // Verify secret token
-    const authHeader = context.request.headers.get("Authorization");
-    const secretToken = authHeader?.replace("Bearer ", "");
+    // Get the raw body for signature verification
+    const rawBody = await context.request.text();
+    const webhookEvent = JSON.parse(rawBody) as KeycloakWebhookEvent;
 
-    if (!secretToken || secretToken !== context.env.KEYCLOAK_WEBHOOK_SECRET) {
-      console.error("Invalid or missing authentication token");
+    // Verify HMAC-SHA256 signature
+    const signature = context.request.headers.get("x-keycloak-signature");
+    const isValid = await verifyWebhookSignature(
+      rawBody,
+      signature,
+      context.env.KEYCLOAK_WEBHOOK_SECRET
+    );
+
+    if (!isValid) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Parse the webhook payload
-    const webhookEvent = (await context.request.json()) as KeycloakWebhookEvent;
+    // Process different event types
+    switch (webhookEvent.type) {
+      case "access.UPDATE_PROFILE": {
+        // Initialize Keycloak client to fetch complete user info if needed
+        const keycloakClient = new KeycloakClient(context.env);
+        const email = webhookEvent.authDetails.username;
 
-    // Verify this is a user update event (not creation)
-    if (
-      webhookEvent.resourceType !== "USER" ||
-      webhookEvent.operationType !== "UPDATE"
-    ) {
-      return new Response(
-        JSON.stringify({ message: "Ignored non-update event" }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
+        // Get the updated user information from the webhook
+        const { updated_first_name, updated_last_name } = webhookEvent.details;
 
-    const userData = webhookEvent.representation;
+        // Check if we have a partial update (missing first or last name)
+        const isPartialUpdate =
+          (updated_first_name && !updated_last_name) ||
+          (!updated_first_name && updated_last_name);
 
-    // If no user data or email is provided, return an error
-    if (!userData || !userData.email) {
-      return new Response(JSON.stringify({ error: "Invalid user data" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+        // Variables to store the complete user information
+        let firstName = updated_first_name;
+        let lastName = updated_last_name;
+        let fullName = "";
 
-    // Get the user's email and name
-    const { email, firstName, lastName, emailVerified } = userData;
-    const paddleCustomerId = userData.attributes?.paddle_customer_id?.[0];
-    const fullName =
-      firstName && lastName
-        ? `${firstName} ${lastName}`
-        : firstName || lastName || "";
+        // If it's a partial update, fetch the complete user info from Keycloak
+        if (isPartialUpdate) {
+          try {
+            console.log(
+              `Partial update detected for ${email}, fetching complete user data`
+            );
+            let keycloakUser = null;
 
-    // Process updates to Paddle and Brevo
-    const results = await Promise.allSettled([
-      // Update Paddle customer if we have a customer ID and a name
-      paddleCustomerId && fullName
-        ? updatePaddleCustomer(paddleCustomerId, email, fullName, context.env)
-        : Promise.resolve(null),
+            try {
+              keycloakUser = await keycloakClient.getUser(email);
+            } catch (keycloakError) {
+              console.error(`Error connecting to Keycloak: ${keycloakError}`);
+              // Fall back to what we have from the webhook
+            }
 
-      // Update Brevo contact with name and email verification status
-      updateBrevoContact(
-        email,
-        firstName,
-        lastName,
-        emailVerified,
-        paddleCustomerId,
-        context.env
-      ),
-    ]);
+            if (keycloakUser) {
+              // If we got the first name from the webhook, use it; otherwise use the one from Keycloak
+              firstName = updated_first_name || keycloakUser.firstName;
+              // If we got the last name from the webhook, use it; otherwise use the one from Keycloak
+              lastName = updated_last_name || keycloakUser.lastName;
 
-    // Check results
-    const errors: string[] = [];
-    results.forEach((result, index) => {
-      if (result.status === "rejected") {
-        errors.push(
-          `Error ${index === 0 ? "updating Paddle" : "updating Brevo"}: ${
-            result.reason
-          }`
+              console.log(
+                `Retrieved complete user data: ${firstName} ${lastName}`
+              );
+            } else {
+              console.warn(
+                `Could not find complete user data for ${email}, proceeding with partial update`
+              );
+            }
+          } catch (error) {
+            console.error(`Error in user data lookup: ${error}`);
+            // Continue with the partial data we have
+          }
+        }
+
+        // Construct the full name from the available data
+        fullName =
+          firstName && lastName
+            ? `${firstName} ${lastName}`
+            : firstName || lastName || "";
+
+        // Process updates to Paddle and Brevo
+        const results = await Promise.allSettled([
+          // Update Paddle customer if we have a name
+          fullName
+            ? updatePaddleCustomer(email, fullName, context.env)
+            : Promise.resolve(null),
+
+          // Update Brevo contact with new name information
+          updateBrevoContact(
+            email,
+            firstName,
+            lastName,
+            undefined, // emailVerified not provided in profile update
+            undefined, // paddleCustomerId not provided in profile update
+            context.env
+          ),
+        ]);
+
+        // Check results
+        const errors: string[] = [];
+        results.forEach((result, index) => {
+          if (result.status === "rejected") {
+            errors.push(
+              `Error ${index === 0 ? "updating Paddle" : "updating Brevo"}: ${
+                result.reason
+              }`
+            );
+          }
+        });
+
+        if (errors.length > 0) {
+          console.error("Errors in webhook processing:", errors);
+          return new Response(JSON.stringify({ errors: errors }), {
+            status: 207,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Profile update processed successfully",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
-    });
 
-    if (errors.length > 0) {
-      console.error("Errors in webhook processing:", errors);
-      return new Response(JSON.stringify({ errors: errors }), {
-        status: 207,
-        headers: { "Content-Type": "application/json" },
-      });
+      case "access.VERIFY_EMAIL": {
+        // Verify this is an email verification event
+        if (webhookEvent.details.action !== "verify-email") {
+          return new Response(
+            JSON.stringify({ message: "Ignored non-email-verification event" }),
+            { status: 200, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        // Process email verification update to Brevo
+        const results = await Promise.allSettled([
+          updateBrevoContact(
+            webhookEvent.authDetails.username,
+            undefined, // firstName not provided in email verification
+            undefined, // lastName not provided in email verification
+            true, // email is verified
+            undefined, // paddleCustomerId not provided in email verification
+            context.env
+          ),
+        ]);
+
+        // Check results
+        const errors: string[] = [];
+        results.forEach((result, index) => {
+          if (result.status === "rejected") {
+            errors.push(`Error updating Brevo: ${result.reason}`);
+          }
+        });
+
+        if (errors.length > 0) {
+          console.error("Errors in webhook processing:", errors);
+          return new Response(JSON.stringify({ errors: errors }), {
+            status: 207,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Email verification processed successfully",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      default:
+        return new Response(
+          JSON.stringify({ message: "Ignored unsupported event type" }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
     }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Webhook processed successfully",
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
   } catch (error) {
     console.error("Error processing Keycloak webhook:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
@@ -133,24 +303,30 @@ export const onRequest: PagesFunction<Env> = async (context) => {
  * Updates a Paddle customer with new name information
  */
 async function updatePaddleCustomer(
-  customerId: string,
   email: string,
   name: string,
   env: Env
 ): Promise<void> {
   try {
-    // First, fetch the current customer to see if an update is needed
-    const customer = await PaddleClient.fetchCustomer(customerId, env);
-
-    // Only update if the name has changed
-    if (customer && customer.name !== name) {
-      await PaddleClient.updateCustomer(customerId, { name }, env);
-      console.log(`Updated Paddle customer ${customerId} with name: ${name}`);
-    } else {
-      console.log(`No Paddle customer update needed for ${customerId}`);
+    // Try to update customer by email - PaddleClient's updateCustomer will handle finding by email
+    try {
+      await PaddleClient.updateCustomer(email, { name }, env);
+      console.log(`Updated Paddle customer with email ${email}, name: ${name}`);
+    } catch (error) {
+      // If customer doesn't exist, create a new one
+      const errorMsg = error?.message || "";
+      if (errorMsg.includes("not found")) {
+        await PaddleClient.createCustomer({ email, name }, env);
+        console.log(
+          `Created new Paddle customer for ${email} with name: ${name}`
+        );
+      } else {
+        // Re-throw if it's some other error
+        throw error;
+      }
     }
   } catch (error) {
-    console.error(`Error updating Paddle customer ${customerId}:`, error);
+    console.error(`Error updating Paddle customer for ${email}:`, error);
     throw error;
   }
 }
