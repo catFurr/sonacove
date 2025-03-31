@@ -179,6 +179,8 @@ async function init() {
       try {
         const isValid = await validateKeycloakToken(storedToken);
         if (isValid) {
+          // NOTE! Instead of redirecting, we should open payments
+          // like we do above. This is rarely encountered, so it's ok for now.
           window.location.href = "https://meet.sonacove.com";
           return;
         }
@@ -325,7 +327,7 @@ onMounted(() => {
         </div>
 
         <a
-          href="https://meet.sonacove.com"
+          :href="`https://meet.sonacove.com#access_token=${accessToken}`"
           class="inline-block px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
         >
           Go to Sonacove Meets
