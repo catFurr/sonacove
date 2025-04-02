@@ -1,5 +1,8 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import ErrorIcon from "./ErrorIcon.vue";
+import SuccessIcon from "./SuccessIcon.vue";
+
+import { ref, computed, onMounted } from "vue";
 import { initializePaddle } from "@paddle/paddle-js";
 import { validateKeycloakToken, parseUserFromToken } from "../utils/auth";
 
@@ -155,6 +158,7 @@ async function init() {
       const isAuthenticated = await validateKeycloakToken(accessToken.value);
       if (isAuthenticated) {
         userInfo.value = parseUserFromToken(accessToken.value);
+        console.table(userInfo.value);
         if (userInfo.value) {
           localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken.value);
           localStorage.setItem(
@@ -208,6 +212,10 @@ function handleError(error) {
   console.error("Error occurred:", error);
   currentView.value = "error";
 }
+
+const isPending = computed(() => {
+  return localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION_STATUS) === "pending";
+});
 
 onMounted(() => {
   init();
@@ -305,7 +313,7 @@ onMounted(() => {
         </h2>
         <p class="text-gray-600 mt-2">
           {{
-            localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION_STATUS) === "pending"
+            isPending
               ? "You're ready to start using Sonacove Meets in trial mode. You can complete your subscription anytime to unlock all features."
               : "Thank you for subscribing to Sonacove Meets. Your account is now fully activated with all premium features."
           }}
@@ -317,12 +325,7 @@ onMounted(() => {
           <p class="text-gray-600">Name: {{ userInfo?.name }}</p>
           <p class="text-gray-600">
             Status:
-            {{
-              localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION_STATUS) ===
-              "pending"
-                ? "Trial (Payment Pending)"
-                : "Active"
-            }}
+            {{ isPending ? "Trial (Payment Pending)" : "Active" }}
           </p>
         </div>
 
@@ -343,8 +346,8 @@ onMounted(() => {
         <ErrorIcon />
         <h2 class="text-xl font-semibold mt-4">Something went wrong</h2>
         <p class="text-gray-600 mt-2">
-          We encountered an issue while processing your request. Our support
-          team has been notified and will help you resolve this.
+          We encountered an issue while processing your request. If the problem
+          persists, please do not hesitate to reach out to us.
         </p>
 
         <div class="mt-6 space-y-4">
