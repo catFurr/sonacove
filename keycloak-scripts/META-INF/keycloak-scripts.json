@@ -1,0 +1,9 @@
+{
+    "authenticators": [
+        {
+            "name": "Registration API Validator",
+            "fileName": "registration-api-validator.js",
+            "description": "Calls an API during registration and stores the result as a user attribute"
+        }
+    ]
+}
