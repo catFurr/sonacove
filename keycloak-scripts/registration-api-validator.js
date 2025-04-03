@@ -11,9 +11,7 @@ function authenticate(context) {
 
   // Check if this is a new registration by looking at the attribute we'll set
   // This prevents the script from running during the first login after registration
-  if (
-    user.getFirstAttribute("paddle_customer_id")
-  ) {
+  if (user.getFirstAttribute("paddle_customer_id")) {
     LOG.info(
       "User already has paddle_customer_id attribute, skipping API call"
     );
@@ -22,7 +20,9 @@ function authenticate(context) {
   }
 
   // Create HTTP client
-  var httpClientProvider = session.getProvider(org.keycloak.connections.httpclient.HttpClientProvider.class);
+  var httpClientProvider = session.getProvider(
+    org.keycloak.connections.httpclient.HttpClientProvider.class
+  );
   var httpClient = httpClientProvider.getHttpClient();
   var httpPost = new org.apache.http.client.methods.HttpPost(
     "https://sonacove.com/api/registration-flow"
@@ -92,17 +92,17 @@ function authenticate(context) {
           "API response doesn't contain expected 'paddle_customer_id' field: " +
             responseString
         );
-        context.failure(AuthenticationFlowError.INVALID_USER);
+        context.success(); // Don't fail the registration
       }
     } else {
       LOG.error(
         "API call failed with status: " + statusCode + " - " + responseString
       );
-      context.failure(AuthenticationFlowError.INVALID_USER);
+      context.success(); // Don't fail the registration
     }
   } catch (e) {
     LOG.error("Exception during API call: " + e.message);
-    context.failure(AuthenticationFlowError.INVALID_USER);
+    context.success(); // Don't fail the registration
   }
 }
 
