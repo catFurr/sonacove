@@ -1,64 +1,165 @@
 <section class="py-16 bg-white" id="pricing">
   <div class="container mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Simple, Transparent Pricing</h2>
-    <p class="text-xl text-gray-600 text-center mb-12 max-w-3xl mx-auto">No hidden fees, no complicated tiers. Just one affordable plan for all your meeting needs.</p>
-    
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-      <div class="p-8">
-        <div class="text-center mb-6">
-          <h3 class="text-2xl font-bold text-gray-800">Premium Plan</h3>
-          <div class="mt-4 flex justify-center items-baseline">
-            <span class="text-5xl font-extrabold text-gray-900">$6</span>
-            <span class="text-xl text-gray-500 ml-1">/month</span>
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">
+      Simple, Transparent Pricing
+    </h2>
+    <p class="text-xl text-gray-600 text-center mb-16 max-w-3xl mx-auto">
+      No hidden fees, no complicated tiers. Just one affordable plan for all
+      your meeting needs.
+    </p>
+
+    <div class="relative max-w-md mx-auto">
+      <!-- Early Bird Banner - Positioned absolutely relative to card container -->
+      <div
+        class="absolute -left-6 sm:-left-24 -top-4 z-10 transform -rotate-12"
+      >
+        <div
+          class="bg-yellow-400 text-gray-900 px-6 py-2 rounded-md shadow-lg border-2 border-gray-900 relative"
+        >
+          <div
+            class="absolute inset-0 bg-yellow-300 rounded-md transform rotate-[1deg] -z-10"
+          >
           </div>
+          <p class="font-bold text-lg tracking-wider">EARLY BIRD OFFER! 🎉</p>
+          <p class="text-sm text-center">Limited Time Only</p>
         </div>
-        
-        <ul class="mt-6 space-y-4">
-          <li class="flex items-start">
-            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Unlimited meeting duration</span>
-          </li>
-          <li class="flex items-start">
-            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Unlimited guests per meeting</span>
-          </li>
-          <li class="flex items-start">
-            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>End-to-end encryption</span>
-          </li>
-          <li class="flex items-start">
-            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Screen sharing</span>
-          </li>
-          <li class="flex items-start">
-            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Interactive whiteboard</span>
-          </li>
-          <li class="flex items-start">
-            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Breakout rooms</span>
-          </li>
-        </ul>
-        
-        <div class="mt-8">
-          <div class="bg-gray-50 rounded-lg p-4 text-center">
-            <p class="text-gray-700 font-medium">Coming Soon</p>
-            <p class="text-sm text-gray-600 mt-1">Join our waitlist to be notified when we launch.</p>
+      </div>
+
+      <!-- Main Pricing Card -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="p-8">
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-800 p-6 sm:p-0">
+              Premium Plan
+            </h3>
+            <div class="relative mt-4 flex justify-center items-baseline">
+              <div class="relative inline-flex items-baseline mx-3">
+                <!-- Original Price with Slash -->
+                <div class="relative">
+                  <span class="text-5xl font-extrabold text-gray-400">10</span>
+                  <!-- Diagonal Slash -->
+                  <div
+                    class="absolute top-1/2 left-1/2 w-[140%] h-[6px] bg-[#ff4444] transform -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] rounded-full"
+                    style="filter: drop-shadow(0 0 2px #ff4444);"
+                  >
+                  </div>
+                  <!-- Rough Edge Overlay -->
+                  <div
+                    class="absolute top-1/2 left-1/2 w-[140%] h-[6px] bg-[url('/slash-texture.png')] bg-cover transform -translate-x-1/2 -translate-y-1/2 rotate-[-45deg] mix-blend-overlay opacity-50"
+                  >
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-baseline">
+                <span class="text-5xl font-extrabold text-black">$6</span>
+                <span class="text-xl text-black ml-1">/month</span>
+              </div>
+            </div>
+          </div>
+
+          <ul class="mt-8 space-y-4">
+            <li class="flex items-start">
+              <svg
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Unlimited meeting duration</span>
+            </li>
+            <li class="flex items-start">
+              <svg
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Unlimited guests per meeting</span>
+            </li>
+            <li class="flex items-start">
+              <svg
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>End-to-end encryption</span>
+            </li>
+            <li class="flex items-start">
+              <svg
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Screen sharing</span>
+            </li>
+            <li class="flex items-start">
+              <svg
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Interactive whiteboard</span>
+            </li>
+            <li class="flex items-start">
+              <svg
+                class="h-6 w-6 text-green-500 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Breakout rooms</span>
+            </li>
+          </ul>
+
+          <div class="mt-8">
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+              <p class="text-gray-700 font-medium">Coming Soon</p>
+              <p class="text-sm text-gray-600 mt-1">
+                Join our waitlist to be notified when we launch.
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</section> 
+</section>
