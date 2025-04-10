@@ -1,49 +1,32 @@
 ---
-interface Feature {
-  title: string;
-  description: string;
-  icon: string;
-}
 
-const features: Feature[] = [
-  {
-    title: "Fast & Simple",
-    description: "Start meetings instantly with no downloads or complicated setup required.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-    </svg>`
-  },
-  {
-    title: "Privacy Focused",
-    description: "We never share or store your meeting data. Your conversations stay private.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-    </svg>`
-  },
-  {
-    title: "Secure Connections",
-    description: "End-to-end encrypted meetings ensure your communications remain secure.",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-    </svg>`
-  }
-];
 ---
 
 <section class="py-16">
   <div class="container mx-auto px-4">
     <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Why Choose Sonacove Meets?</h2>
     
-    <div class="grid md:grid-cols-3 gap-8">
-      {features.map(feature => (
-        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
-          <div class="w-12 h-12 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white mb-4">
-            <Fragment set:html={feature.icon} />
-          </div>
-          <h3 class="text-xl font-semibold text-gray-800 mb-2">{feature.title}</h3>
-          <p class="text-gray-600">{feature.description}</p>
+    <div class="grid  md:grid-cols-2 grid-rows-3 gap-12 pr-20 pl-20">
+        <img src="https://res.cloudinary.com/drm2onwdx/image/upload/v1744203018/Fast-And-Simple_mtyeda.png" alt="Fast and Simple Illustration" class="rounded-xl w-96">
+        <div class="flex flex-col align-center justify-center w-fit py-12 pr-10  rounded-xl border border-gray-100 transition-transform  duration-300 ease-in-out text-center will-change-transform">
+          <h3 class="text-2xl tracking-wide font-semibold text-gray-800 mb-2 will-change-transform" >Fast & Simple</h3>
+          <pre class="font-sans text-gray-600 will-change-transform tracking-wide">Launch meetings in seconds—no installs, no tech skills needed.
+            Just click and connect from any device, anywhere.</pre>
         </div>
-      ))}
+
+          <div class="flex flex-col align-center justify-center w-fit py-12 pl-10  rounded-xl border border-gray-100 transition-transform  duration-300 ease-in-out text-center will-change-transform">
+            <h3 class="text-2xl tracking-wide font-semibold text-gray-800 mb-2 will-change-transform" >Privacy Focused</h3>
+            <pre class="font-sans text-gray-600 will-change-transform tracking-wide">Your data, your rules. All meetings are 100%
+private—  no recordings, no data mining, ever</pre>
+          </div>
+          <img src="https://res.cloudinary.com/drm2onwdx/image/upload/v1744204182/Privacy-Focused_uz9jyy.png" alt="Privacy Focused Illustration" class="rounded-xl w-96">
+
+          <img src="https://res.cloudinary.com/drm2onwdx/image/upload/v1744204670/Secure-Connections_rmqicp.png" alt="Privacy Focused Illustration" class="rounded-xl w-96">
+          <div class="flex flex-col align-center justify-center w-fit py-12 pr-10 rounded-xl border border-gray-100 transition-transform  duration-300 ease-in-out text-center will-change-transform">
+            <h3 class="text-2xl tracking-wide font-semibold text-gray-800 mb-2 will-change-transform" >Secure Connections</h3>
+            <pre class="font-sans text-gray-600 will-change-transform tracking-wide">Your chats are protected by top-tier encryption, 
+       ensuring privacy from outsiders and even ourselves.</pre>
+          </div>
     </div>
   </div>
 </section>
