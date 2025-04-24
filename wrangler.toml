@@ -1,0 +1,5 @@
+name = "get-paddle-portal-url"
+type = "javascript" # or "module" / "webpack" if you’re using imports/exports
+main = "functions/api/get-paddle-portal.ts" # Update to your file path
+
+compatibility_date = "2025-04-24"
