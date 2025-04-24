@@ -1,4 +1,4 @@
-import type { TableRow } from "../../components/comparison/types";
+import type { TableRow } from "../../components/comparison/types.ts";
 
 export const ethicalFeaturesData: TableRow[] = [
   {

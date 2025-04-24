@@ -1,4 +1,4 @@
-import type { TableRow } from "../../components/comparison/types";
+import type { TableRow } from "../../components/comparison/types.ts";
 
 export const basicFeaturesData: TableRow[] = [
   {
@@ -48,7 +48,7 @@ export const basicFeaturesData: TableRow[] = [
     feature: "Speaker test",
     sonacove: { value: null, icon: "check" },
     zoom: { value: null, icon: "check" },
-    googleMeet: { value: "Pre-recorded sound", icon: "check" },
+    googleMeet: { value: "Pre-recorded sound" },
   },
   {
     feature: "Video",
