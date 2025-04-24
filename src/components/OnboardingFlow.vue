@@ -19,6 +19,7 @@ const userInfo = ref(null);
 const accessToken = ref(null);
 const paddle = ref(null);
 const discountCode = ref("");
+const checkoutLoaded = ref(false);
 
 // Initialize Paddle checkout
 async function initializePaddleInstance() {
@@ -49,6 +50,7 @@ async function initializePaddleInstance() {
             break;
           case "checkout.loaded":
             console.log("Checkout loaded:", data);
+            checkoutLoaded.value = true;
             break;
           case "checkout.location.changed":
             console.log("Checkout location changed:", data);
@@ -267,7 +269,7 @@ onMounted(() => {
 
         <!-- Paddle checkout container -->
         <div class="paddle-checkout-container mt-6">
-          <div class="animate-pulse">
+          <div v-if="!checkoutLoaded" class="animate-pulse">
             <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
             <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
             <div class="h-10 bg-gray-200 rounded w-full"></div>

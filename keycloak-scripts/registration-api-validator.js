@@ -44,8 +44,8 @@ function authenticate(context) {
     httpPost.setHeader("Content-Type", "application/json");
 
     // Add authorization header with the webhook secret
-    // In a real implementation, you would store this in a realm attribute or server property
-    // and access it securely. This is just a placeholder.
+    // TODO: store this in a realm attribute or server property
+    // and access it securely.
     var secretToken = "VblFBfRUUy3edszNWqgOZuvVPgL320";
     httpPost.setHeader("Authorization", "Bearer " + secretToken);
 

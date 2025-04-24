@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  columnSpan?: number;
+  highlight?: boolean;
+}
+
+const { title, columnSpan = 4, highlight = false } = Astro.props;
+const bgColor = highlight ? "bg-primary-50" : "bg-gray-50";
+---
+
+<tr class={bgColor}>
+  <td
+    colspan={columnSpan}
+    class="p-3 font-semibold text-gray-800 border border-gray-200"
+  >
+    {title}
+  </td>
+</tr>

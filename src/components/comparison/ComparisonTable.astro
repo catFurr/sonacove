@@ -1,0 +1,90 @@
+---
+import TableCell from "./TableCell.astro";
+import SectionHeader from "./SectionHeader.astro";
+import type { Column, TableRow } from "./types";
+
+interface Props {
+  title?: string;
+  columns?: Column[];
+  rows: TableRow[];
+  sectionTitle?: string;
+}
+
+const defaultColumns: Column[] = [
+  { title: "Feature" },
+  { title: "Sonacove Meets", isPrimary: true },
+  { title: "Zoom" },
+  { title: "Google Meet" },
+];
+
+const {
+  title = "Comparison",
+  columns = defaultColumns,
+  rows,
+  sectionTitle,
+} = Astro.props;
+---
+
+<div class="mb-16">
+  {
+    sectionTitle && (
+      <h3 class="text-2xl font-semibold mb-6 text-gray-800 border-b border-gray-200 pb-2">
+        {sectionTitle}
+      </h3>
+    )
+  }
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-base">
+      <thead>
+        <tr class="bg-gray-100">
+          {
+            columns.map((column, index) => (
+              <th
+                class={`p-4 border border-gray-200 text-lg ${
+                  column.isPrimary ? "text-primary-700" : ""
+                } ${index === 0 ? "rounded-tl-lg w-1/4" : ""} ${
+                  index === columns.length - 1 ? "rounded-tr-lg" : ""
+                } text-center`}
+              >
+                {column.title}
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody class="text-base">
+        {
+          rows.map((row) =>
+            row.isHeader ? (
+              <SectionHeader title={row.feature} />
+            ) : (
+              <tr>
+                <TableCell content={row.feature} />
+                <TableCell
+                  content={row.sonacove.value || ""}
+                  icon={row.sonacove.icon}
+                  primary={row.sonacove.isPrimary}
+                  centerText={!row.sonacove.value}
+                  note={row.sonacove.note}
+                />
+                <TableCell
+                  content={row.zoom.value || ""}
+                  icon={row.zoom.icon}
+                  centerText={!row.zoom.value}
+                  note={row.zoom.note}
+                />
+                <TableCell
+                  content={row.googleMeet.value || ""}
+                  icon={row.googleMeet.icon}
+                  centerText={!row.googleMeet.value}
+                  note={row.googleMeet.note}
+                />
+              </tr>
+            )
+          )
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
