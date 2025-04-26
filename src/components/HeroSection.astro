@@ -1,43 +1,39 @@
 ---
+
 ---
 
 <section class="py-20 md:py-32">
   <div class="container mx-auto px-4">
     <div class="flex flex-col md:flex-row items-center">
       <div class="md:w-1/2 mb-10 md:mb-0">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-4">
-          Fast, Simple, <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600">Secure</span> Online Meetings
+        <h1
+          class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-4"
+        >
+          Fast, Simple, <span
+            class="bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600"
+            >Secure</span
+          > Online Meetings
         </h1>
         <p class="text-xl text-gray-600 mb-8 max-w-lg">
-          Experience the next generation of online meetings with Sonacove Meets. Join our waitlist for early access to our premium service.
+          Experience the next generation of online meetings with Sonacove Meets.
+          Our service is now publicly available—sign up today!
         </p>
-        
+
         <div class="max-w-md">
-          <form id="hero-waitlist-form" class="flex flex-col sm:flex-row gap-3">
-            <input 
-              type="email" 
-              id="hero-email" 
-              name="email" 
-              required
-              placeholder="Enter your email"
-              class="flex-grow px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
-            />
-            <button 
-              type="submit" 
-              class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] whitespace-nowrap"
-            >
-              Join Waitlist
-            </button>
-          </form>
-          <div id="hero-form-message" class="mt-2"></div>
-          <p class="text-xs text-gray-500 mt-2">
-            We respect your privacy. No spam, ever.
-          </p>
+          <a
+            href="/onboarding"
+            class="block w-full text-center px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] whitespace-nowrap"
+          >
+            Get Started Now
+          </a>
         </div>
       </div>
       <div class="md:w-1/2">
         <div class="relative">
-          <div class="absolute -inset-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl blur opacity-30"></div>
+          <div
+            class="absolute -inset-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-2xl blur opacity-30"
+          >
+          </div>
           <div class="relative bg-white p-2 rounded-2xl shadow-xl">
             <img 
               src="/src/assets/hero-image.png" 
@@ -50,27 +46,3 @@
     </div>
   </div>
 </section>
-
-<script>
-  import { addContactToBrevo, showSuccessMessage, showErrorMessage } from '../utils/brevo';
-
-  const heroForm = document.getElementById('hero-waitlist-form');
-  const messageContainer = document.getElementById('hero-form-message');
-  
-  heroForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = (document.getElementById('hero-email') as HTMLInputElement).value;
-    
-    try {
-      await addContactToBrevo(email, 'website_hero');
-      
-      // Show success message
-      if (messageContainer) {
-        showSuccessMessage(messageContainer, true);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showErrorMessage(heroForm!);
-    }
-  });
-</script>
