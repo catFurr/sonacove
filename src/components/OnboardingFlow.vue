@@ -109,7 +109,7 @@ function showSuccessContent(skipped = false) {
   if (userInfo.value) {
     localStorage.setItem(
       STORAGE_KEYS.SUBSCRIPTION_STATUS,
-      skipped ? "pending" : "active"
+      skipped ? "trialing" : "active"
     );
   }
 }
@@ -200,9 +200,26 @@ async function init() {
 }
 
 // Event handlers
-function handleSkipPayment() {
-  localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, "pending");
-  showSuccessContent(true);
+async function handleSkipPayment() {
+  if (!accessToken.value) {
+    handleError("Missing access token");
+    return;
+  }
+  try {
+    // Call the backend to enable trial status
+    const res = await fetch("/api/user-trial", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken.value}`,
+      },
+    });
+    if (!res.ok) throw new Error("Failed to enable trial");
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, "trialing");
+    showSuccessContent(true);
+  } catch (err) {
+    handleError(err);
+  }
 }
 
 function handleReopenPayment() {
@@ -215,8 +232,8 @@ function handleError(error) {
   currentView.value = "error";
 }
 
-const isPending = computed(() => {
-  return localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION_STATUS) === "pending";
+const isTrialing = computed(() => {
+  return localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION_STATUS) === "trialing";
 });
 
 onMounted(() => {
@@ -315,7 +332,7 @@ onMounted(() => {
         </h2>
         <p class="text-gray-600 mt-2">
           {{
-            isPending
+            isTrialing
               ? "You're ready to start using Sonacove Meets in trial mode. You can complete your subscription anytime to unlock all features."
               : "Thank you for subscribing to Sonacove Meets. Your account is now fully activated with all premium features."
           }}
@@ -327,7 +344,7 @@ onMounted(() => {
           <p class="text-gray-600">Name: {{ userInfo?.name }}</p>
           <p class="text-gray-600">
             Status:
-            {{ isPending ? "Trial (Payment Pending)" : "Active" }}
+            {{ isTrialing ? "Trial (Payment Pending)" : "Active" }}
           </p>
         </div>
 
