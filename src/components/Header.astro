@@ -1,0 +1,70 @@
+---
+const navLinks = [
+  { href: "/features", label: "Features", id: "features" },
+  { href: "/comparison", label: "Comparison", id: "comparison" },
+  { href: "/#pricing", label: "Pricing", id: "pricing" },
+  { href: "/#faq", label: "FAQ", id: "faq" },
+];
+
+const currentPath = Astro.url?.pathname || "/";
+
+function getActiveId(pathname: string) {
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/features")) return "features";
+  if (pathname.startsWith("/comparison")) return "comparison";
+  // Pricing and FAQ are only highlighted on homepage
+  return null;
+}
+
+const activeId = getActiveId(currentPath);
+---
+
+<header class="py-6">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center">
+        {
+          activeId !== "home" ? (
+            <a href="/" class="flex items-center group">
+              <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600 group-hover:underline">
+                Sonacove
+              </span>
+            </a>
+          ) : (
+            <span class="flex items-center cursor-default">
+              <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-accent-600">
+                Sonacove
+              </span>
+            </span>
+          )
+        }
+      </div>
+      <nav class="hidden md:flex space-x-6">
+        {
+          navLinks.map((link) =>
+            activeId === link.id ? (
+              <span class="text-primary-700 font-semibold focus:outline-none focus:ring-2 focus:ring-primary-400 rounded transition-colors cursor-default">
+                {link.label}
+              </span>
+            ) : (
+              <a
+                href={link.href}
+                class="text-gray-700 hover:text-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded"
+              >
+                {link.label}
+              </a>
+            )
+          )
+        }
+      </nav>
+      <a
+        href="https://meet.sonacove.com"
+        class="px-4 py-2 bg-white text-primary-700 font-medium rounded-lg border border-primary-200 hover:border-primary-300 transition-all"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Visit Platform
+      </a>
+    </div>
+  </div>
+</header>

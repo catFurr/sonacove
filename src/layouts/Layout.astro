@@ -1,4 +1,6 @@
 ---
+import Header from "../components/Header.astro";
+
 interface Props {
   title: string;
   description?: string;
@@ -40,6 +42,7 @@ const {
     />
   </head>
   <body class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
+    <Header />
     <slot />
     <footer class="py-6 text-center text-xs text-gray-500">
       <div class="container mx-auto px-4">
