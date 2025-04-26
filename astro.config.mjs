@@ -7,5 +7,9 @@ import vue from '@astrojs/vue';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), vue()],
-  output: 'static'
+  output: 'static',
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: "hover",
+  },
 });

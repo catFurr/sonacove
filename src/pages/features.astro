@@ -1,6 +1,21 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
+
+import { Image } from "astro:assets";
+import basic_image from "../assets/feature-basic.png";
+import chat_image from "../assets/feature-chat.png";
+import breakout_image from "../assets/feature-breakout.jpg";
+import reactions_image from "../assets/feature-reactions.jpg";
+import raisehand_image from "../assets/feature-raisehand.png";
+import recording_image from "../assets/feature-recording.jpg";
+import background_image from "../assets/feature-background.jpg";
+import moderation_image from "../assets/feature-moderation.png";
+import lobby_image from "../assets/feature-lobby.jpg";
+import security_image from "../assets/feature-security.png";
+import notes_image from "../assets/feature-notes.png";
+import polls_image from "../assets/feature-polls.jpg";
+
 ---
 
 <Layout title="Features - Sonacove Meets">
@@ -23,11 +38,11 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-basic.png"
+            <Image
+              src={basic_image}
               alt="Mic, Camera, and Screensharing"
-              class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
+              class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
             />
           </div>
           <div class="md:w-1/2">
@@ -52,8 +67,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row-reverse items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-chat.png"
+            <Image
+              src={chat_image}
               alt="Chat, Emojis, and GIFs"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
@@ -81,8 +96,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-polls.jpg"
+            <Image
+              src={polls_image}
               alt="Polls and Voting"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
@@ -109,8 +124,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row-reverse items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-breakout.jpg"
+            <Image
+              src={breakout_image}
               alt="Breakout Rooms"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-accent-100"
               loading="lazy"
@@ -138,8 +153,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-reactions.jpg"
+            <Image
+              src={reactions_image}
               alt="Reactions and GIFs"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
@@ -166,8 +181,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row-reverse items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-raisehand.png"
+            <Image
+              src={raisehand_image}
               alt="Raise Hands"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-accent-100"
               loading="lazy"
@@ -192,8 +207,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-recording.jpg"
+            <Image
+              src={recording_image}
               alt="Meeting Recording"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
@@ -220,8 +235,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row-reverse items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-background.jpg"
+            <Image
+              src={background_image}
               alt="Background Effects"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-accent-100"
               loading="lazy"
@@ -248,8 +263,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-moderation.png"
+            <Image
+              src={moderation_image}
               alt="Moderation"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
@@ -276,8 +291,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row-reverse items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-lobby.jpg"
+            <Image
+              src={lobby_image}
               alt="Lobby Room"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-accent-100"
               loading="lazy"
@@ -302,8 +317,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-security.png"
+            <Image
+              src={security_image}
               alt="Security"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-primary-100"
               loading="lazy"
@@ -330,8 +345,8 @@ import Header from "../components/Header.astro";
           class="flex flex-col md:flex-row-reverse items-center md:space-x-12 mb-12"
         >
           <div class="md:w-1/2 mb-8 md:mb-0 flex justify-center">
-            <img
-              src="/src/assets/feature-notes.png"
+            <Image
+              src={notes_image}
               alt="Collaborative Note Taking"
               class="rounded-3xl shadow-2xl w-full max-w-md object-cover aspect-[4/3] bg-white/60 ring-2 ring-accent-100"
               loading="lazy"

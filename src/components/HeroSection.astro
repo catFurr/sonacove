@@ -1,5 +1,6 @@
 ---
-
+import { Image } from "astro:assets";
+import hero_image from "../assets/hero-image.png";
 ---
 
 <section class="py-20 md:py-32">
@@ -35,9 +36,9 @@
           >
           </div>
           <div class="relative bg-white p-2 rounded-2xl shadow-xl">
-            <img 
-              src="/src/assets/hero-image.png" 
-              alt="Online meeting illustration" 
+            <Image
+              src={hero_image}
+              alt="Online meeting illustration"
               class="rounded-xl w-full"
             />
           </div>
