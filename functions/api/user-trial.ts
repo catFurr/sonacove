@@ -35,6 +35,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Get JWT from Authorization header
     const authHeader = context.request.headers.get("Authorization");
     const jwt = authHeader?.replace("Bearer ", "");
+    console.log("jwt: ", jwt);
     if (!jwt) {
       return new Response(JSON.stringify({ error: "Missing token" }), {
         status: 401,
@@ -50,7 +51,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    console.log("jwt token after validation: ", jwt);
     const email = getEmailFromJWT(jwt);
+    console.log("email: ", email);
     if (!email) {
       return new Response(JSON.stringify({ error: "No email in token" }), {
         status: 400,
