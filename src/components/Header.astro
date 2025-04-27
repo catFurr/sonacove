@@ -39,6 +39,7 @@ const activeId = getActiveId(currentPath);
           )
         }
       </div>
+      <!-- Desktop Nav -->
       <nav class="hidden md:flex space-x-6">
         {
           navLinks.map((link) =>
@@ -59,12 +60,192 @@ const activeId = getActiveId(currentPath);
       </nav>
       <a
         href="https://meet.sonacove.com"
-        class="px-4 py-2 bg-white text-primary-700 font-medium rounded-lg border border-primary-200 hover:border-primary-300 transition-all"
+        class="hidden md:inline-block px-4 py-2 bg-white text-primary-700 font-medium rounded-lg border border-primary-200 hover:border-primary-300 transition-all"
         target="_blank"
         rel="noopener noreferrer"
       >
         Visit Platform
       </a>
+      <!-- Hamburger Icon (Mobile) -->
+      <button
+        id="menu-toggle"
+        class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary-400"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        type="button"
+      >
+        <svg
+          id="menu-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg
+          id="close-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 hidden"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <!-- Mobile Dropdown Menu -->
+    <div
+      id="mobile-menu"
+      class="md:hidden fixed inset-0 z-40 bg-black bg-opacity-0 transition-all duration-300 ease-out pointer-events-none"
+      style="backdrop-filter: blur(0px);"
+    >
+      <div
+        id="mobile-menu-content"
+        class="absolute top-0 right-0 w-64 bg-white shadow-lg rounded-l-xl p-6 mt-0 h-full flex flex-col gap-4 transform translate-x-full transition-all duration-300 ease-out"
+      >
+        <div class="flex justify-end">
+          <button
+            class="p-2 rounded focus:outline-none focus:ring-2 focus:ring-primary-400"
+            aria-label="Close menu"
+            type="button"
+            id="close-menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <nav class="flex flex-col gap-2">
+          {
+            navLinks.map((link) =>
+              activeId === link.id ? (
+                <span class="block px-4 py-2 rounded text-primary-700 font-semibold bg-primary-100 cursor-default">
+                  {link.label}
+                </span>
+              ) : (
+                <a
+                  href={link.href}
+                  class="block px-4 py-2 rounded text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                  data-mobile-link
+                >
+                  {link.label}
+                </a>
+              )
+            )
+          }
+        </nav>
+        <a
+          href="https://meet.sonacove.com"
+          class="block mt-4 px-4 py-2 bg-white text-primary-700 font-medium rounded-lg border border-primary-200 hover:border-primary-300 transition-all text-center"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-mobile-link
+        >
+          Visit Platform
+        </a>
+      </div>
     </div>
   </div>
 </header>
+
+<style>
+  /* Base styles for the menu overlay */
+  #mobile-menu {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  #mobile-menu.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  /* Menu content slide animation */
+  #mobile-menu.open #mobile-menu-content {
+    transform: translateX(0);
+  }
+</style>
+
+<script>
+  // Initialize menu state
+  let menuOpen = false;
+
+  // Get DOM elements
+  const menuToggle = document.getElementById("menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const closeMenu = document.getElementById("close-menu");
+  const menuIcon = document.getElementById("menu-icon");
+  const closeIcon = document.getElementById("close-icon");
+  const mobileLinks = document.querySelectorAll("[data-mobile-link]");
+
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+
+    // Update menu state with smooth transitions
+    if (mobileMenu) {
+      if (menuOpen) {
+        mobileMenu.classList.add("open");
+      } else {
+        mobileMenu.classList.remove("open");
+      }
+    }
+
+    // Toggle icons
+    menuIcon?.classList.toggle("hidden", menuOpen);
+    closeIcon?.classList.toggle("hidden", !menuOpen);
+
+    // Update ARIA attributes
+    menuToggle?.setAttribute("aria-expanded", menuOpen.toString());
+
+    // Prevent body scroll when menu is open
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+  }
+
+  // Add event listeners
+  menuToggle?.addEventListener("click", toggleMenu);
+  closeMenu?.addEventListener("click", toggleMenu);
+
+  // Close menu when clicking outside
+  mobileMenu?.addEventListener("click", (e) => {
+    if (e.target === mobileMenu) {
+      toggleMenu();
+    }
+  });
+
+  // Close menu when clicking a link
+  mobileLinks.forEach((link) => {
+    link.addEventListener("click", toggleMenu);
+  });
+
+  // Close menu on escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && menuOpen) {
+      toggleMenu();
+    }
+  });
+</script>

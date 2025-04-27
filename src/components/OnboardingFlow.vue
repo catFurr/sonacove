@@ -19,7 +19,6 @@ const userInfo = ref(null);
 const accessToken = ref(null);
 const paddle = ref(null);
 const discountCode = ref("");
-const checkoutLoaded = ref(false);
 
 // Initialize Paddle checkout
 async function initializePaddleInstance() {
@@ -50,7 +49,6 @@ async function initializePaddleInstance() {
             break;
           case "checkout.loaded":
             console.log("Checkout loaded:", data);
-            checkoutLoaded.value = true;
             break;
           case "checkout.location.changed":
             console.log("Checkout location changed:", data);
@@ -76,7 +74,15 @@ async function setupPaddleCheckout() {
     if (!paddle.value) {
       throw new Error("Failed to initialize Paddle");
     }
+  } catch (error) {
+    console.error("Error setting up Paddle checkout:", error);
+    currentView.value = "error";
+  }
+}
 
+// New function to open the checkout
+async function openPaddleCheckout() {
+  try {
     const checkoutConfig = {
       items: [
         {
@@ -98,7 +104,7 @@ async function setupPaddleCheckout() {
 
     await paddle.value.Checkout.open(checkoutConfig);
   } catch (error) {
-    console.error("Error setting up Paddle checkout:", error);
+    console.error("Error opening Paddle checkout:", error);
     currentView.value = "error";
   }
 }
@@ -169,7 +175,7 @@ async function init() {
           );
         }
         currentView.value = "payment";
-        await setupPaddleCheckout();
+        await setupPaddleCheckout(); // Only initialize Paddle, don't open checkout
       } else {
         currentView.value = "error";
       }
@@ -223,7 +229,7 @@ async function handleSkipPayment() {
 }
 
 function handleReopenPayment() {
-  setupPaddleCheckout();
+  openPaddleCheckout();
 }
 
 // Add this new function to handle error states
@@ -284,37 +290,32 @@ onMounted(() => {
           Complete your subscription to get started.
         </p>
 
-        <!-- Paddle checkout container -->
-        <div class="paddle-checkout-container mt-6">
-          <div v-if="!checkoutLoaded" class="animate-pulse">
-            <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
-            <div class="h-10 bg-gray-200 rounded w-full mb-4"></div>
-            <div class="h-10 bg-gray-200 rounded w-full"></div>
-          </div>
-        </div>
-
-        <!-- Reopen payment button -->
-        <div class="mt-6 text-center">
+        <div class="flex flex-col gap-4">
+          <!-- Main subscription button -->
           <button
             @click="handleReopenPayment"
-            class="px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
+            class="w-full px-6 py-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
           >
-            Open payment form
+            Subscribe Now
+            <span class="block text-sm opacity-90 mt-1">
+              Get full access to premium features
+            </span>
+          </button>
+
+          <!-- Skip payment option -->
+          <button
+            @click="handleSkipPayment"
+            class="w-full px-6 py-4 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all"
+          >
+            Start with Trial
+            <span class="block text-sm text-gray-500 mt-1">
+              Free for 7 days, upgrade anytime
+            </span>
           </button>
         </div>
 
-        <!-- Skip payment option -->
-        <div class="mt-6 text-center">
-          <button
-            @click="handleSkipPayment"
-            class="text-sm text-gray-500 hover:text-gray-700 underline"
-          >
-            Skip payment for now
-          </button>
-          <p class="text-xs text-gray-400 mt-1">
-            You can complete your subscription later, but some features will be
-            limited.
-          </p>
+        <!-- Paddle checkout container - hidden until opened -->
+        <div class="paddle-checkout-container mt-6">
         </div>
       </div>
 
