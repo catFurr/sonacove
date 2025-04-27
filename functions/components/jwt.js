@@ -28,11 +28,19 @@ export async function validateKeycloakJWT(token) {
 export function getEmailFromJWT(token) {
   try {
     const [, payloadB64] = token.split(".");
-    const payload = JSON.parse(
-      Buffer.from(payloadB64, "base64").toString("utf8")
+    // Replace characters for base64url to base64 standard
+    const base64 = payloadB64.replace(/-/g, "+").replace(/_/g, "/");
+    // Add padding if needed
+    const paddedBase64 = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "="
     );
+    // Decode using atob (available in Cloudflare Workers) instead of Buffer
+    const decodedPayload = atob(paddedBase64);
+    const payload = JSON.parse(decodedPayload);
     return payload.email;
   } catch (e) {
+    console.error("Error extracting email from JWT:", e);
     return null;
   }
 }
