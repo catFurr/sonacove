@@ -86,20 +86,25 @@ function authenticate(context) {
           "Successfully set paddle_customer_id attribute to: " +
             responseData.paddle_customer_id
         );
-        context.success();
       } else {
         LOG.error(
           "API response doesn't contain expected 'paddle_customer_id' field: " +
             responseString
         );
-        context.success(); // Don't fail the registration
       }
     } else {
       LOG.error(
         "API call failed with status: " + statusCode + " - " + responseString
       );
-      context.success(); // Don't fail the registration
     }
+
+    // Give the user a trial
+    const paddle_last_update = new Date().toISOString();
+    user.setAttribute("paddle_subscription_status", ["trialing"]);
+    LOG.info("Successfully set paddle_subscription_status attribute to: trialing");
+    user.setAttribute("paddle_last_update", [paddle_last_update]);
+    LOG.info("Successfully set paddle_last_update attribute to: " + paddle_last_update);
+    context.success();
   } catch (e) {
     LOG.error("Exception during API call: " + e.message);
     context.success(); // Don't fail the registration

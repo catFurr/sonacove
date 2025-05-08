@@ -256,35 +256,124 @@ function extractWebhookData(event: PaddleWebhookEvent): PaddleWebhookData {
   return extractedData;
 }
 
+/**
+ * Fetches a Paddle customer by their ID or email.
+ * Gives preference to customerId if provided. Falls back to email if customerId is not provided
+ * or if the customer is not found using the customerId.
+ * Searches for both 'active' and 'archived' customers.
+ *
+ * @param customerId The Paddle customer ID (e.g., ctm_...). Optional.
+ * @param email The customer's email address. Optional.
+ * @param env Environment variables containing API keys.
+ * @returns The PaddleCustomer object if found, or null otherwise.
+ */
 async function fetchCustomer(
-  customerId: string,
+  identifier: string | { customerId?: string; email?: string },
   env: Env
 ): Promise<PaddleCustomer | null> {
-  try {
-    const baseUrl = getPaddleBaseUrl(env);
-    const customerEndpoint = `${baseUrl}/customers/${customerId}`;
+  let customerId: string | undefined;
+  let email: string | undefined;
 
-    const response = await fetch(customerEndpoint, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${env.PADDLE_API_KEY}`,
-      },
-    });
+  if (typeof identifier === "string") {
+    customerId = identifier;
+  } else {
+    customerId = identifier.customerId;
+    email = identifier.email;
+  }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Failed to fetch customer details: ${response.status} ${errorText}`
-      );
-    }
-
-    const customerResponse = (await response.json()) as CustomerResponse;
-    return customerResponse.data;
-  } catch (error) {
-    console.error(`Error fetching customer from Paddle: ${error}`);
+  // Validate that at least one identifier is provided
+  if (!customerId && !email) {
+    console.error("fetchCustomer error: customerId or email must be provided.");
     return null;
   }
+
+  const baseUrl = getPaddleBaseUrl(env);
+
+  // Attempt to fetch by customerId if provided
+  if (customerId) {
+    try {
+      const customerByIdEndpoint = `${baseUrl}/customers/${customerId}?status=active,archived`;
+      const response = await fetch(customerByIdEndpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+        },
+      });
+
+      if (response.ok) {
+        const customerResponse = (await response.json()) as CustomerResponse;
+        return customerResponse.data; // Customer found by ID
+      } else {
+        const errorText = await response.text();
+        // Log non-critical "not found" errors, but proceed to email fallback if available
+        console.warn(
+          `Failed to fetch customer by ID '${customerId}': ${response.status} ${errorText}.` +
+            (email
+              ? " Attempting fallback to email."
+              : " No email fallback provided.")
+        );
+        if (!email) {
+          return null; // No email to fall back to, so ID fetch failure is final
+        }
+      }
+    } catch (error) {
+      // Catch errors specific to fetching by ID (e.g., network issues)
+      console.error(
+        `Error during fetch customer by ID '${customerId}': ${error}.` +
+          (email
+            ? " Attempting fallback to email."
+            : " No email fallback provided.")
+      );
+      if (!email) {
+        return null; // No email to fall back to, so ID fetch error is final
+      }
+    }
+  }
+
+  // Attempt to fetch by email if provided (either as primary or as fallback)
+  if (email) {
+    try {
+      const customerByEmailEndpoint = `${baseUrl}/customers?email=${encodeURIComponent(
+        email
+      )}&status=active,archived`;
+      const response = await fetch(customerByEmailEndpoint, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+        },
+      });
+
+      if (response.ok) {
+        const searchResponse =
+          (await response.json()) as CustomerSearchResponse;
+        if (searchResponse.data && searchResponse.data.length > 0) {
+          return searchResponse.data[0]; // Customer found by email (return first match)
+        } else {
+          console.warn(
+            `Customer with email '${email}' not found via Paddle API search.`
+          );
+          return null; // Search successful, but no customer matches the email
+        }
+      } else {
+        const errorText = await response.text();
+        console.error(
+          `Paddle API error when searching for customer by email '${email}': ${response.status} ${errorText}`
+        );
+        return null; // API error during email search
+      }
+    } catch (error) {
+      console.error(
+        `Error during fetch customer by email '${email}': ${error}`
+      );
+      return null; // Catch errors specific to fetching by email
+    }
+  }
+
+  // Should be reached if customerId was provided, failed, and no email was provided,
+  // or if only email was provided and it failed.
+  return null;
 }
 
 /**

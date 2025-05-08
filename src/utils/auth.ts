@@ -14,6 +14,13 @@ interface KeycloakTokenPayload {
   name?: string;
   preferred_username?: string;
   email_verified: boolean;
+  context: {
+    user: {
+      subscription_status: string;
+      name: string;
+      email: string;
+    };
+  };
 }
 
 export async function validateKeycloakToken(token: string): Promise<boolean> {
@@ -83,6 +90,7 @@ export function parseUserFromToken(token: string) {
       email: payload.email,
       name: payload.name || payload.preferred_username || "",
       emailVerified: payload.email_verified,
+      context: payload.context,
     };
   } catch (error) {
     console.error(

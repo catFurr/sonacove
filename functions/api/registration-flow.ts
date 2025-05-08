@@ -1,5 +1,5 @@
 import { PagesFunction } from "@cloudflare/workers-types";
-import { PaddleClient } from "../components/paddle.js";
+import { PaddleClient, type PaddleCustomer } from "../components/paddle.js";
 import {
   BrevoClient,
   type BrevoContactAttributes,
@@ -51,18 +51,65 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // 1. Create a new Paddle customer
-    const paddleCustomer = await PaddleClient.createCustomer(
-      {
-        email: requestBody.email,
-        name: `${requestBody.firstname} ${requestBody.lastname}`,
-      },
-      context.env
-    );
+    // 1. Fetch or Create Paddle customer
+    let paddleCustomer: PaddleCustomer | null =
+      await PaddleClient.fetchCustomer(
+        { email: requestBody.email },
+        context.env
+      );
+
+    const expectedName = `${requestBody.firstname} ${requestBody.lastname}`;
+
+    if (paddleCustomer) {
+      // Customer exists
+      console.log(
+        `Found existing Paddle customer for email: ${requestBody.email}`
+      );
+      if (paddleCustomer.name !== expectedName) {
+        const updatedCustomer = await PaddleClient.updateCustomer(
+          paddleCustomer.id, // Use ID for direct update
+          { name: expectedName },
+          context.env
+        );
+        if (updatedCustomer) {
+          paddleCustomer = updatedCustomer; // Use the updated customer object
+          console.log(
+            `Updated Paddle customer name for ID: ${paddleCustomer.id}`
+          );
+        } else {
+          console.warn(
+            `Failed to update name for Paddle customer ID: ${paddleCustomer.id}. Proceeding with existing data.`
+          );
+        }
+      } else {
+        console.log(
+          `Paddle customer name is already up-to-date for ID: ${paddleCustomer.id}`
+        );
+      }
+    } else {
+      // Customer does not exist, create a new one
+      console.log(
+        `Paddle customer not found for email: ${requestBody.email}. Creating new customer.`
+      );
+      paddleCustomer = await PaddleClient.createCustomer(
+        {
+          email: requestBody.email,
+          name: expectedName,
+        },
+        context.env
+      );
+      if (paddleCustomer) {
+        console.log(
+          `Created new Paddle customer with ID: ${paddleCustomer.id}`
+        );
+      }
+    }
 
     if (!paddleCustomer || !paddleCustomer.id) {
       return new Response(
-        JSON.stringify({ error: "Failed to create Paddle customer" }),
+        JSON.stringify({
+          error: "Failed to create or retrieve Paddle customer",
+        }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
