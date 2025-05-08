@@ -1,0 +1,5 @@
+/meet/*.js /meet/:splat.js 200
+/meet/*.json /meet/:splat.json 200
+
+# Redirect everything else
+/meet/:room /meet/ 200
