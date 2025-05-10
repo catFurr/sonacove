@@ -1,9 +1,11 @@
-import { PagesFunction } from "@cloudflare/workers-types";
-import { PaddleClient, type PaddleCustomer } from "../components/paddle.js";
+import { PaddleClient, type PaddleCustomer } from "../components/paddle.ts";
 import {
   BrevoClient,
   type BrevoContactAttributes,
-} from "../components/brevo.js";
+} from "../components/brevo.ts";
+import { getLogger, logWrapper } from "../components/pino-logger.ts";
+import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+const logger = getLogger();
 
 // Define the expected request body interface
 interface RegistrationFlowRequest {
@@ -13,14 +15,11 @@ interface RegistrationFlowRequest {
   email_verified: boolean;
 }
 
-export interface Env {
-  PADDLE_API_KEY: string;
-  PUBLIC_PADDLE_ENVIRONMENT?: string;
-  BREVO_API_KEY: string;
-  KEYCLOAK_WEBHOOK_SECRET: string;
+export const onRequest: WorkerFunction = async (context) => {
+  return await logWrapper(context, WorkerHandler)
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+async function WorkerHandler(context: WorkerContext) {
   try {
     // Only accept POST requests
     if (context.request.method !== "POST") {
@@ -32,7 +31,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const secretToken = authHeader?.replace("Bearer ", "");
 
     if (!secretToken || secretToken !== context.env.KEYCLOAK_WEBHOOK_SECRET) {
-      console.error("Invalid or missing authentication token");
+      logger.error("Invalid or missing authentication token");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
@@ -62,7 +61,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     if (paddleCustomer) {
       // Customer exists
-      console.log(
+      logger.info(
         `Found existing Paddle customer for email: ${requestBody.email}`
       );
       if (paddleCustomer.name !== expectedName) {
@@ -73,22 +72,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         );
         if (updatedCustomer) {
           paddleCustomer = updatedCustomer; // Use the updated customer object
-          console.log(
+          logger.info(
             `Updated Paddle customer name for ID: ${paddleCustomer.id}`
           );
         } else {
-          console.warn(
+          logger.warn(
             `Failed to update name for Paddle customer ID: ${paddleCustomer.id}. Proceeding with existing data.`
           );
         }
       } else {
-        console.log(
+        logger.info(
           `Paddle customer name is already up-to-date for ID: ${paddleCustomer.id}`
         );
       }
     } else {
       // Customer does not exist, create a new one
-      console.log(
+      logger.info(
         `Paddle customer not found for email: ${requestBody.email}. Creating new customer.`
       );
       paddleCustomer = await PaddleClient.createCustomer(
@@ -99,7 +98,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         context.env
       );
       if (paddleCustomer) {
-        console.log(
+        logger.info(
           `Created new Paddle customer with ID: ${paddleCustomer.id}`
         );
       }
@@ -127,7 +126,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         context.env.BREVO_API_KEY
       );
       contactFound = true;
-      console.log(`Found Brevo contact by email: ${requestBody.email}`);
+      logger.info(`Found Brevo contact by email: ${requestBody.email}`);
     } catch (emailError) {
       // If not found by email, try by customer ID (EXT_ID)
       try {
@@ -137,11 +136,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           true // useExtId = true
         );
         contactFound = true;
-        console.log(`Found Brevo contact by CID: ${customerId}`);
+        logger.info(`Found Brevo contact by CID: ${customerId}`);
       } catch (cidError) {
         // Contact not found by either method
         contactFound = false;
-        console.log(`Brevo contact not found by email or CID`);
+        logger.info(`Brevo contact not found by email or CID`);
       }
     }
 
@@ -160,7 +159,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         context.env.BREVO_API_KEY
       );
 
-      console.log(
+      logger.info(
         `Updated existing Brevo contact for email: ${requestBody.email}`
       );
     } else {
@@ -181,11 +180,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           context.env.BREVO_API_KEY
         );
 
-        console.log(
+        logger.info(
           `Created new Brevo contact for email: ${requestBody.email}`
         );
       } catch (createError) {
-        console.error("Failed to create Brevo contact:", createError);
+        logger.error("Failed to create Brevo contact:", createError);
         // Continue with the flow even if Brevo contact creation fails
       }
     }
@@ -196,7 +195,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error in registration flow:", error);
+    logger.error("Error in registration flow:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

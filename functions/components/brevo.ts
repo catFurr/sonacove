@@ -1,3 +1,6 @@
+import { getLogger } from "../components/pino-logger.ts";
+const logger = getLogger();
+
 const apiEndpoint = "https://api.brevo.com/v3/contacts/";
 
 // Define types for Brevo contact attributes
@@ -218,7 +221,7 @@ async function deleteContact(
   isId: boolean = false
 ): Promise<boolean> {
   // Log the deletion intent
-  console.log(
+  logger.info(
     `[NOT IMPLEMENTED] Would delete contact: ${identifier} (${
       isId ? "by ID" : "by email"
     })`

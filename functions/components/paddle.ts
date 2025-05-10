@@ -1,8 +1,7 @@
-interface Env {
-  PUBLIC_PADDLE_ENVIRONMENT?: string;
-  PADDLE_API_KEY: string;
-  PADDLE_WEBHOOK_SECRET?: string;
-}
+import { getLogger } from "./pino-logger.ts";
+import type { Env } from "./types.ts";
+const logger = getLogger();
+
 
 export interface PaddleWebhookEvent {
   event_id: string;
@@ -119,7 +118,7 @@ async function processWebhook(
     const signatureHeader = request.headers.get("Paddle-Signature");
 
     if (!signatureHeader) {
-      console.error("Missing Paddle-Signature header");
+      logger.error("Missing Paddle-Signature header");
       return new Response("Missing signature header", { status: 401 });
     }
 
@@ -135,7 +134,7 @@ async function processWebhook(
     const callbackFn = async () => {
       const isVerified = await validateWebhook(rawBody, signatureHeader, env);
       if (!isVerified) {
-        console.error("Invalid Paddle webhook signature");
+        logger.error("Invalid Paddle webhook signature");
         return;
       }
 
@@ -147,7 +146,7 @@ async function processWebhook(
 
     return responsePromise;
   } catch (error) {
-    console.error("Error handling Paddle webhook:", error);
+    logger.error("Error handling Paddle webhook:", error);
     return new Response("Internal server error", { status: 500 });
   }
 }
@@ -167,7 +166,7 @@ async function validateWebhook(
     // Optional: Check if the timestamp is recent (within 5 seconds)
     const currentTime = Math.floor(Date.now() / 1000);
     if (Math.abs(currentTime - parseInt(timestamp)) > 5) {
-      console.warn("Webhook timestamp is too old, possible replay attack");
+      logger.warn("Webhook timestamp is too old, possible replay attack");
       return false;
     }
 
@@ -200,7 +199,7 @@ async function validateWebhook(
     // 5. Compare signatures
     return signature === generatedSignature;
   } catch (error) {
-    console.error("Error verifying Paddle webhook:", error);
+    logger.error("Error verifying Paddle webhook:", error);
     return false;
   }
 }
@@ -283,7 +282,7 @@ async function fetchCustomer(
 
   // Validate that at least one identifier is provided
   if (!customerId && !email) {
-    console.error("fetchCustomer error: customerId or email must be provided.");
+    logger.error("fetchCustomer error: customerId or email must be provided.");
     return null;
   }
 
@@ -307,7 +306,7 @@ async function fetchCustomer(
       } else {
         const errorText = await response.text();
         // Log non-critical "not found" errors, but proceed to email fallback if available
-        console.warn(
+        logger.warn(
           `Failed to fetch customer by ID '${customerId}': ${response.status} ${errorText}.` +
             (email
               ? " Attempting fallback to email."
@@ -319,7 +318,7 @@ async function fetchCustomer(
       }
     } catch (error) {
       // Catch errors specific to fetching by ID (e.g., network issues)
-      console.error(
+      logger.error(
         `Error during fetch customer by ID '${customerId}': ${error}.` +
           (email
             ? " Attempting fallback to email."
@@ -351,20 +350,20 @@ async function fetchCustomer(
         if (searchResponse.data && searchResponse.data.length > 0) {
           return searchResponse.data[0]; // Customer found by email (return first match)
         } else {
-          console.warn(
+          logger.warn(
             `Customer with email '${email}' not found via Paddle API search.`
           );
           return null; // Search successful, but no customer matches the email
         }
       } else {
         const errorText = await response.text();
-        console.error(
+        logger.error(
           `Paddle API error when searching for customer by email '${email}': ${response.status} ${errorText}`
         );
         return null; // API error during email search
       }
     } catch (error) {
-      console.error(
+      logger.error(
         `Error during fetch customer by email '${email}': ${error}`
       );
       return null; // Catch errors specific to fetching by email
@@ -409,7 +408,7 @@ async function createCustomer(
     const customerResponse = (await response.json()) as CustomerResponse;
     return customerResponse.data;
   } catch (error) {
-    console.error(`Error creating customer in Paddle: ${error}`);
+    logger.error(`Error creating customer in Paddle: ${error}`);
     return null;
   }
 }
@@ -486,7 +485,7 @@ async function updateCustomer(
     const customerResponse = (await response.json()) as CustomerResponse;
     return customerResponse.data;
   } catch (error) {
-    console.error(`Error updating customer in Paddle: ${error}`);
+    logger.error(`Error updating customer in Paddle: ${error}`);
     return null;
   }
 }
@@ -501,7 +500,9 @@ async function updateCustomer(
  * or when we decide to implement a soft-delete strategy
  */
 async function deleteCustomer(customerId: string, env: Env): Promise<boolean> {
-  console.log(`[NOT IMPLEMENTED] Would delete customer with ID: ${customerId}`);
+  logger.info(
+    `[NOT IMPLEMENTED] Would delete customer with ID: ${customerId}`
+  );
   // Paddle API doesn't currently support customer deletion
   // This function is here as a placeholder for test cleanup
   return true;

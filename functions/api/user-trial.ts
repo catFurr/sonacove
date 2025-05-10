@@ -1,14 +1,8 @@
-import { PagesFunction } from "@cloudflare/workers-types";
-import { KeycloakClient } from "../components/keycloak.js";
-import { validateKeycloakJWT, getEmailFromJWT } from "../components/jwt.js";
-
-export interface Env {
-    KEYCLOAK_CLIENT_ID: string;
-    KEYCLOAK_CLIENT_SECRET: string;
-    KV: KVNamespace;
-    PADDLE_WEBHOOK_SECRET: string;
-    PADDLE_API_KEY: string;
-}
+import { KeycloakClient } from "../components/keycloak.ts";
+import { validateKeycloakJWT, getEmailFromJWT } from "../components/jwt.ts";
+import { getLogger, logWrapper } from "../components/pino-logger.ts";
+import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+const logger = getLogger();
 
 function isStatusFinal(status?: string[]): boolean {
   if (!status || status.length === 0) return false;
@@ -26,7 +20,11 @@ function isOverAMonthAgo(dateStr?: string[]): boolean {
   return diff > 30 * 24 * 60 * 60 * 1000; // 30 days in ms
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const onRequest: WorkerFunction = async (context) => {
+  return await logWrapper(context, WorkerHandler)
+}
+
+async function WorkerHandler(context: WorkerContext) {
   try {
     if (context.request.method !== "POST") {
       return new Response("Method not allowed", { status: 405 });
@@ -35,7 +33,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Get JWT from Authorization header
     const authHeader = context.request.headers.get("Authorization");
     const jwt = authHeader?.replace("Bearer ", "");
-    console.log("jwt: ", jwt);
+    logger.info("jwt: ", jwt);
     if (!jwt) {
       return new Response(JSON.stringify({ error: "Missing token" }), {
         status: 401,
@@ -52,9 +50,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    console.log("jwt token after validation: ", jwt);
+    logger.info("jwt token after validation: ", jwt);
     const email = getEmailFromJWT(jwt);
-    console.log("email: ", email);
+    logger.info("email: ", email);
     if (!email) {
       return new Response(JSON.stringify({ error: "No email in token" }), {
         status: 400,
@@ -95,7 +93,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error enabling trial:", error);
+    logger.error("Error enabling trial:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

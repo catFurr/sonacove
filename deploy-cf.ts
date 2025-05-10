@@ -674,6 +674,12 @@ async function deploy() {
     }
 
     updateBaseHref(meetDir);
+    if (fs.existsSync(path.join(meetDir, "static/404.html"))) {
+      fs.copyFileSync(
+        path.join(meetDir, "static/404.html"),
+        path.join(meetDir, "404.html")
+      );
+    }
 
     console.log("\n🔄 Step 7: Processing SSI in HTML files (in cf-build/meet)");
     processDirectoryForSSI(meetDir, meetDir); // meetDir is the root for absolute SSI paths

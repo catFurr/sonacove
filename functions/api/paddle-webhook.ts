@@ -1,17 +1,16 @@
-import { KVNamespace, PagesFunction } from "@cloudflare/workers-types";
-import { KeycloakClient } from "../components/keycloak.js";
-import { PaddleClient, PaddleWebhookEvent } from "../components/paddle.js";
+import { KeycloakClient } from "../components/keycloak.ts";
+import { PaddleClient, PaddleWebhookEvent } from "../components/paddle.ts";
+import { getLogger, logWrapper } from "../components/pino-logger.ts";
+import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
+const logger = getLogger();
 
-export interface Env {
-  PADDLE_WEBHOOK_SECRET: string;
-  KEYCLOAK_CLIENT_ID: string;
-  KEYCLOAK_CLIENT_SECRET: string;
-  KV: KVNamespace;
-  PUBLIC_PADDLE_ENVIRONMENT?: string;
-  PADDLE_API_KEY: string;
+
+export const onRequest: WorkerFunction = async (context) => {
+  return await logWrapper(context, WorkerHandler)
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+async function WorkerHandler(context: WorkerContext) {
+
   const next = async (event: PaddleWebhookEvent) => {
     // Check if this is one of the events we want to handle
     const validEventTypes = [
@@ -22,7 +21,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     ];
 
     if (!validEventTypes.includes(event.event_type)) {
-      console.log(`Ignoring event type: ${event.event_type}`);
+      logger.info(`Ignoring event type: ${event.event_type}`);
       return;
     }
 
@@ -30,7 +29,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const extractedData = PaddleClient.extractWebhookData(event);
 
     // Log the extracted data for debugging
-    console.log("Extracted Paddle data:", JSON.stringify(extractedData));
+    logger.info("Extracted Paddle data:", JSON.stringify(extractedData));
 
     // Process the subscription data and update Keycloak
     if (extractedData.subscription) {
@@ -39,7 +38,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // For now, we're only handling subscription events
     // We could add transaction handling later if needed
 
-    console.log(`Successfully processed ${event.event_type} event`);
+    logger.info(`Successfully processed ${event.event_type} event`);
   };
 
   return PaddleClient.processWebhook(context, next);
@@ -66,7 +65,7 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
 
     // If no user found by subscription ID and we have a customer ID, try to fetch customer details
     if (!user && customerId) {
-      console.log(
+      logger.info(
         `No user found with subscription ID: ${subscriptionId}. Trying to fetch customer details...`
       );
       try {
@@ -77,19 +76,19 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
         if (customerDetails && customerDetails.email) {
           // Find user by email
           user = await keycloak.getUser(customerDetails.email, subscriptionId);
-          console.log(
+          logger.info(
             `User lookup by email ${customerDetails.email}: ${
               user ? "Found" : "Not found"
             }`
           );
         }
       } catch (error) {
-        console.error(`Error fetching customer details: ${error}`);
+        logger.error(`Error fetching customer details: ${error}`);
       }
     }
 
     if (!user) {
-      console.log(
+      logger.info(
         `No user found for subscription ID: ${subscriptionId} or customer ID: ${customerId}`
       );
       return;
@@ -105,7 +104,7 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
       const currentUpdate = new Date(occurredAt);
 
       if (lastUpdate >= currentUpdate) {
-        console.log(`Skipping older or duplicate update for user ${user.id}`);
+        logger.info(`Skipping older or duplicate update for user ${user.id}`);
         return;
       }
     }
@@ -136,9 +135,11 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
     // Update the user in Keycloak
     await keycloak.updateUser(user, { attributes: updatedAttributes });
 
-    console.log(`Successfully updated user ${user.id} with subscription data`);
+    logger.info(
+      `Successfully updated user ${user.id} with subscription data`
+    );
   } catch (error) {
-    console.error("Error processing subscription update:", error);
+    logger.error("Error processing subscription update:", error);
     throw error;
   }
 }

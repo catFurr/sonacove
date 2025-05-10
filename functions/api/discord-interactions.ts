@@ -1,16 +1,11 @@
-import { KVNamespace, PagesFunction } from "@cloudflare/workers-types";
 import nacl from "tweetnacl";
-import { BrevoClient } from "../components/brevo.js";
+import { BrevoClient } from "../components/brevo.ts";
+import { getLogger, logWrapper } from "../components/pino-logger.ts";
+import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+const logger = getLogger();
 
 // Early Access list ID in Brevo
 const EARLY_ACCESS_LIST_ID = 5;
-
-export interface Env {
-  DISCORD_PUBLIC_KEY: string;
-  BREVO_API_KEY: string;
-  DISCORD_BOT_TOKEN: string;
-  KV: KVNamespace;
-}
 
 interface DiscordInteraction {
   type: number;
@@ -24,7 +19,11 @@ interface DiscordInteraction {
   };
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const onRequest: WorkerFunction = async (context) => {
+  return await logWrapper(context, WorkerHandler)
+}
+
+async function WorkerHandler(context: WorkerContext) {
   const { request, env } = context;
 
   // Update PUBLIC_KEY and BREVO_API_KEY with context.env values
@@ -93,7 +92,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             env.BREVO_API_KEY
           )
             .then(() => {
-              console.log(`Successfully added ${email} to Early Access list`);
+              logger.info(`Successfully added ${email} to Early Access list`);
 
               // Update the original message to indicate approval
               return updateDiscordMessage(
@@ -104,7 +103,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
               );
             })
             .catch((error) => {
-              console.error(`Error adding contact to Brevo list: ${error}`);
+              logger.error(`Error adding contact to Brevo list: ${error}`);
 
               // Update the original message to indicate failure
               return updateDiscordMessage(
@@ -121,7 +120,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     // Return PONG response immediately
     return pongResponse;
   } catch (error) {
-    console.error("Error handling Discord interaction:", error);
+    logger.error("Error handling Discord interaction:", error);
     return new Response("Internal server error", { status: 500 });
   }
 };

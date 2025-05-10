@@ -1,5 +1,7 @@
 // Helper for validating Keycloak JWTs using JWKS
 import { jwtVerify, createRemoteJWKSet } from "jose";
+import { getLogger } from "./pino-logger.ts";
+const logger = getLogger();
 
 const JWKS_URL =
   "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/certs";
@@ -20,7 +22,7 @@ export async function validateKeycloakJWT(token) {
     // Optionally check exp, email_verified, etc. here
     return true;
   } catch (e) {
-    console.error("JWT validation failed:", e);
+    logger.error("JWT validation failed:", e);
     return false;
   }
 }
@@ -40,7 +42,7 @@ export function getEmailFromJWT(token) {
     const payload = JSON.parse(decodedPayload);
     return payload.email;
   } catch (e) {
-    console.error("Error extracting email from JWT:", e);
+    logger.error("Error extracting email from JWT:", e);
     return null;
   }
 }

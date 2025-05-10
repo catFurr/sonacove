@@ -1,11 +1,12 @@
-import { PagesFunction } from "@cloudflare/workers-types";
-import { PaddleClient } from "../components/paddle.js";
+import { PaddleClient } from "../components/paddle.ts";
 import {
   BrevoClient,
   type BrevoContactAttributes,
-} from "../components/brevo.js";
-import { KeycloakClient } from "../components/keycloak.js";
-import { KeycloakUser } from "../components/keycloak-types.js";
+} from "../components/brevo.ts";
+import { KeycloakClient } from "../components/keycloak.ts";
+import { getLogger, logWrapper } from "../components/pino-logger.ts";
+import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
+const logger = getLogger();
 
 // Webhook payload from Keycloak
 interface KeycloakWebhookEvent {
@@ -53,17 +54,6 @@ interface KeycloakWebhookEvent {
   type: string;
 }
 
-export interface Env {
-  PADDLE_API_KEY: string;
-  PUBLIC_PADDLE_ENVIRONMENT?: string;
-  PADDLE_WEBHOOK_SECRET: string;
-  BREVO_API_KEY: string;
-  KEYCLOAK_WEBHOOK_SECRET: string;
-  KEYCLOAK_CLIENT_ID: string;
-  KEYCLOAK_CLIENT_SECRET: string;
-  KV: KVNamespace;
-}
-
 /**
  * Verifies the HMAC-SHA256 signature of the webhook request
  */
@@ -73,7 +63,7 @@ async function verifyWebhookSignature(
   secret: string
 ): Promise<boolean> {
   if (!signature) {
-    console.error("Missing X-Keycloak-Signature header");
+    logger.error("Missing X-Keycloak-Signature header");
     return false;
   }
 
@@ -97,14 +87,18 @@ async function verifyWebhookSignature(
     .join("");
 
   if (signature !== expectedSignature) {
-    console.error("Invalid signature");
+    logger.error("Invalid signature");
     return false;
   }
 
   return true;
 }
 
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const onRequest: WorkerFunction = async (context) => {
+  return await logWrapper(context, WorkerHandler)
+}
+
+async function WorkerHandler(context: WorkerContext) {
   try {
     // Only accept POST requests
     if (context.request.method !== "POST") {
@@ -153,7 +147,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         // If it's a partial update, fetch the complete user info from Keycloak
         if (isPartialUpdate) {
           try {
-            console.log(
+            logger.info(
               `Partial update detected for ${email}, fetching complete user data`
             );
             let keycloakUser = null;
@@ -161,7 +155,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             try {
               keycloakUser = await keycloakClient.getUser(email);
             } catch (keycloakError) {
-              console.error(`Error connecting to Keycloak: ${keycloakError}`);
+              logger.error(`Error connecting to Keycloak: ${keycloakError}`);
               // Fall back to what we have from the webhook
             }
 
@@ -171,16 +165,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
               // If we got the last name from the webhook, use it; otherwise use the one from Keycloak
               lastName = updated_last_name || keycloakUser.lastName;
 
-              console.log(
+              logger.info(
                 `Retrieved complete user data: ${firstName} ${lastName}`
               );
             } else {
-              console.warn(
+              logger.warn(
                 `Could not find complete user data for ${email}, proceeding with partial update`
               );
             }
           } catch (error) {
-            console.error(`Error in user data lookup: ${error}`);
+            logger.error(`Error in user data lookup: ${error}`);
             // Continue with the partial data we have
           }
         }
@@ -222,7 +216,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         });
 
         if (errors.length > 0) {
-          console.error("Errors in webhook processing:", errors);
+          logger.error("Errors in webhook processing:", errors);
           return new Response(JSON.stringify({ errors: errors }), {
             status: 207,
             headers: { "Content-Type": "application/json" },
@@ -242,7 +236,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         // Verify this is an email verification event
         if (webhookEvent.details.action !== "verify-email") {
           return new Response(
-            JSON.stringify({ message: "Ignored non-email-verification event" }),
+            JSON.stringify({
+              message: "Ignored non-email-verification event",
+            }),
             { status: 200, headers: { "Content-Type": "application/json" } }
           );
         }
@@ -268,7 +264,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         });
 
         if (errors.length > 0) {
-          console.error("Errors in webhook processing:", errors);
+          logger.error("Errors in webhook processing:", errors);
           return new Response(JSON.stringify({ errors: errors }), {
             status: 207,
             headers: { "Content-Type": "application/json" },
@@ -291,7 +287,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         );
     }
   } catch (error) {
-    console.error("Error processing Keycloak webhook:", error);
+    logger.error("Error processing Keycloak webhook:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -311,13 +307,13 @@ async function updatePaddleCustomer(
     // Try to update customer by email - PaddleClient's updateCustomer will handle finding by email
     try {
       await PaddleClient.updateCustomer(email, { name }, env);
-      console.log(`Updated Paddle customer with email ${email}, name: ${name}`);
+      logger.info(`Updated Paddle customer with email ${email}, name: ${name}`);
     } catch (error) {
       // If customer doesn't exist, create a new one
       const errorMsg = error?.message || "";
       if (errorMsg.includes("not found")) {
         await PaddleClient.createCustomer({ email, name }, env);
-        console.log(
+        logger.info(
           `Created new Paddle customer for ${email} with name: ${name}`
         );
       } else {
@@ -326,7 +322,7 @@ async function updatePaddleCustomer(
       }
     }
   } catch (error) {
-    console.error(`Error updating Paddle customer for ${email}:`, error);
+    logger.error(`Error updating Paddle customer for ${email}:`, error);
     throw error;
   }
 }
@@ -393,7 +389,7 @@ async function updateBrevoContact(
     if (contactFound) {
       // Update the existing contact
       await BrevoClient.updateContact(email, { attributes }, env.BREVO_API_KEY);
-      console.log(`Updated Brevo contact for ${email}`);
+      logger.info(`Updated Brevo contact for ${email}`);
     } else {
       // Create a new contact with the provided info
       attributes.OPT_IN = true; // Set opt-in for new contacts
@@ -404,10 +400,10 @@ async function updateBrevoContact(
         2, // Default to List #2
         env.BREVO_API_KEY
       );
-      console.log(`Created new Brevo contact for ${email}`);
+      logger.info(`Created new Brevo contact for ${email}`);
     }
   } catch (error) {
-    console.error(`Error updating Brevo contact for ${email}:`, error);
+    logger.error(`Error updating Brevo contact for ${email}:`, error);
     throw error;
   }
 }
