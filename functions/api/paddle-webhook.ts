@@ -4,6 +4,7 @@ import { getLogger, logWrapper } from "../components/pino-logger.ts";
 import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
 const logger = getLogger();
 
+// asdad
 
 export const onRequest: WorkerFunction = async (context) => {
   return await logWrapper(context, WorkerHandler)
