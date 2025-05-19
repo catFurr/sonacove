@@ -292,9 +292,6 @@ async function WorkerHandler(context: WorkerContext) {
         try {
           // Capture login event in PostHog
           posthog.capture("user_logged_in");
-          logger.info(
-            `Captured user_logged_in for ${webhookEvent.authDetails.username}`,
-          );
         } catch (err) {
           logger.error("Error capturing user_logged_in event:", err);
         }

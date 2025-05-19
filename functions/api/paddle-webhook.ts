@@ -25,6 +25,10 @@ async function WorkerHandler(context: WorkerContext) {
       return;
     }
 
+    if (event.event_type === "transaction.created" || event.event_type === "transaction.updated") {
+      posthog.capture("subscription_paid");
+    }
+
     // Extract the relevant information
     const extractedData = PaddleClient.extractWebhookData(event);
 
@@ -93,6 +97,11 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
       );
       return;
     }
+
+    if (subscriptionData.status === "active") {
+      posthog.capture("subscription_activated");
+    }
+
 
     // Check if this update is newer than what we have stored
     if (
