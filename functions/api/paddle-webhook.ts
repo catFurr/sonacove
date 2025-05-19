@@ -2,6 +2,7 @@ import { KeycloakClient } from "../components/keycloak.ts";
 import { PaddleClient, PaddleWebhookEvent } from "../components/paddle.ts";
 import { getLogger, logWrapper } from "../components/pino-logger.ts";
 import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
+import { posthog } from "../components/posthog.ts";
 const logger = getLogger();
 
 // asdad
@@ -27,7 +28,10 @@ async function WorkerHandler(context: WorkerContext) {
     }
 
     if (event.event_type === "transaction.created" || event.event_type === "transaction.updated") {
-      posthog.capture("subscription_paid");
+      posthog.capture({
+        distinctId: "randomTestNum",
+        event: "subscription_paid",
+      });
     }
 
     // Extract the relevant information
@@ -100,7 +104,10 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
     }
 
     if (subscriptionData.status === "active") {
-      posthog.capture("subscription_activated");
+      posthog.capture({
+        distinctId: customerId,
+        event: "subscription_activated"
+      });
     }
 
 

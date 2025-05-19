@@ -1,4 +1,5 @@
 import { PaddleClient } from "../components/paddle.ts";
+import { posthog } from "../components/posthog.ts";
 import {
   BrevoClient,
   type BrevoContactAttributes,
@@ -284,14 +285,20 @@ async function WorkerHandler(context: WorkerContext) {
       case "access.REGISTER": {
         try {
           // Capture signup event in PostHog
-          posthog.capture("user_signed_up");
+          posthog.capture({
+            distinctId: "RandomTestNum",
+            event: "user_signed_up"
+          });
         }
 
       // New event case for user login
       case "access.LOGIN": {
         try {
           // Capture login event in PostHog
-          posthog.capture("user_logged_in");
+          posthog.capture({
+            distinctId: "RandomTestNum",
+            event: "user_logged_in"
+          });
         } catch (err) {
           logger.error("Error capturing user_logged_in event:", err);
         }
