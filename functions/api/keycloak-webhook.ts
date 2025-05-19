@@ -276,6 +276,33 @@ async function WorkerHandler(context: WorkerContext) {
             success: true,
             message: "Email verification processed successfully",
           }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      // New event case for user signup
+      case "access.REGISTER": {
+        try {
+          // Capture signup event in PostHog
+          posthog.capture("user_signed_up");
+        }
+
+      // New event case for user login
+      case "access.LOGIN": {
+        try {
+          // Capture login event in PostHog
+          posthog.capture("user_logged_in");
+          logger.info(
+            `Captured user_logged_in for ${webhookEvent.authDetails.username}`,
+          );
+        } catch (err) {
+          logger.error("Error capturing user_logged_in event:", err);
+        }
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Email verification processed successfully",
+          }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
