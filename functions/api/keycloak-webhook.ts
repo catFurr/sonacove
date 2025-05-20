@@ -289,9 +289,19 @@ async function WorkerHandler(context: WorkerContext) {
             distinctId: "RandomTestNum",
             event: "user_signed_up"
           });
+        } catch (err) {
+          logger.error("Error capturing user_signed_up event:", err);
         }
 
-      // New event case for user login
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "User registration processed successfully",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       case "access.LOGIN": {
         try {
           // Capture login event in PostHog
@@ -302,19 +312,20 @@ async function WorkerHandler(context: WorkerContext) {
         } catch (err) {
           logger.error("Error capturing user_logged_in event:", err);
         }
+
         return new Response(
           JSON.stringify({
             success: true,
             message: "Email verification processed successfully",
           }),
-          { status: 200, headers: { "Content-Type": "application/json" } }
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
       default:
         return new Response(
           JSON.stringify({ message: "Ignored unsupported event type" }),
-          { status: 200, headers: { "Content-Type": "application/json" } }
+          { status: 200, headers: { "Content-Type": "application/json" } },
         );
     }
   } catch (error) {
