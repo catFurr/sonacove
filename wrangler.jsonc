@@ -1,0 +1,25 @@
+{
+  "name": "sonacove",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2025-05-07",
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "2c4fcef2ab524700bd8485b0d8a745d4"
+    }
+  ],
+  "vars": {},
+  "env": {
+    "production": {
+      "kv_namespaces": [
+        {
+          "binding": "KV",
+          "id": "2c4fcef2ab524700bd8485b0d8a745d4"
+        }
+      ],
+      "vars": {}
+    }
+  },
+  "send_metrics": false,
+  "upload_source_maps": true
+}
