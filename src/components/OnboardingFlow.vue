@@ -308,6 +308,9 @@ async function init() {
 
 // Event handlers
 function handleReopenPayment() {
+  // Track when a user clicks "Subscribe Now" after starting a trial
+  posthog.capture('clicked_subscribe_after_trial')
+  
   openPaddleCheckout();
 }
 
