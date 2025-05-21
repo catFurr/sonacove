@@ -15,6 +15,7 @@ import lobby_image from "../assets/feature-lobby.jpg";
 import security_image from "../assets/feature-security.png";
 import notes_image from "../assets/feature-notes.png";
 import polls_image from "../assets/feature-polls.jpg";
+import Posthog from "../components/posthog.astro";
 
 ---
 
@@ -379,8 +380,12 @@ import polls_image from "../assets/feature-polls.jpg";
           Sign up today and experience the most advanced, ethical, and
           user-friendly meeting platform available.
         </p>
+
+        <Posthog />
+
         <div class="text-center">
           <a
+            onclick="posthog.capture('onboarding_button_clicked')"
             href="/onboarding"
             class="px-8 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all shadow-md hover:shadow-lg"
             >Get Started</a

@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import hero_image from "../assets/hero-image.png";
+import Posthog from "./posthog.astro";
 ---
 
 <section class="py-20 md:py-32">
@@ -20,8 +21,11 @@ import hero_image from "../assets/hero-image.png";
           Now publicly available, sign up for free today!
         </p>
 
+        <Posthog />
+
         <div class="max-w-md">
           <a
+            onclick="posthog.capture('onboarding_button_clicked')"
             href="/onboarding"
             class="block w-full text-center px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] whitespace-nowrap"
           >

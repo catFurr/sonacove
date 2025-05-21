@@ -1,3 +1,7 @@
+---
+import Posthog from "./posthog.astro";
+---
+
 <section class="py-16 bg-white" id="pricing">
   <div class="container mx-auto px-4">
     <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">
@@ -150,6 +154,8 @@
             </li>
           </ul>
 
+          <Posthog />
+
           <div class="mt-8">
             <div class="bg-gray-50 rounded-lg p-4 text-center">
               <p class="text-gray-700 font-medium">Now Available!</p>
@@ -158,6 +164,7 @@
                 meetings.
               </p>
               <a
+                onclick="posthog.capture('onboarding_button_clicked')"
                 href="/onboarding"
                 class="inline-block px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02]"
               >
