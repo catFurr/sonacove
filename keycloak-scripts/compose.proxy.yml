@@ -1,0 +1,59 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      # Global HTTP to HTTPS redirection
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./acme.json:/acme.json"
+    networks:
+      - proxy-network # Shared network
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      # Middleware for Security Headers (can be defined here globally or per service)
+      # If you want these headers applied to all services proxied by Traefik, define them here.
+      # Otherwise, define them on the services themselves (like Keycloak).
+      # For now, I'm keeping the security headers specific to Keycloak as they were.
+      # If you want to make them global, uncomment and adjust.
+      # - "traefik.http.middlewares.global-sec-headers.headers.customFrameOptionsValue=SAMEORIGIN"
+      # - "traefik.http.middlewares.global-sec-headers.headers.contentTypeNosniff=true"
+      # - "traefik.http.middlewares.global-sec-headers.headers.browserXssFilter=true"
+      # - "traefik.http.middlewares.global-sec-headers.headers.customResponseHeaders.Referrer-Policy=strict-origin-when-cross-origin"
+      # - "traefik.http.middlewares.global-sec-headers.headers.customResponseHeaders.X-XSS-Protection=1; mode=block"
+      # - "traefik.http.middlewares.global-sec-headers.headers.customResponseHeaders.Content-Security-Policy=default-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; font-src 'self' https: data:;"
+      pass: # Placeholder, no specific labels needed for traefik service itself other than enabling docker provider
+
+networks:
+  proxy-network:
+    driver: bridge
+    name: proxy-network # Explicitly naming the network
+
+volumes:
+  acme_data: # If acme.json is a volume, define it here. If it's a bind mount, it's fine.
+    # Current setup uses a bind mount ./acme.json, so this might not be needed
+    # unless you change ./acme.json to a named volume. For consistency with postgres_data,
+    # you could do:
+    # volumes:
+    #  - "acme_data:/acme.json"
+    # and then define acme_data volume below.
+    # However, for a single file like acme.json, a bind mount is common.
+    pass: # Placeholder
