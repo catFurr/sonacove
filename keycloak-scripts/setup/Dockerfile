@@ -5,7 +5,7 @@ FROM node:20-slim
 WORKDIR /usr/src/app
 
 # Copy package.json and tsconfig.json
-COPY package.json tsconfig.json ./
+COPY package.json tsconfig.json package-lock.json ./
 
 # Install dependencies
 # Using npm ci for cleaner installs in CI/build environments

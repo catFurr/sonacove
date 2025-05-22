@@ -5,7 +5,7 @@ set -e
 # This assumes your .env file has KC_REGISTRATION_API_URL and KC_WEBHOOK_SECRET defined
 
 VAULT_DIR="/opt/keycloak/vault"
-REALM_NAME="${KC_REALM_NAME:-jitsi}" # Default to jitsi if not set, though it should be from compose
+REALM_NAME="${KC_REALM_NAME:-jitsi}"
 
 REGISTRATION_API_URL_FILE="${VAULT_DIR}/${REALM_NAME}_KC_REGISTRATION_API_URL"
 WEBHOOK_SECRET_FILE="${VAULT_DIR}/${REALM_NAME}_KC_WEBHOOK_SECRET"

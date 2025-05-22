@@ -38,7 +38,7 @@ services:
       - ./entrypoint.sh:/opt/keycloak/entrypoint.sh:ro # Mount the entrypoint script
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/auth/health/ready"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -48,12 +48,17 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTPS Router for Keycloak
-      - "traefik.http.routers.keycloak-secure.rule=Host(`${KC_HOSTNAME:-auth.sonacove.com}`)" # Use env var or default
+      - "traefik.http.routers.keycloak-secure.rule=Host(`${KC_HOSTNAME}`) && PathPrefix(`/auth`)"
       - "traefik.http.routers.keycloak-secure.entrypoints=websecure"
       - "traefik.http.routers.keycloak-secure.tls=true"
       - "traefik.http.routers.keycloak-secure.tls.certresolver=myresolver"
-      - "traefik.http.routers.keycloak-secure.service=keycloak-svc"
-      - "traefik.http.routers.keycloak-secure.middlewares=keycloak-sec-headers@docker"
+      # - "traefik.http.routers.keycloak-secure.service=keycloak-svc"
+      - "traefik.http.routers.keycloak-secure.middlewares=keycloak-sec-headers,redirect-auth@docker"
+
+      # Redirect trailing slash
+      - "traefik.http.middlewares.redirect-auth.redirectregex.regex=^https://(.*)/auth$$"
+      - "traefik.http.middlewares.redirect-auth.redirectregex.replacement=https://$${1}/auth/"
+      - "traefik.http.middlewares.redirect-auth.redirectregex.permanent=true"
 
       # Service definition for Keycloak
       - "traefik.http.services.keycloak-svc.loadbalancer.server.port=8080" # Keycloak's internal HTTP port
@@ -88,7 +93,7 @@ services:
 
   keycloak-webhook-setup:
     build:
-      context: ./setup # Path to the directory containing the Dockerfile for the setup script
+      context: ./setup
       dockerfile: Dockerfile
     container_name: keycloak-webhook-setup
     depends_on:
@@ -97,7 +102,7 @@ services:
     networks:
       - proxy-network
     environment:
-      KEYCLOAK_BASE_URL: http://keycloak:8080 # Internal service name and port
+      KEYCLOAK_BASE_URL: http://keycloak # Base hostname for Keycloak internal communication
       KEYCLOAK_REALM_NAME: ${KC_REALM_NAME:-jitsi}
       KEYCLOAK_ADMIN_USER: ${KC_ADMIN_USER}
       KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
@@ -109,7 +114,7 @@ services:
 networks:
   proxy-network:
     external: true
-    name: proxy-network # Ensure this matches the network name in proxy-compose.yml
+    name: proxy-network # Ensure this matches the network name in compose.proxy.yml
 
 volumes:
   postgres_data:

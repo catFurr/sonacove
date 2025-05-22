@@ -1,7 +1,12 @@
 import fetch, { Response } from "node-fetch";
 
-const KEYCLOAK_BASE_URL =
-  process.env.KEYCLOAK_BASE_URL || "http://localhost:8080";
+const KEYCLOAK_HOSTNAME = process.env.KEYCLOAK_BASE_URL || "http://localhost"; // Expecting http://keycloak or http://localhost
+const KEYCLOAK_API_PORT = process.env.KEYCLOAK_API_PORT || "8080";
+const KEYCLOAK_HEALTH_PORT = process.env.KEYCLOAK_HEALTH_PORT || "9000";
+
+const KEYCLOAK_API_URL = `${KEYCLOAK_HOSTNAME}:${KEYCLOAK_API_PORT}/auth`;
+const KEYCLOAK_HEALTH_CHECK_URL = `${KEYCLOAK_HOSTNAME}:${KEYCLOAK_HEALTH_PORT}/auth/health/ready`;
+
 const KEYCLOAK_REALM_NAME = process.env.KEYCLOAK_REALM_NAME || "master";
 const KEYCLOAK_ADMIN_USER = process.env.KEYCLOAK_ADMIN_USER;
 const KEYCLOAK_ADMIN_PASSWORD = process.env.KEYCLOAK_ADMIN_PASSWORD;
@@ -42,7 +47,7 @@ async function getKeycloakAdminToken(): Promise<string> {
     );
   }
 
-  const tokenEndpoint = `${KEYCLOAK_BASE_URL}/realms/master/protocol/openid-connect/token`;
+  const tokenEndpoint = `${KEYCLOAK_API_URL}/realms/master/protocol/openid-connect/token`;
   const params = new URLSearchParams();
   params.append("grant_type", "password");
   params.append("client_id", "admin-cli");
@@ -69,7 +74,7 @@ async function getKeycloakAdminToken(): Promise<string> {
 }
 
 async function getExistingWebhooks(adminToken: string): Promise<Webhook[]> {
-  const webhooksEndpoint = `${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM_NAME}/webhooks`;
+  const webhooksEndpoint = `${KEYCLOAK_API_URL}/realms/${KEYCLOAK_REALM_NAME}/webhooks`;
   console.log(`Fetching existing webhooks from ${webhooksEndpoint}...`);
   const response = await fetch(webhooksEndpoint, {
     headers: { Authorization: `Bearer ${adminToken}` },
@@ -90,7 +95,7 @@ async function createWebhook(
   adminToken: string,
   webhookPayload: Webhook
 ): Promise<void> {
-  const webhooksEndpoint = `${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM_NAME}/webhooks`;
+  const webhooksEndpoint = `${KEYCLOAK_API_URL}/realms/${KEYCLOAK_REALM_NAME}/webhooks`;
   console.log(
     `Creating webhook at ${webhooksEndpoint} with URL: ${webhookPayload.url}`
   );
@@ -114,13 +119,16 @@ async function createWebhook(
 }
 
 async function waitForKevcloak(): Promise<void> {
-  console.log(`Waiting for Keycloak to be ready at ${KEYCLOAK_BASE_URL}...`);
+  console.log(
+    `Waiting for Keycloak to be ready... API base: ${KEYCLOAK_API_URL}`
+  );
+  console.log(`Attempting health check at: ${KEYCLOAK_HEALTH_CHECK_URL}`);
+
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
-      const response: Response = await fetch(
-        `${KEYCLOAK_BASE_URL}/health/ready`,
-        { timeout: 5000 }
-      );
+      const response: Response = await fetch(KEYCLOAK_HEALTH_CHECK_URL, {
+        timeout: 5000,
+      });
       if (response.ok) {
         const healthStatus = (await response.json()) as { status: string };
         if (healthStatus.status === "UP") {
@@ -153,7 +161,7 @@ async function waitForKevcloak(): Promise<void> {
     await sleep(RETRY_DELAY_MS);
   }
   throw new Error(
-    `Keycloak did not become ready at ${KEYCLOAK_BASE_URL} after ${MAX_RETRIES} retries.`
+    `Keycloak did not become ready at ${KEYCLOAK_HEALTH_CHECK_URL} after ${MAX_RETRIES} retries.`
   );
 }
 
