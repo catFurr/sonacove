@@ -69,7 +69,7 @@ services:
       - "traefik.http.middlewares.keycloak-sec-headers.headers.browserXssFilter=true" # Traefik's built-in for X-XSS-Protection
       - "traefik.http.middlewares.keycloak-sec-headers.headers.customResponseHeaders.Referrer-Policy=strict-origin-when-cross-origin"
       - "traefik.http.middlewares.keycloak-sec-headers.headers.customResponseHeaders.X-XSS-Protection=1; mode=block" # Explicitly adding as in Nginx
-      - "traefik.http.middlewares.keycloak-sec-headers.headers.customResponseHeaders.Content-Security-Policy=default-src ''self'' https:; frame-src ''self'' https:; connect-src ''self'' https:; script-src ''self'' ''unsafe-inline'' ''unsafe-eval'' https:; style-src ''self'' ''unsafe-inline'' https:; img-src ''self'' https: data:; font-src ''self'' https: data:;"
+      - "traefik.http.middlewares.keycloak-sec-headers.headers.customResponseHeaders.Content-Security-Policy=default-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data:; font-src 'self' https: data:;"
 
   postgres:
     image: postgres:17-alpine
