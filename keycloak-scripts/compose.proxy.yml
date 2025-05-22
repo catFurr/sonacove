@@ -22,7 +22,7 @@ services:
       # - "8080:8080" # Traefik dashboard
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./acme.json:/acme.json"
+      - "traefik_acme_storage:/acme.json"
     networks:
       - proxy-network # Shared network
     restart: unless-stopped
@@ -54,13 +54,5 @@ networks:
     driver: bridge
     name: proxy-network # Explicitly naming the network
 
-# volumes:
-#   acme_data: # If acme.json is a volume, define it here. If it's a bind mount, it's fine.
-    # Current setup uses a bind mount ./acme.json, so this might not be needed
-    # unless you change ./acme.json to a named volume. For consistency with postgres_data,
-    # you could do:
-    # volumes:
-    #  - "acme_data:/acme.json"
-    # and then define acme_data volume below.
-    # However, for a single file like acme.json, a bind mount is common.
-    # pass: # Placeholder
+volumes:
+  traefik_acme_storage: {}

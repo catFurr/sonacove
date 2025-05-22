@@ -34,7 +34,6 @@ services:
     command: ["start", "--optimized", "--import-realm", "--spi-events-listener-ext-event-webhook-store-webhook-events=true"]
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
-      - ./vault:/opt/keycloak/vault:rw # Mount the local vault directory
       - ./entrypoint.sh:/opt/keycloak/entrypoint.sh:ro # Mount the entrypoint script
     restart: unless-stopped
     healthcheck:

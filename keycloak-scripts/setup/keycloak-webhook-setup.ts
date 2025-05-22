@@ -202,6 +202,8 @@ async function main() {
         wh.eventTypes.every((et) => targetEventTypes.includes(et))
     );
 
+    // TODO: Consider updating or deleting the webhook if it exists?
+
     if (webhookExists) {
       console.log(
         `Webhook for URL ${TARGET_WEBHOOK_URL} and event types [${targetEventTypes.join(

@@ -1,10 +1,13 @@
 #!/bin/sh
 set -e
 
+# Ensure the vault directory exists within the container
+VAULT_DIR="/opt/keycloak/vault"
+mkdir -p "${VAULT_DIR}"
+
 # Populate vault files from environment variables
 # This assumes your .env file has KC_REGISTRATION_API_URL and KC_WEBHOOK_SECRET defined
 
-VAULT_DIR="/opt/keycloak/vault"
 REALM_NAME="${KC_REALM_NAME:-jitsi}"
 
 REGISTRATION_API_URL_FILE="${VAULT_DIR}/${REALM_NAME}_KC_REGISTRATION_API_URL"
