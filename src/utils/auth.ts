@@ -23,7 +23,7 @@ interface KeycloakTokenPayload {
   };
 }
 
-export async function validateKeycloakToken(token: string): Promise<boolean> {
+export async function validateKeycloakToken(token: string, KC_HOSTNAME: string): Promise<boolean> {
   try {
     // Basic token structure validation
     const tokenParts = token.split(".");
@@ -41,7 +41,7 @@ export async function validateKeycloakToken(token: string): Promise<boolean> {
     }
 
     // Check the issuer
-    const expectedIssuer = "https://auth.sonacove.com/realms/jitsi";
+    const expectedIssuer = "https://" + KC_HOSTNAME + "/realms/jitsi";
     if (payload.iss !== expectedIssuer) {
       throw new Error("Invalid token issuer");
     }
