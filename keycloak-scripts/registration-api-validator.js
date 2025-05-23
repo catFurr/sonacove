@@ -24,17 +24,13 @@ function authenticate(context) {
     // Keycloak will resolve "KC_REGISTRATION_API_URL" using configured key resolvers (e.g., prefixing with realm name)
     apiUrlSecretResource = session
       .vault()
-      .getStringSecret("KC_REGISTRATION_API_URL");
-    if (apiUrlSecretResource && apiUrlSecretResource.isDefined()) {
-      apiUrl = apiUrlSecretResource.get().orElse(null);
-    }
+      .getStringSecret("${vault.KC_REGISTRATION_API_URL}");
+    apiUrl = apiUrlSecretResource.get().orElse(null);
 
     apiSecretSecretResource = session
       .vault()
-      .getStringSecret("KC_WEBHOOK_SECRET");
-    if (apiSecretSecretResource && apiSecretSecretResource.isDefined()) {
-      apiSecret = apiSecretSecretResource.get().orElse(null);
-    }
+      .getStringSecret("${vault.KC_WEBHOOK_SECRET}");
+    apiSecret = apiSecretSecretResource.get().orElse(null);
   } catch (e) {
     LOG.error("Error accessing Keycloak vault: " + e.message);
     context.failure(
@@ -163,7 +159,7 @@ function authenticate(context) {
     }
 
     // Give the user a trial
-    const paddle_last_update = new Date().toISOString();
+    var paddle_last_update = new Date().toISOString();
     user.setAttribute("paddle_subscription_status", ["trialing"]);
     LOG.info(
       "Successfully set paddle_subscription_status attribute to: trialing"

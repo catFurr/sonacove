@@ -10,22 +10,23 @@ mkdir -p "${VAULT_DIR}"
 
 REALM_NAME="${KC_REALM_NAME:-jitsi}"
 
-REGISTRATION_API_URL_FILE="${VAULT_DIR}/${REALM_NAME}_KC_REGISTRATION_API_URL"
-WEBHOOK_SECRET_FILE="${VAULT_DIR}/${REALM_NAME}_KC_WEBHOOK_SECRET"
+# https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.0/html/server_administration_guide/vault-administration
+REGISTRATION_API_URL_FILE="${VAULT_DIR}/${REALM_NAME}_KC__REGISTRATION__API__URL"
+WEBHOOK_SECRET_FILE="${VAULT_DIR}/${REALM_NAME}_KC__WEBHOOK__SECRET"
 
 # Check if environment variables are set
 if [ -z "${KC_REGISTRATION_API_URL}" ]; then
   echo "Warning: KC_REGISTRATION_API_URL is not set. The vault file will be empty or have its placeholder." >&2
 else
   echo "Populating ${REGISTRATION_API_URL_FILE} with KC_REGISTRATION_API_URL"
-  echo "${KC_REGISTRATION_API_URL}" > "${REGISTRATION_API_URL_FILE}"
+  echo -n "${KC_REGISTRATION_API_URL}" > "${REGISTRATION_API_URL_FILE}"
 fi
 
 if [ -z "${KC_WEBHOOK_SECRET}" ]; then
   echo "Warning: KC_WEBHOOK_SECRET is not set. The vault file will be empty or have its placeholder." >&2
 else
   echo "Populating ${WEBHOOK_SECRET_FILE} with KC_WEBHOOK_SECRET"
-  echo "${KC_WEBHOOK_SECRET}" > "${WEBHOOK_SECRET_FILE}"
+  echo -n "${KC_WEBHOOK_SECRET}" > "${WEBHOOK_SECRET_FILE}"
 fi
 
 # Original Keycloak command (from Docker image or previous compose command)
