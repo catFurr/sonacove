@@ -28,12 +28,13 @@ services:
       # Pass through the env vars needed by entrypoint.sh to populate vault files
       KC_REGISTRATION_API_URL: ${KC_REGISTRATION_API_URL}
       KC_WEBHOOK_SECRET: ${KC_WEBHOOK_SECRET}
+      KC_CLIENT_SECRET: ${KC_CLIENT_SECRET} # Client secret for realm configuration
       KC_REALM_NAME: ${KC_REALM_NAME:-jitsi} # Pass realm name for entrypoint script
 
     entrypoint: ["/opt/keycloak/entrypoint.sh"]
     command: ["start", "--optimized", "--import-realm", "--spi-events-listener-ext-event-webhook-store-webhook-events=true"]
     volumes:
-      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - ./realm-export.json:/opt/keycloak/realm-template.json:ro # Mount as template, not in import directory
       - ./entrypoint.sh:/opt/keycloak/entrypoint.sh:ro # Mount the entrypoint script
     restart: unless-stopped
     healthcheck:
@@ -103,7 +104,7 @@ services:
     environment:
       KEYCLOAK_BASE_URL: http://keycloak # Base hostname for Keycloak internal communication
       KEYCLOAK_REALM_NAME: ${KC_REALM_NAME:-jitsi}
-      KEYCLOAK_ADMIN_USER: ${KC_ADMIN_USER}
+      KEYCLOAK_ADMIN_USER: ${KC_ADMIN_USER:-temp-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
       TARGET_WEBHOOK_URL: ${KC_WEBHOOK_URL:-https://sonacove.com/api/keycloak-webhook}
       TARGET_WEBHOOK_SECRET: ${KC_WEBHOOK_SECRET}

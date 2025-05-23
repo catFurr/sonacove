@@ -29,6 +29,32 @@ else
   echo -n "${KC_WEBHOOK_SECRET}" > "${WEBHOOK_SECRET_FILE}"
 fi
 
+# Process realm export file to replace client secret placeholder
+TEMPLATE_REALM_FILE="/opt/keycloak/realm-template.json"
+FINAL_REALM_FILE="/opt/keycloak/data/import/realm-export.json"
+
+# Ensure the import directory exists
+mkdir -p "/opt/keycloak/data/import"
+
+if [ -f "${TEMPLATE_REALM_FILE}" ]; then
+  echo "Processing realm template file and copying to import directory..."
+  
+  # Copy the template file to the import directory
+  cp "${TEMPLATE_REALM_FILE}" "${FINAL_REALM_FILE}"
+  
+  # Replace the KC_CLIENT_SECRET placeholder with the actual value
+  if [ -n "${KC_CLIENT_SECRET}" ]; then
+    echo "Replacing \${KC_CLIENT_SECRET} with actual client secret value"
+    sed -i "s/\${KC_CLIENT_SECRET}/${KC_CLIENT_SECRET}/g" "${FINAL_REALM_FILE}"
+  else
+    echo "Warning: KC_CLIENT_SECRET is not set. The placeholder will remain in the realm file." >&2
+  fi
+  
+  echo "Realm file processed and ready for import at ${FINAL_REALM_FILE}"
+else
+  echo "Warning: Realm template file not found at ${TEMPLATE_REALM_FILE}" >&2
+fi
+
 # Original Keycloak command (from Docker image or previous compose command)
 # The Dockerfile for Keycloak sets ENTRYPOINT ["/opt/keycloak/bin/kc.sh"].
 # The original command in compose was: ["start", "--optimized", "--import-realm", "--spi-events-listener-ext-event-webhook-store-webhook-events=true"]
