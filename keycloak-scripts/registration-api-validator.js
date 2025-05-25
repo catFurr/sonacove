@@ -2,12 +2,74 @@
 AuthenticationFlowError = Java.type(
   "org.keycloak.authentication.AuthenticationFlowError"
 );
+// Import VaultStringSecret if not already available via Keycloak's JS engine
+// Depending on Keycloak version and JS engine, explicit import might not be needed,
+// but it's safer to have it if direct Java class access is intended.
+// For newer Keycloak versions with GraalJS, direct Java.type should work.
+// var VaultStringSecret = Java.type("org.keycloak.vault.VaultStringSecret"); // Usually not needed to type if just using return value
 
 /**
  * Called during the authentication flow
  */
 function authenticate(context) {
   LOG.info("Executing Registration API Validator for user: " + user.username);
+
+  var apiUrl = null;
+  var apiSecret = null;
+  var apiUrlSecretResource = null; // To hold the closable resource
+  var apiSecretSecretResource = null; // To hold the closable resource
+
+  try {
+    // Attempt to retrieve secrets from the vault
+    // Keycloak will resolve "KC_REGISTRATION_API_URL" using configured key resolvers (e.g., prefixing with realm name)
+    apiUrlSecretResource = session
+      .vault()
+      .getStringSecret("${vault.KC_REGISTRATION_API_URL}");
+    apiUrl = apiUrlSecretResource.get().orElse(null);
+
+    apiSecretSecretResource = session
+      .vault()
+      .getStringSecret("${vault.KC_WEBHOOK_SECRET}");
+    apiSecret = apiSecretSecretResource.get().orElse(null);
+  } catch (e) {
+    LOG.error("Error accessing Keycloak vault: " + e.message);
+    context.failure(
+      AuthenticationFlowError.INTERNAL_ERROR,
+      "Vault access error during registration validation."
+    );
+    return;
+  } finally {
+    // Ensure secrets are closed to clear them from memory
+    if (apiUrlSecretResource) {
+      try {
+        apiUrlSecretResource.close();
+      } catch (e) {
+        LOG.warn("Error closing apiUrlSecretResource: " + e.message);
+      }
+    }
+    if (apiSecretSecretResource) {
+      try {
+        apiSecretSecretResource.close();
+      } catch (e) {
+        LOG.warn("Error closing apiSecretSecretResource: " + e.message);
+      }
+    }
+  }
+
+  if (!apiUrl || !apiSecret) {
+    LOG.error(
+      "API URL or Secret not found in vault or not configured for Registration API Validator script."
+    );
+    context.failure(
+      AuthenticationFlowError.INTERNAL_ERROR,
+      "Registration API Validator vault secrets not configured."
+    );
+    return;
+  }
+
+  LOG.info("Registration API Validator - API URL from Vault: " + apiUrl);
+  // Be cautious logging secrets, even in server logs. Consider removing this for production.
+  // LOG.info("Registration API Validator - API Secret: " + (apiSecret ? "********" : "Not Set"));
 
   // Check if this is a new registration by looking at the attribute we'll set
   // This prevents the script from running during the first login after registration
@@ -25,7 +87,7 @@ function authenticate(context) {
   );
   var httpClient = httpClientProvider.getHttpClient();
   var httpPost = new org.apache.http.client.methods.HttpPost(
-    "https://sonacove.com/api/registration-flow"
+    apiUrl // Use the configured API URL from vault
   );
 
   try {
@@ -44,9 +106,7 @@ function authenticate(context) {
     httpPost.setHeader("Content-Type", "application/json");
 
     // Add authorization header with the webhook secret
-    // TODO: store this in a realm attribute or server property
-    // and access it securely.
-    var secretToken = "VblFBfRUUy3edszNWqgOZuvVPgL320";
+    var secretToken = apiSecret; // Use the configured API Secret from vault
     httpPost.setHeader("Authorization", "Bearer " + secretToken);
 
     var stringEntity = new org.apache.http.entity.StringEntity(jsonData);
@@ -99,11 +159,15 @@ function authenticate(context) {
     }
 
     // Give the user a trial
-    const paddle_last_update = new Date().toISOString();
+    var paddle_last_update = new Date().toISOString();
     user.setAttribute("paddle_subscription_status", ["trialing"]);
-    LOG.info("Successfully set paddle_subscription_status attribute to: trialing");
+    LOG.info(
+      "Successfully set paddle_subscription_status attribute to: trialing"
+    );
     user.setAttribute("paddle_last_update", [paddle_last_update]);
-    LOG.info("Successfully set paddle_last_update attribute to: " + paddle_last_update);
+    LOG.info(
+      "Successfully set paddle_last_update attribute to: " + paddle_last_update
+    );
     context.success();
   } catch (e) {
     LOG.error("Exception during API call: " + e.message);

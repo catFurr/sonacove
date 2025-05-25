@@ -2,9 +2,10 @@
 
 export interface Env {
     KV: KVNamespace;
-    KEYCLOAK_CLIENT_ID: string;
-    KEYCLOAK_CLIENT_SECRET: string;
-    KEYCLOAK_WEBHOOK_SECRET: string;
+    KC_CLIENT_ID: string;
+    KC_CLIENT_SECRET: string;
+    KC_WEBHOOK_SECRET: string;
+    KC_HOSTNAME: string;
 
     BREVO_API_KEY: string;
     DISCORD_PUBLIC_KEY: string;
