@@ -1,22 +1,22 @@
 // Helper for validating Keycloak JWTs using JWKS
 import { jwtVerify, createRemoteJWKSet } from "jose";
 import { getLogger } from "./pino-logger.ts";
+import { Env } from "./types.ts";
 const logger = getLogger();
 
-const JWKS_URL =
-  "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/certs";
-const ISSUER = "https://auth.sonacove.com/realms/jitsi";
+const JWKS_URL = "/realms/jitsi/protocol/openid-connect/certs";
+const ISSUER = "/realms/jitsi";
 const AUDIENCE = "jitsi-web";
 
-let jwks;
+let jwks: any;
 
-export async function validateKeycloakJWT(token) {
+export async function validateKeycloakJWT(token: string, env: Env) {
   try {
     if (!jwks) {
-      jwks = createRemoteJWKSet(new URL(JWKS_URL));
+      jwks = createRemoteJWKSet(new URL("https://" + env.KC_HOSTNAME + JWKS_URL));
     }
     const { payload } = await jwtVerify(token, jwks, {
-      issuer: ISSUER,
+      issuer: "https://" + env.KC_HOSTNAME + ISSUER,
       audience: AUDIENCE,
     });
     // Optionally check exp, email_verified, etc. here
@@ -27,7 +27,7 @@ export async function validateKeycloakJWT(token) {
   }
 }
 
-export function getEmailFromJWT(token) {
+export function getEmailFromJWT(token: string) {
   try {
     const [, payloadB64] = token.split(".");
     // Replace characters for base64url to base64 standard

@@ -7,9 +7,8 @@ import { getLogger } from "./pino-logger.ts";
 import type { Env } from "./types.ts";
 const logger = getLogger();
 
-const tokenEndpoint =
-  "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect/token";
-const userEndpoint = "https://auth.sonacove.com/admin/realms/jitsi/users/";
+const tokenEndpoint = "/realms/jitsi/protocol/openid-connect/token";
+const userEndpoint = "/admin/realms/jitsi/users/";
 
 const tokenKey = "keycloak_token";
 const tokenExpiryKey = "keycloak_token_expiry";
@@ -70,10 +69,11 @@ export class KeycloakClient {
       // Otherwise, get a new token
       const formData = new URLSearchParams();
       formData.append("grant_type", "client_credentials");
-      formData.append("client_id", this.env.KEYCLOAK_CLIENT_ID);
-      formData.append("client_secret", this.env.KEYCLOAK_CLIENT_SECRET);
+      formData.append("client_id", this.env.KC_CLIENT_ID);
+      formData.append("client_secret", this.env.KC_CLIENT_SECRET);
 
-      const response = await fetch(tokenEndpoint, {
+      const url = "https://" + this.env.KC_HOSTNAME + tokenEndpoint;
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -111,7 +111,8 @@ export class KeycloakClient {
       const query = email
         ? `?email=${encodeURIComponent(email)}`
         : `?q=paddle_subscription_id:${subscriptionId}`;
-      const response = await fetch(userEndpoint + query, {
+      const url = "https://" + this.env.KC_HOSTNAME + userEndpoint + query;
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${this.token}`,
         },
@@ -168,7 +169,8 @@ export class KeycloakClient {
       if (attributes.enabled !== undefined) userData.enabled = attributes.enabled;
 
       // Send the update
-      const updateResponse = await fetch(userEndpoint + user.id, {
+      const url = "https://" + this.env.KC_HOSTNAME + userEndpoint + user.id;
+      const updateResponse = await fetch(url, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${this.token}`,

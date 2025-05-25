@@ -23,11 +23,13 @@ const userFriendlyError = ref("We encountered an unexpected issue.");
 const detailedErrorMessage = ref(null);
 const showDetailedError = ref(false);
 
+const env = import.meta.env;
+
 // Initialize Paddle checkout
 async function initializePaddleInstance() {
   try {
-    const environment = import.meta.env.PUBLIC_PADDLE_ENVIRONMENT || "sandbox";
-    const clientToken = import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN;
+    const environment = env.PUBLIC_PADDLE_ENVIRONMENT || "sandbox";
+    const clientToken = env.PUBLIC_PADDLE_CLIENT_TOKEN;
 
     if (!clientToken) {
       throw new Error("Paddle client token is not configured");
@@ -116,7 +118,7 @@ async function openPaddleCheckout() {
     const checkoutConfig = {
       items: [
         {
-          priceId: import.meta.env.PUBLIC_PADDLE_PRICE_ID,
+          priceId: env.PUBLIC_PADDLE_PRICE_ID,
           quantity: 1,
         },
       ],
@@ -171,7 +173,7 @@ function updateRegistrationUrl() {
   }
 
   const keycloakBaseUrl =
-    "https://auth.sonacove.com/realms/jitsi/protocol/openid-connect";
+    "https://" + env.PUBLIC_KC_HOSTNAME + "/realms/jitsi/protocol/openid-connect";
   const clientId = "jitsi-web";
   const responseType = "token";
 
@@ -208,7 +210,7 @@ async function init() {
 
     if (accessToken.value) {
       // Token from Keycloak redirect
-      const isAuthenticated = await validateKeycloakToken(accessToken.value);
+      const isAuthenticated = await validateKeycloakToken(accessToken.value, env.PUBLIC_KC_HOSTNAME);
       if (isAuthenticated) {
         userInfo.value = parseUserFromToken(accessToken.value);
         if (userInfo.value) {
@@ -258,7 +260,7 @@ async function init() {
       const storedUserInfoString = localStorage.getItem(STORAGE_KEYS.USER_INFO);
 
       if (storedToken && storedUserInfoString) {
-        const isValid = await validateKeycloakToken(storedToken);
+        const isValid = await validateKeycloakToken(storedToken, env.PUBLIC_KC_HOSTNAME);
         if (isValid) {
           accessToken.value = storedToken;
           userInfo.value = JSON.parse(storedUserInfoString);
