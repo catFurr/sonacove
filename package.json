@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",
-    "@astrojs/vue": "^5.0.10",
+    "@astrojs/vue": "^5.0.13",
     "@paddle/paddle-js": "^1.4.1",
     "astro": "^5.7.4",
     "jose": "^6.0.10",
@@ -23,9 +23,9 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250418.0",
-    "@types/bun": "^1.2.10",
-    "@types/node": "^22.14.1",
+    "@cloudflare/workers-types": "^4.20250513.0",
+    "@types/bun": "^1.2.13",
+    "@types/node": "^22.15.17",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {

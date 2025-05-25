@@ -30,7 +30,7 @@ async function WorkerHandler(context: WorkerContext) {
     const authHeader = context.request.headers.get("Authorization");
     const secretToken = authHeader?.replace("Bearer ", "");
 
-    if (!secretToken || secretToken !== context.env.KEYCLOAK_WEBHOOK_SECRET) {
+    if (!secretToken || secretToken !== context.env.KC_WEBHOOK_SECRET) {
       logger.error("Invalid or missing authentication token");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,

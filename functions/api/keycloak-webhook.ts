@@ -115,7 +115,7 @@ async function WorkerHandler(context: WorkerContext) {
     const isValid = await verifyWebhookSignature(
       rawBody,
       signature,
-      context.env.KEYCLOAK_WEBHOOK_SECRET
+      context.env.KC_WEBHOOK_SECRET
     );
 
     if (!isValid) {

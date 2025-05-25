@@ -58,7 +58,7 @@ async function WorkerHandler(context: WorkerContext) {
     }
 
     // Validate JWT and extract email
-    const valid = await validateKeycloakJWT(jwt);
+    const valid = await validateKeycloakJWT(jwt, context.env);
     if (!valid) {
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,

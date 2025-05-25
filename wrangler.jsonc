@@ -5,7 +5,7 @@
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "2c4fcef2ab524700bd8485b0d8a745d4"
+      "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
     }
   ],
   "vars": {},
@@ -21,5 +21,6 @@
     }
   },
   "send_metrics": false,
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  "keep_vars": true
 }

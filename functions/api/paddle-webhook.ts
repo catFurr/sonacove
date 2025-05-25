@@ -5,6 +5,7 @@ import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts"
 import { posthog } from "../components/posthog.ts";
 const logger = getLogger();
 
+
 // asdad
 
 export const onRequest: WorkerFunction = async (context) => {
