@@ -517,20 +517,26 @@ async function deploy() {
         );
         const wranglerConfig = JSON.parse(wranglerConfigContent);
 
-        // Update root vars with .env content
+        // Update preview vars with .env content (instead of root vars)
         if (Object.keys(baseEnvVars).length > 0) {
-          if (!wranglerConfig.vars) {
-            wranglerConfig.vars = {};
+          if (!wranglerConfig.env) {
+            wranglerConfig.env = {};
+          }
+          if (!wranglerConfig.env.preview) {
+            wranglerConfig.env.preview = {};
+          }
+          if (!wranglerConfig.env.preview.vars) {
+            wranglerConfig.env.preview.vars = {};
           }
           for (const key in baseEnvVars) {
-            wranglerConfig.vars[key] = baseEnvVars[key];
+            wranglerConfig.env.preview.vars[key] = baseEnvVars[key];
           }
           console.log(
-            `📝 Populated root 'vars' in ${wranglerConfigPathInCfBuild} from ${envFilePath}`
+            `📝 Populated 'env.preview.vars' in ${wranglerConfigPathInCfBuild} from ${envFilePath}`
           );
         } else {
           console.log(
-            `ℹ️ No variables found in ${envFilePath} to update root 'vars', or file does not exist.`
+            `ℹ️ No variables found in ${envFilePath} to update 'env.preview.vars', or file does not exist.`
           );
         }
 
@@ -558,12 +564,20 @@ async function deploy() {
         }
 
         // Clean up potentially empty objects if they were created but not populated
-        // or if the .env files were empty, resulting in empty var objects.
         if (
-          wranglerConfig.vars &&
-          Object.keys(wranglerConfig.vars).length === 0
+          wranglerConfig.env &&
+          wranglerConfig.env.preview &&
+          wranglerConfig.env.preview.vars &&
+          Object.keys(wranglerConfig.env.preview.vars).length === 0
         ) {
-          delete wranglerConfig.vars;
+          delete wranglerConfig.env.preview.vars;
+        }
+        if (
+          wranglerConfig.env &&
+          wranglerConfig.env.preview &&
+          Object.keys(wranglerConfig.env.preview).length === 0
+        ) {
+          delete wranglerConfig.env.preview;
         }
         if (
           wranglerConfig.env &&
@@ -673,7 +687,7 @@ async function deploy() {
       }
     }
 
-    updateBaseHref(meetDir);
+    // updateBaseHref(meetDir);
     if (fs.existsSync(path.join(meetDir, "static/404.html"))) {
       fs.copyFileSync(
         path.join(meetDir, "static/404.html"),

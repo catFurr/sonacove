@@ -2,13 +2,6 @@
     "name": "sonacove",
     "pages_build_output_dir": ".",
     "compatibility_date": "2025-05-07",
-    "kv_namespaces": [
-      {
-        "binding": "KV",
-        "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
-      }
-    ],
-    "vars": {},
     "env": {
         "production": {
             "kv_namespaces": [
@@ -18,9 +11,17 @@
                 }
             ],
             "vars": {}
+        },
+        "preview": {
+            "kv_namespaces": [
+                {
+                    "binding": "KV",
+                    "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
+                }
+            ],
+            "vars": {}
         }
     },
     "send_metrics": false,
-    "upload_source_maps": true,
-    "keep_vars": true
+    "upload_source_maps": true
 }
