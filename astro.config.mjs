@@ -7,6 +7,13 @@ import vue from '@astrojs/vue';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), vue()],
+  vite: {
+    server: {
+      allowedHosts: [
+        'hyena-steady-probably.ngrok-free.app'
+      ]
+    }
+  },
   output: 'static',
   prefetch: {
     prefetchAll: true,
