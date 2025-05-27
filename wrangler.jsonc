@@ -21,6 +21,6 @@
     }
   },
   "send_metrics": false,
-  "upload_source_maps": true,
+  "upload_source_maps": true
   // "keep_vars": true
 }
