@@ -22,5 +22,5 @@
   },
   "send_metrics": false,
   "upload_source_maps": true,
-  "keep_vars": true
+  // "keep_vars": true
 }
