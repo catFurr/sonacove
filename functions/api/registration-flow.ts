@@ -1,5 +1,6 @@
 import { PaddleClient, type PaddleCustomer } from "../components/paddle.ts";
 import { posthog } from "../components/posthog.ts";
+import { posthog } from "../components/posthog.ts";
 import {
   BrevoClient,
   type BrevoContactAttributes,
@@ -22,6 +23,7 @@ export const onRequest: WorkerFunction = async (context) => {
 }
 
 async function WorkerHandler(context: WorkerContext) {
+    posthog.capture({ event: 'user_logged_in', distinctId: 'random' });
   try {
     // Only accept POST requests
     if (context.request.method !== "POST") {

@@ -2,8 +2,11 @@ import { KeycloakClient } from "../components/keycloak.ts";
 import { validateKeycloakJWT, getEmailFromJWT } from "../components/jwt.ts";
 import { getLogger, logWrapper } from "../components/pino-logger.ts";
 import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+import { posthog } from "../components/posthog.ts";
 const logger = getLogger();
 
+posthog.capture({ event: 'user_logged_in', distinctId: 'random' });
+await posthog.flush(); 
 function isStatusFinal(status?: string[]): boolean {
   if (!status || status.length === 0) return false;
   const s = status[0];
