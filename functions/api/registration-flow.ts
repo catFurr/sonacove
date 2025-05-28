@@ -1,10 +1,12 @@
 import { PaddleClient, type PaddleCustomer } from "../components/paddle.ts";
+import { posthog } from "../components/posthog.ts";
 import {
   BrevoClient,
   type BrevoContactAttributes,
 } from "../components/brevo.ts";
 import { getLogger, logWrapper } from "../components/pino-logger.ts";
 import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+import { capturePosthogEvent } from "./keycloak-webhook.ts";
 const logger = getLogger();
 
 // Define the expected request body interface
@@ -188,6 +190,11 @@ async function WorkerHandler(context: WorkerContext) {
         // Continue with the flow even if Brevo contact creation fails
       }
     }
+
+       capturePosthogEvent({
+         distinctId: 'RandomTestNum',
+         event: 'test_event',
+       });
 
     // 5. Return the Paddle customer ID
     return new Response(JSON.stringify({ paddle_customer_id: customerId }), {
