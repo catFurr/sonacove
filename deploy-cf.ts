@@ -403,6 +403,37 @@ function updateBaseHref(meetDir: string): void {
   }
 }
 
+/**
+ * Copies and updates the wrangler.jsonc configuration file
+ * @param cfBuildDir - The cf-build directory path
+ * @param sonaPath - The sonacove project path
+ */
+async function updateWranglerConfig(
+  cfBuildDir: string,
+  sonaPath: string
+): Promise<void> {
+  console.log(
+    "\n🔧 Step 3.5: Copying and updating wrangler.jsonc configuration"
+  );
+
+  const sourceWranglerConfigPath = path.join(sonaPath, "wrangler.jsonc");
+  const wranglerConfigPathInCfBuild = path.join(cfBuildDir, "wrangler.jsonc");
+
+  // Check if wrangler.jsonc exists in project root
+  if (!fs.existsSync(sourceWranglerConfigPath)) {
+    console.error(
+      `❌ Source wrangler.jsonc not found at ${sourceWranglerConfigPath}. Cannot proceed with deployment.`
+    );
+    process.exit(1);
+  }
+
+  // Copy wrangler.jsonc to cf-build directory
+  fs.copyFileSync(sourceWranglerConfigPath, wranglerConfigPathInCfBuild);
+  console.log(
+    `📋 Copied ${sourceWranglerConfigPath} to ${wranglerConfigPathInCfBuild}`
+  );
+}
+
 async function deploy() {
   const sonaPath = process.cwd();
   const cfBuildDir = path.join(sonaPath, "cf-build");
@@ -474,152 +505,7 @@ async function deploy() {
     copyFileOrDirectory(path.join(sonaPath, "dist"), cfBuildDir); // Copies content of dist into cfBuildDir
 
     // Update the copied wrangler.jsonc with the correct environment variables
-    console.log("\n🔧 Updating wrangler.jsonc with environment variables...");
-    const wranglerConfigPathInCfBuild = path.join(cfBuildDir, "wrangler.jsonc");
-
-    if (!fs.existsSync(wranglerConfigPathInCfBuild)) {
-      console.log(
-        `INFO: ${wranglerConfigPathInCfBuild} not found in build output. Attempting to copy from public/wrangler.jsonc`
-      );
-      const sourceWranglerConfigPath = path.join(
-        sonaPath,
-        "public",
-        "wrangler.jsonc"
-      );
-      if (fs.existsSync(sourceWranglerConfigPath)) {
-        // cfBuildDir is ensured to exist by this point in the script
-        fs.copyFileSync(sourceWranglerConfigPath, wranglerConfigPathInCfBuild);
-        console.log(
-          `📋 Copied ${sourceWranglerConfigPath} to ${wranglerConfigPathInCfBuild}.`
-        );
-      } else {
-        console.error(
-          `❌ Source wrangler.jsonc not found at ${sourceWranglerConfigPath} and also not in ${cfBuildDir}. Cannot proceed with env var update.`
-        );
-        // If wrangler.jsonc is essential for deployment, exiting is appropriate.
-        // If it's optional or its absence can be handled by Wrangler defaults, this could be a warning.
-        process.exit(1);
-      }
-    }
-
-    // Proceed only if wrangler.jsonc now exists in cf-build
-    if (fs.existsSync(wranglerConfigPathInCfBuild)) {
-      const envFilePath = path.join(sonaPath, ".env");
-      const envProductionFilePath = path.join(sonaPath, ".env.production");
-
-      const baseEnvVars = loadEnvFile(envFilePath);
-      const prodEnvVars = loadEnvFile(envProductionFilePath);
-
-      try {
-        const wranglerConfigContent = fs.readFileSync(
-          wranglerConfigPathInCfBuild,
-          "utf-8"
-        );
-        const wranglerConfig = JSON.parse(wranglerConfigContent);
-
-        // Update preview vars with .env content (instead of root vars)
-        if (Object.keys(baseEnvVars).length > 0) {
-          if (!wranglerConfig.env) {
-            wranglerConfig.env = {};
-          }
-          if (!wranglerConfig.env.preview) {
-            wranglerConfig.env.preview = {};
-          }
-          if (!wranglerConfig.env.preview.vars) {
-            wranglerConfig.env.preview.vars = {};
-          }
-          for (const key in baseEnvVars) {
-            wranglerConfig.env.preview.vars[key] = baseEnvVars[key];
-          }
-          console.log(
-            `📝 Populated 'env.preview.vars' in ${wranglerConfigPathInCfBuild} from ${envFilePath}`
-          );
-        } else {
-          console.log(
-            `ℹ️ No variables found in ${envFilePath} to update 'env.preview.vars', or file does not exist.`
-          );
-        }
-
-        // Update production vars with .env.production content
-        if (Object.keys(prodEnvVars).length > 0) {
-          if (!wranglerConfig.env) {
-            wranglerConfig.env = {};
-          }
-          if (!wranglerConfig.env.production) {
-            wranglerConfig.env.production = {};
-          }
-          if (!wranglerConfig.env.production.vars) {
-            wranglerConfig.env.production.vars = {};
-          }
-          for (const key in prodEnvVars) {
-            wranglerConfig.env.production.vars[key] = prodEnvVars[key];
-          }
-          console.log(
-            `📝 Populated 'env.production.vars' in ${wranglerConfigPathInCfBuild} from ${envProductionFilePath}`
-          );
-        } else {
-          console.log(
-            `ℹ️ No variables found in ${envProductionFilePath} to update 'env.production.vars', or file does not exist.`
-          );
-        }
-
-        // Clean up potentially empty objects if they were created but not populated
-        if (
-          wranglerConfig.env &&
-          wranglerConfig.env.preview &&
-          wranglerConfig.env.preview.vars &&
-          Object.keys(wranglerConfig.env.preview.vars).length === 0
-        ) {
-          delete wranglerConfig.env.preview.vars;
-        }
-        if (
-          wranglerConfig.env &&
-          wranglerConfig.env.preview &&
-          Object.keys(wranglerConfig.env.preview).length === 0
-        ) {
-          delete wranglerConfig.env.preview;
-        }
-        if (
-          wranglerConfig.env &&
-          wranglerConfig.env.production &&
-          wranglerConfig.env.production.vars &&
-          Object.keys(wranglerConfig.env.production.vars).length === 0
-        ) {
-          delete wranglerConfig.env.production.vars;
-        }
-        if (
-          wranglerConfig.env &&
-          wranglerConfig.env.production &&
-          Object.keys(wranglerConfig.env.production).length === 0
-        ) {
-          delete wranglerConfig.env.production;
-        }
-        if (
-          wranglerConfig.env &&
-          Object.keys(wranglerConfig.env).length === 0
-        ) {
-          delete wranglerConfig.env;
-        }
-
-        fs.writeFileSync(
-          wranglerConfigPathInCfBuild,
-          JSON.stringify(wranglerConfig, null, 2)
-        );
-        console.log(`✅ Successfully updated ${wranglerConfigPathInCfBuild}`);
-      } catch (parseError) {
-        console.error(
-          `❌ Error processing ${wranglerConfigPathInCfBuild}:`,
-          parseError
-        );
-        process.exit(1);
-      }
-    } else {
-      // This case should ideally not be reached if the above logic is correct
-      // and wrangler.jsonc is either found or copied, or the process exits.
-      console.warn(
-        `⚠️ wrangler.jsonc not found at ${wranglerConfigPathInCfBuild}, skipping environment variable update.`
-      );
-    }
+    await updateWranglerConfig(cfBuildDir, sonaPath);
 
     console.log("\n📂 Step 4: Copying functions folder");
     const functionsSourceDir = path.join(sonaPath, "functions");

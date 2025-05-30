@@ -17,10 +17,7 @@
             "PUBLIC_PADDLE_PRICE_ID": "pri_01jnzz5cz98ha49a538ssswszk",
             "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
             "KC_HOSTNAME": "auth.sonacove.com",
-            "KC_CLIENT_ID": "paddle-update-user",
-            "KC_REGISTRATION_API_URL": "https://sonacove.com/api/registration-flow",
-            "KC_WEBHOOK_URL": "https://sonacove.com/api/keycloak-webhook",
-            "KC_WEBHOOK_EVENT_TYPES": "UPDATE_PROFILE,VERIFY_EMAIL"
+            "KC_CLIENT_ID": "paddle-update-user"
           }
       },
       "preview": {
@@ -33,9 +30,6 @@
           "vars": {
             "KC_HOSTNAME": "staj.sonacove.com/auth",
             "KC_CLIENT_ID": "paddle-update-user",
-            "KC_REGISTRATION_API_URL": "https://sonacove.com/api/registration-flow",
-            "KC_WEBHOOK_URL": "https://sonacove.com/api/keycloak-webhook",
-            "KC_WEBHOOK_EVENT_TYPES": "UPDATE_PROFILE,VERIFY_EMAIL",
             "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
             "PUBLIC_PADDLE_ENVIRONMENT": "sandbox",
             "PUBLIC_PADDLE_CLIENT_TOKEN": "test_aa747e41e1866be40d09da6d0f6",
