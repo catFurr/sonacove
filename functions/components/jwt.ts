@@ -1,7 +1,7 @@
 // Helper for validating Keycloak JWTs using JWKS
 import { jwtVerify, createRemoteJWKSet } from "jose";
 import { getLogger } from "./pino-logger.ts";
-import { Env } from "./types.ts";
+import type { Env } from "./types.ts";
 const logger = getLogger();
 
 const JWKS_URL = "/realms/jitsi/protocol/openid-connect/certs";

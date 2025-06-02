@@ -287,7 +287,7 @@ async function WorkerHandler(context: WorkerContext) {
         );
     }
   } catch (error) {
-    logger.error("Error processing Keycloak webhook:", error);
+    logger.error("Error processing Keycloak webhook:" + error.message);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
