@@ -27,7 +27,13 @@
                 "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
                 "KC_HOSTNAME": "auth.sonacove.com",
                 "KC_CLIENT_ID": "paddle-update-user"
-            }
+            },
+            "routes": [
+                {
+                    "pattern": "staj-web.sonacove.com",
+                    "custom_domain": true
+                }
+            ]
         },
         "preview": {
             "workers_dev": true,
@@ -48,12 +54,6 @@
             }
         }
     },
-    "routes": [
-        {
-            "pattern": "staj-web.sonacove.com",
-            "custom_domain": true
-        }
-    ],
     "preview_urls": true,
     "send_metrics": false,
     "upload_source_maps": true,
