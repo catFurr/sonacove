@@ -7,10 +7,6 @@
         "not_found_handling": "404-page",
         "html_handling": "drop-trailing-slash"
     },
-    "build": {
-        "command": "bun run build",
-        "cwd": "."
-    },
     "find_additional_modules": true,
     "rules": [
         { "type": "ESModule", "globs": ["functions/api/**/*.ts"], "fallthrough": true }
@@ -54,10 +50,11 @@
     },
     "routes": [
         {
-            "pattern": "staj.sonacove.com",
+            "pattern": "staj-web.sonacove.com",
             "custom_domain": true
         }
     ],
+    "preview_urls": true,
     "send_metrics": false,
     "upload_source_maps": true,
     "minify": true,
