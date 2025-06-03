@@ -2,15 +2,13 @@
 const plans = [
   {
     title: "Free Plan",
-    price: "$0",
-    originalPrice: "$0",
     features: [
       "Up to 1000 total meeting minutes",
       "Up to 100 guests per meeting",
       "End-to-end encryption",
       "Screen sharing",
       "Live Recording",
-      "Breakout rooms",
+      "Breakout rooms"
     ],
     highlighted: false,
     footer: {
@@ -21,8 +19,6 @@ const plans = [
   },
   {
     title: "Premium Plan",
-    price: "$9",
-    originalPrice: "$12",
     features: [
       "Unlimited meeting duration",
       "Up to 100 guests per meeting",
@@ -40,8 +36,6 @@ const plans = [
   },
   {
     title: "Organization Plan",
-    price: "$15",
-    originalPrice: "$15",
     features: [
       "All Premium features",
       "Up to 1000 guests",
@@ -57,11 +51,7 @@ const plans = [
 ];
 
 const highlightedPlan = plans.find((p) => p.highlighted);
-const sortedPlans = highlightedPlan
-  ? [
-      ...plans.filter((p) => p.title !== highlightedPlan.title),
-    ].splice(1, 0, highlightedPlan)
-  : plans;
+
 ---
 
 <section class="py-16 bg-white" id="pricing">
@@ -73,81 +63,96 @@ const sortedPlans = highlightedPlan
       No hidden fees, no complicated tiers. Just one affordable plan for all your meeting needs.
     </p>
 
-    <!-- Mobile view -->
-    <div class="space-y-4 sm:hidden">
+    {/* Mobile view */}
+    <div class="space-y-4 lg:hidden">
       {plans.map((plan) => {
         const isPremiumHighlighted = plan.title === "Premium Plan" && plan.highlighted;
-
         return (
-          <div class={`relative bg-white shadow rounded-lg ${isPremiumHighlighted ? 'border-2 border-yellow-300' : ''}`}>
-            {/* Always visible Early Bird badge */}
+          <div
+            class={`relative bg-white shadow rounded-lg ${isPremiumHighlighted ? 'border-2 border-yellow-300' : ''}`}
+            data-plan={plan.title}
+          >
             {isPremiumHighlighted && (
-              <span
-                class="absolute -top-6 right-6 inline-block bg-yellow-400 text-gray-900 px-3 py-1 rounded-md font-bold text-xs tracking-wide select-none shadow-lg"
-                style="box-shadow: 0 0 8px rgba(253, 224, 71, 0.8);"
-              >
-                EARLY BIRD OFFER! 🎉
-              </span>
-            )}
-
-            <details>
-              <summary
-                class="cursor-pointer px-6 py-4 text-lg font-semibold bg-gray-100 rounded-t-lg flex items-center justify-between"
-              >
-                <span>{plan.title} — {plan.price}/month</span>
-              </summary>
-
-              <div class="p-4 border-t border-gray-200">
-                <ul class="space-y-2 mb-4">
-                  {plan.features.map((feature) => (
-                    <li class="flex items-start text-sm">
-                      <svg
-                        class="h-5 w-5 text-green-500 mr-2 mt-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        ></path>
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <p class="text-sm mb-2">{plan.footer.message}</p>
-                <a
-                  href={plan.footer.buttonLink}
-                  class="inline-block w-full text-center px-4 py-2 text-white rounded-lg bg-gradient-to-r from-primary-600 to-accent-600 hover:opacity-90 transition"
+              <>
+                <span
+                  class="absolute -top-6 right-6 inline-block bg-yellow-400 text-gray-900 px-3 py-1 rounded-md font-bold text-xs tracking-wide select-none shadow-lg"
+                  style="box-shadow: 0 0 8px rgba(253, 224, 71, 0.8);"
                 >
-                  {plan.footer.buttonText}
-                </a>
-              </div>
-            </details>
+                  EARLY BIRD OFFER! 🎉
+                </span>
+              </>
+            )}
+              <div
+                class="discount-badge hidden absolute top-0 right-0 bg-red-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm z-40 uppercase tracking-wide"
+                data-plan={plan.title}
+              ></div>
+              <details open={plan.title === 'Premium Plan'} class="group">
+                <summary class="cursor-pointer px-6 py-4 text-lg font-semibold bg-gray-100 rounded-t-lg flex items-center justify-between">
+                  <span class="flex items-center gap-2">
+                    <svg
+                      class="w-4 h-4 text-gray-500 transition-transform duration-300 transform group-open:rotate-90"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    {plan.title}
+                  </span>
+                  <span><span class="plan-price"></span>/month</span>
+                </summary>
+                <div class="p-4 border-t border-gray-200">
+                  <ul class="space-y-2 mb-4">
+                    {plan.features.map((feature) => (
+                      <li class="flex items-start text-sm">
+                        <svg class="h-5 w-5 text-green-500 mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="text-sm mb-2 text-center">{plan.footer.message}</p>
+                  {plan.title === "Organization Plan" ? (
+                    <a
+                      href={plan.footer.buttonLink}
+                      class="inline-block w-full text-center text-blue-600 underline font-semibold hover:text-blue-800 transition"
+                    >
+                      {plan.footer.buttonText}
+                    </a>
+                  ) : (
+                    <a
+                      href={plan.footer.buttonLink}
+                      class="inline-block w-full text-center px-4 py-2 text-white rounded-lg bg-gradient-to-r from-primary-600 to-accent-600 hover:opacity-90 transition"
+                    >
+                      {plan.footer.buttonText}
+                    </a>
+                  )}
+                </div>
+              </details>
           </div>
         );
       })}
     </div>
 
-    <!-- Desktop view -->
-    <div class="hidden sm:grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+    {/* Desktop view */}
+    <div class="hidden lg:grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
       {plans.map((plan) => {
-        const isPremium = plan.title === "Premium Plan";
-        const isFree = plan.title === "Free Plan";
         const isPremiumHighlighted = highlightedPlan?.title === "Premium Plan";
-
         const cardWrapperClasses = isPremiumHighlighted
           ? plan.highlighted
             ? "scale-105 opacity-100 z-20"
             : "scale-[0.95] opacity-90"
           : "scale-100 opacity-100";
 
+        // get price info from global plans object if available (set by script)
+        const priceData = plans?.[plan.title] || { price: "–", priceWithDiscount: null };
+        const hasDiscount = priceData.priceWithDiscount && priceData.priceWithDiscount !== priceData.price;
+
         return (
           <div
             class={`relative flex flex-col h-full transition-all duration-300 ${cardWrapperClasses}`}
+            data-plan={plan.title}
           >
             {isPremiumHighlighted && plan.highlighted && (
               <>
@@ -159,43 +164,52 @@ const sortedPlans = highlightedPlan
                   </div>
                 </div>
                 <div class="absolute inset-0 rounded-xl ring-4 ring-yellow-300 animate-pulse pointer-events-none -z-10"></div>
+
               </>
             )}
+            
+            {/* Discount Percentage Badge */}
+            <div class="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 rounded-br-lg font-semibold text-sm select-none z-40 discount-badge hidden"
+                data-plan={plan.title}
+            >
+
+            </div>
 
             <div
-              class={`rounded-xl overflow-hidden flex flex-col h-full min-h-[600px] transition-all duration-300
-                ${
-                  isPremiumHighlighted && plan.highlighted
-                    ? 'shadow-2xl bg-white border-2 border-yellow-300'
-                    : 'bg-white shadow-lg'
-                }
-              `}
+              class={`rounded-xl overflow-hidden flex flex-col h-full min-h-[600px] transition-all duration-300 ${
+                isPremiumHighlighted && plan.highlighted
+                  ? "shadow-2xl bg-white border-2 border-yellow-300"
+                  : "bg-white shadow-lg"
+              }`}
             >
               <div class="p-8 flex-grow">
                 <div class="text-center mb-6">
                   <h3 class="text-2xl font-bold text-gray-800 p-6 sm:p-0">{plan.title}</h3>
                   <div class="relative mt-4 flex justify-center items-baseline">
-                    {plan.originalPrice !== plan.price && (
-                      <div class="relative inline-flex items-baseline mx-3">
-                        <div class="relative">
-                          <span class="text-5xl font-extrabold text-gray-400">{plan.originalPrice}</span>
-                          <div class="absolute top-1/2 left-1/2 w-[140%] h-[6px] bg-[#ff4444] transform -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] rounded-full" style="filter: drop-shadow(0 0 2px #ff4444);"></div>
-                          <div class="absolute top-1/2 left-1/2 w-[140%] h-[6px] bg-[url('/slash-texture.png')] bg-cover transform -translate-x-1/2 -translate-y-1/2 rotate-[-45deg] mix-blend-overlay opacity-50"></div>
-                        </div>
-                      </div>
+                    {hasDiscount ? (
+                      <>
+                        <span class="text-5xl font-extrabold text-black plan-price">{priceData.priceWithDiscount}</span>
+                        <span class="text-xl text-black ml-1">/month</span>
+                      </>
+                    ) : (
+                      <>
+                        <span class="text-5xl font-extrabold text-black plan-price">{priceData.price}</span>
+                        <span class="text-xl text-black ml-1">/month</span>
+                      </>
                     )}
-                    <div class="flex items-baseline">
-                      <span class="text-5xl font-extrabold text-black">{plan.price}</span>
-                      <span class="text-xl text-black ml-1">/month</span>
-                    </div>
                   </div>
                 </div>
 
                 <ul class="mt-8 space-y-4">
                   {plan.features.map((feature) => (
                     <li class="flex items-start">
-                      <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      <svg
+                        class="h-6 w-6 text-green-500 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                       </svg>
                       <span>{feature}</span>
                     </li>
@@ -205,7 +219,7 @@ const sortedPlans = highlightedPlan
 
               <div class="mt-auto px-8 pb-8">
                 <div class="bg-gray-50 rounded-lg p-4 text-center min-h-[120px] flex flex-col justify-between">
-                  <p class="text-gray-700 font-medium">{plan.footer.message}</p>
+                  <p class="text-gray-700 font-medium text-center">{plan.footer.message}</p>
 
                   {plan.title === "Organization Plan" ? (
                     <a
@@ -218,9 +232,9 @@ const sortedPlans = highlightedPlan
                     <a
                       href={plan.footer.buttonLink}
                       class={`inline-block mt-4 px-6 py-3 font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] ${
-                        !isPremiumHighlighted || isPremium
-                          ? "bg-gradient-to-r from-primary-600 to-accent-600 text-white"
-                          : "bg-gradient-to-r from-green-500 to-lime-500 text-white"
+                        !isPremiumHighlighted || plan.highlighted
+                          ? "bg-gradient-to-r from-primary-600 to-accent-600 text-white will-change-transform"
+                          : "bg-white text-gray-800 font-semibold shadow-md will-change-transform"
                       }`}
                     >
                       {plan.footer.buttonText}
@@ -235,3 +249,78 @@ const sortedPlans = highlightedPlan
     </div>
   </div>
 </section>
+
+<script type="module" is:inline>
+  Paddle.Environment.set("sandbox");
+  Paddle.Initialize({
+    token: "test_aa747e41e1866be40d09da6d0f6",
+    pwCustomer: {},
+  });
+
+  function floorPrice(formattedPrice) {
+    const numeric = parseFloat(formattedPrice.replace(/[^0-9.]/g, ""));
+    const currencySymbol = formattedPrice.trim().charAt(0);
+    return {
+      numeric,
+      currencySymbol,
+      formatted: `${currencySymbol}${numeric.toFixed(1)}`
+    };
+  }
+
+  function applyDiscount(price, discountPercent) {
+    return price - (price * discountPercent);
+  }
+
+  const result = await Paddle.PricePreview({
+    items: [
+      { priceId: "pri_01jwr9d18v2mwh8v1a6zj248mq", quantity: 1 }, // Premium
+      { priceId: "pri_01jwrbqszxa7hzzzhh5xyrhzqj", quantity: 1 }  // Organization
+    ]
+  });
+
+  const prices = result.data.details.lineItems;
+
+  const premiumData = floorPrice(prices[0].formattedUnitTotals.subtotal);
+  const orgData = floorPrice(prices[1].formattedUnitTotals.subtotal);
+  const freeData = { numeric: 0, currencySymbol: premiumData.currencySymbol, formatted: `${premiumData.currencySymbol}0` };
+
+  const premiumDiscount = Number(prices[0].price.customData?.discount) || 0;
+  const orgDiscount = Number(prices[1].price.customData?.discount) || 0;
+
+  const premiumDiscounted = applyDiscount(premiumData.numeric, premiumDiscount);
+  const orgDiscounted = applyDiscount(orgData.numeric, orgDiscount);
+
+  const premiumDiscountedFormatted = `${premiumData.currencySymbol}${premiumDiscounted.toFixed(1)}`;
+  const orgDiscountedFormatted = `${orgData.currencySymbol}${orgDiscounted.toFixed(1)}`;
+
+  window.plans = {
+    "Free Plan": {
+      price: freeData.formatted,
+      priceWithDiscount: null
+    },
+    "Premium Plan": {
+      price: premiumData.formatted,
+      discount: premiumDiscount,
+      priceWithDiscount: premiumDiscount > 0 ? premiumDiscountedFormatted : null
+    },
+    "Organization Plan": {
+      price: orgData.formatted,
+      discount: orgDiscount,
+      priceWithDiscount: orgDiscount > 0 ? orgDiscountedFormatted : null
+    }
+  };
+
+  for (const planTitle in window.plans) {
+    const data = window.plans[planTitle];
+    document.querySelectorAll(`[data-plan="${planTitle}"] .plan-price`)
+      .forEach(el => el.textContent = data.priceWithDiscount ?? data.price);
+
+    document.querySelectorAll(`[data-plan="${planTitle}"] .discount-badge`)
+      .forEach(el => {
+        if (data.discount > 0) {
+          el.style.display = 'block';
+          el.textContent = `${data.discount * 100}% OFF`;
+        }
+      });
+  }
+</script>
