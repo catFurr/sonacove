@@ -1,5 +1,5 @@
 {
-    "name": "staj-sonacove",
+    "name": "sonacove",
     "compatibility_date": "2025-05-07",
     "main": "functions/index.ts",
     "assets": {
@@ -7,16 +7,23 @@
         "not_found_handling": "404-page",
         "html_handling": "drop-trailing-slash"
     },
-    "build": {
-        "command": "bun run build",
-        "cwd": "."
-    },
-    "find_additional_modules": true,
-    "rules": [
-        { "type": "ESModule", "globs": ["functions/api/**/*.ts"], "fallthrough": true }
+    "kv_namespaces": [
+        {
+            "binding": "KV",
+            "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
+        }
     ],
+    "vars": {
+        "KC_HOSTNAME": "staj.sonacove.com/auth",
+        "KC_CLIENT_ID": "paddle-update-user",
+        "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
+        "PUBLIC_PADDLE_ENVIRONMENT": "sandbox",
+        "PUBLIC_PADDLE_CLIENT_TOKEN": "test_aa747e41e1866be40d09da6d0f6",
+        "PUBLIC_PADDLE_PRICE_ID": "pri_01jp00qykqy6wyd54gxv369hdr",
+        "PUBLIC_KC_HOSTNAME": "staj.sonacove.com/auth"
+    },
     "env": {
-        "production": {
+        "prod": {
             "kv_namespaces": [
                 {
                     "binding": "KV",
@@ -31,35 +38,24 @@
                 "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
                 "KC_HOSTNAME": "auth.sonacove.com",
                 "KC_CLIENT_ID": "paddle-update-user"
-            }
-        },
-        "preview": {
-            "workers_dev": true,
-            "kv_namespaces": [
+            },
+            "routes": [
                 {
-                    "binding": "KV",
-                    "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
+                    "pattern": "sonacove.com",
+                    "custom_domain": true
+                },
+                {
+                    "pattern": "www.sonacove.com",
+                    "custom_domain": true
                 }
-            ],
-            "vars": {
-                "KC_HOSTNAME": "staj.sonacove.com/auth",
-                "KC_CLIENT_ID": "paddle-update-user",
-                "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
-                "PUBLIC_PADDLE_ENVIRONMENT": "sandbox",
-                "PUBLIC_PADDLE_CLIENT_TOKEN": "test_aa747e41e1866be40d09da6d0f6",
-                "PUBLIC_PADDLE_PRICE_ID": "pri_01jp00qykqy6wyd54gxv369hdr",
-                "PUBLIC_KC_HOSTNAME": "staj.sonacove.com/auth"
-            }
+            ]
         }
     },
-    "routes": [
-        {
-            "pattern": "staj.sonacove.com",
-            "custom_domain": true
-        }
-    ],
+    "workers_dev": true,
+    "preview_urls": true,
     "send_metrics": false,
     "upload_source_maps": true,
+    "keep_vars": true,
     "minify": true,
     "observability": {
         "enabled": true,

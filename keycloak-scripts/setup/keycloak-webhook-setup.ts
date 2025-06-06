@@ -118,6 +118,29 @@ async function createWebhook(
   }
 }
 
+async function deleteWebhook(
+  adminToken: string,
+  webhookId: string
+): Promise<void> {
+  const webhookEndpoint = `${KEYCLOAK_API_URL}/realms/${KEYCLOAK_REALM_NAME}/webhooks/${webhookId}`;
+  console.log(`Deleting webhook with ID ${webhookId} at ${webhookEndpoint}...`);
+  const response = await fetch(webhookEndpoint, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${adminToken}`,
+    },
+  });
+
+  if (response.status === 204) {
+    console.log(`Webhook with ID ${webhookId} deleted successfully.`);
+  } else {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to delete webhook ${webhookId}: ${response.status} ${response.statusText} - ${errorText}`
+    );
+  }
+}
+
 async function waitForKevcloak(): Promise<void> {
   console.log(
     `Waiting for Keycloak to be ready... API base: ${KEYCLOAK_API_URL}`
@@ -185,6 +208,23 @@ async function main() {
     const adminToken = await getKeycloakAdminToken();
     const existingWebhooks = await getExistingWebhooks(adminToken);
 
+    // Delete all existing webhooks
+    if (existingWebhooks.length > 0) {
+      console.log(
+        `Found ${existingWebhooks.length} existing webhooks. Deleting them now...`
+      );
+      for (const wh of existingWebhooks) {
+        if (wh.id) {
+          await deleteWebhook(adminToken, wh.id);
+        } else {
+          console.warn("Found a webhook without an ID, cannot delete it.", wh);
+        }
+      }
+      console.log("All existing webhooks have been processed for deletion.");
+    } else {
+      console.log("No existing webhooks found to delete.");
+    }
+
     const targetEventTypes = TARGET_WEBHOOK_EVENT_TYPES_STRING.split(",")
       .map((s) => s.trim())
       .filter((s) => s);
@@ -195,35 +235,18 @@ async function main() {
       targetEventTypes.push("REGISTER"); // Default if empty, though should be configured
     }
 
-    const webhookExists = existingWebhooks.some(
-      (wh) =>
-        wh.url === TARGET_WEBHOOK_URL &&
-        wh.eventTypes.length === targetEventTypes.length &&
-        wh.eventTypes.every((et) => targetEventTypes.includes(et))
+    console.log(
+      `Creating webhook for URL ${TARGET_WEBHOOK_URL} and event types [${targetEventTypes.join(
+        ", "
+      )}]...`
     );
-
-    // TODO: Consider updating or deleting the webhook if it exists?
-
-    if (webhookExists) {
-      console.log(
-        `Webhook for URL ${TARGET_WEBHOOK_URL} and event types [${targetEventTypes.join(
-          ", "
-        )}] already exists. Nothing to do.`
-      );
-    } else {
-      console.log(
-        `Webhook for URL ${TARGET_WEBHOOK_URL} and event types [${targetEventTypes.join(
-          ", "
-        )}] does not exist. Creating...`
-      );
-      const newWebhook: Webhook = {
-        enabled: true,
-        url: TARGET_WEBHOOK_URL,
-        secret: TARGET_WEBHOOK_SECRET, // Will be undefined if not set, which is fine for the API
-        eventTypes: targetEventTypes,
-      };
-      await createWebhook(adminToken, newWebhook);
-    }
+    const newWebhook: Webhook = {
+      enabled: true,
+      url: TARGET_WEBHOOK_URL,
+      secret: TARGET_WEBHOOK_SECRET, // Will be undefined if not set, which is fine for the API
+      eventTypes: targetEventTypes,
+    };
+    await createWebhook(adminToken, newWebhook);
 
     console.log("Keycloak webhook setup finished successfully.");
     process.exit(0);
