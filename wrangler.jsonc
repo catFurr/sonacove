@@ -48,7 +48,7 @@
                     "pattern": "www.sonacove.com",
                     "custom_domain": true
                 }
-            ]
+            ],"name": "sonacove"
         }
     },
     "workers_dev": true,
