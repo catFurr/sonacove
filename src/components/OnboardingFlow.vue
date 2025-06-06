@@ -173,7 +173,9 @@ function updateRegistrationUrl() {
   }
 
   const keycloakBaseUrl =
-    "https://" + env.PUBLIC_KC_HOSTNAME + "/realms/jitsi/protocol/openid-connect";
+    "https://" +
+    env.PUBLIC_KC_HOSTNAME +
+    "/realms/jitsi/protocol/openid-connect";
   const clientId = "jitsi-web";
   const responseType = "token";
 
@@ -210,7 +212,10 @@ async function init() {
 
     if (accessToken.value) {
       // Token from Keycloak redirect
-      const isAuthenticated = await validateKeycloakToken(accessToken.value, env.PUBLIC_KC_HOSTNAME);
+      const isAuthenticated = await validateKeycloakToken(
+        accessToken.value,
+        env.PUBLIC_KC_HOSTNAME
+      );
       if (isAuthenticated) {
         userInfo.value = parseUserFromToken(accessToken.value);
         if (userInfo.value) {
@@ -260,7 +265,10 @@ async function init() {
       const storedUserInfoString = localStorage.getItem(STORAGE_KEYS.USER_INFO);
 
       if (storedToken && storedUserInfoString) {
-        const isValid = await validateKeycloakToken(storedToken, env.PUBLIC_KC_HOSTNAME);
+        const isValid = await validateKeycloakToken(
+          storedToken,
+          env.PUBLIC_KC_HOSTNAME
+        );
         if (isValid) {
           accessToken.value = storedToken;
           userInfo.value = JSON.parse(storedUserInfoString);
@@ -431,17 +439,20 @@ onMounted(() => {
 
         <div v-if="isTrialing" class="mt-4">
           <p class="text-gray-600">
-            You're now on a 7-day free trial of Sonacove Meets.
+            You're now on an unlimited free trial of Sonacove Meets.
           </p>
           <p class="text-gray-600 mt-1">
-            Explore all features and subscribe to keep full access.
+            Explore all features with 1000 active meeting minutes, then
+            subscribe for unlimited access.
           </p>
 
           <div class="bg-gray-50 rounded-lg p-4 my-6 text-left">
             <p class="font-medium text-gray-800">Account Details:</p>
             <p class="text-gray-600">Email: {{ userInfo?.email }}</p>
             <p class="text-gray-600">Name: {{ userInfo?.name }}</p>
-            <p class="text-gray-600">Status: 7-Day Trial</p>
+            <p class="text-gray-600">
+              Status: Free Trial (1000 minutes included)
+            </p>
           </div>
 
           <div class="space-y-3">

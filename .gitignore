@@ -27,3 +27,5 @@ pnpm-debug.log*
 .wrangler/
 .dev.vars
 /cf-build
+
+/scratch/

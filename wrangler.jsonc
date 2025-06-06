@@ -1,26 +1,68 @@
 {
-  "name": "sonacove",
-  "pages_build_output_dir": "./dist",
-  "compatibility_date": "2025-05-07",
-  "kv_namespaces": [
-    {
-      "binding": "KV",
-      "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
-    }
-  ],
-  "vars": {},
-  "env": {
-    "production": {
-      "kv_namespaces": [
-        {
-          "binding": "KV",
-          "id": "2c4fcef2ab524700bd8485b0d8a745d4"
+    "name": "staj-sonacove",
+    "compatibility_date": "2025-05-07",
+    "main": "functions/index.ts",
+    "assets": {
+        "directory": "./dist",
+        "not_found_handling": "404-page",
+        "html_handling": "drop-trailing-slash"
+    },
+    "build": {
+        "command": "bun run build",
+        "cwd": "."
+    },
+    "find_additional_modules": true,
+    "rules": [
+        { "type": "ESModule", "globs": ["functions/api/**/*.ts"], "fallthrough": true }
+    ],
+    "env": {
+        "production": {
+            "kv_namespaces": [
+                {
+                    "binding": "KV",
+                    "id": "2c4fcef2ab524700bd8485b0d8a745d4"
+                }
+            ],
+            "vars": {
+                "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
+                "PUBLIC_PADDLE_ENVIRONMENT": "production",
+                "PUBLIC_PADDLE_CLIENT_TOKEN": "live_a9e8dccd4f0a60784e864042cdd",
+                "PUBLIC_PADDLE_PRICE_ID": "pri_01jnzz5cz98ha49a538ssswszk",
+                "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
+                "KC_HOSTNAME": "auth.sonacove.com",
+                "KC_CLIENT_ID": "paddle-update-user"
+            }
+        },
+        "preview": {
+            "workers_dev": true,
+            "kv_namespaces": [
+                {
+                    "binding": "KV",
+                    "id": "dabb9b457a0b4d34a9882cf6e6fcb24b"
+                }
+            ],
+            "vars": {
+                "KC_HOSTNAME": "staj.sonacove.com/auth",
+                "KC_CLIENT_ID": "paddle-update-user",
+                "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
+                "PUBLIC_PADDLE_ENVIRONMENT": "sandbox",
+                "PUBLIC_PADDLE_CLIENT_TOKEN": "test_aa747e41e1866be40d09da6d0f6",
+                "PUBLIC_PADDLE_PRICE_ID": "pri_01jp00qykqy6wyd54gxv369hdr",
+                "PUBLIC_KC_HOSTNAME": "staj.sonacove.com/auth"
+            }
         }
-      ],
-      "vars": {}
+    },
+    "routes": [
+        {
+            "pattern": "staj.sonacove.com",
+            "custom_domain": true
+        }
+    ],
+    "send_metrics": false,
+    "upload_source_maps": true,
+    "minify": true,
+    "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
     }
-  },
-  "send_metrics": false,
-  "upload_source_maps": true,
-  "keep_vars": true
 }

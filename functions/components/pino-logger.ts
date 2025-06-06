@@ -1,5 +1,5 @@
 import pino from "pino";
-import { Env, WorkerContext, WorkerFunction } from "./types.ts";
+import type { Env, WorkerContext, WorkerFunction } from "./types.ts";
 
 // Global log collection
 let pendingLogs: any[] = [];
