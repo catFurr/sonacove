@@ -1,4 +1,6 @@
 ---
+import PricingDynamic from "./PricingDynamic.vue";
+
 const plans = [
   {
     title: "Free Plan",
@@ -248,79 +250,5 @@ const highlightedPlan = plans.find((p) => p.highlighted);
       })}
     </div>
   </div>
+  <PricingDynamic client:load />
 </section>
-
-<script type="module" is:inline>
-  Paddle.Environment.set("sandbox");
-  Paddle.Initialize({
-    token: "test_aa747e41e1866be40d09da6d0f6",
-    pwCustomer: {},
-  });
-
-  function floorPrice(formattedPrice) {
-    const numeric = parseFloat(formattedPrice.replace(/[^0-9.]/g, ""));
-    const currencySymbol = formattedPrice.trim().charAt(0);
-    return {
-      numeric,
-      currencySymbol,
-      formatted: `${currencySymbol}${numeric.toFixed(1)}`
-    };
-  }
-
-  function applyDiscount(price, discountPercent) {
-    return price - (price * discountPercent);
-  }
-
-  const result = await Paddle.PricePreview({
-    items: [
-      { priceId: "pri_01jwr9d18v2mwh8v1a6zj248mq", quantity: 1 }, // Premium
-      { priceId: "pri_01jwrbqszxa7hzzzhh5xyrhzqj", quantity: 1 }  // Organization
-    ]
-  });
-
-  const prices = result.data.details.lineItems;
-
-  const premiumData = floorPrice(prices[0].formattedUnitTotals.subtotal);
-  const orgData = floorPrice(prices[1].formattedUnitTotals.subtotal);
-  const freeData = { numeric: 0, currencySymbol: premiumData.currencySymbol, formatted: `${premiumData.currencySymbol}0` };
-
-  const premiumDiscount = Number(prices[0].price.customData?.discount) || 0;
-  const orgDiscount = Number(prices[1].price.customData?.discount) || 0;
-
-  const premiumDiscounted = applyDiscount(premiumData.numeric, premiumDiscount);
-  const orgDiscounted = applyDiscount(orgData.numeric, orgDiscount);
-
-  const premiumDiscountedFormatted = `${premiumData.currencySymbol}${premiumDiscounted.toFixed(1)}`;
-  const orgDiscountedFormatted = `${orgData.currencySymbol}${orgDiscounted.toFixed(1)}`;
-
-  window.plans = {
-    "Free Plan": {
-      price: freeData.formatted,
-      priceWithDiscount: null
-    },
-    "Premium Plan": {
-      price: premiumData.formatted,
-      discount: premiumDiscount,
-      priceWithDiscount: premiumDiscount > 0 ? premiumDiscountedFormatted : null
-    },
-    "Organization Plan": {
-      price: orgData.formatted,
-      discount: orgDiscount,
-      priceWithDiscount: orgDiscount > 0 ? orgDiscountedFormatted : null
-    }
-  };
-
-  for (const planTitle in window.plans) {
-    const data = window.plans[planTitle];
-    document.querySelectorAll(`[data-plan="${planTitle}"] .plan-price`)
-      .forEach(el => el.textContent = data.priceWithDiscount ?? data.price);
-
-    document.querySelectorAll(`[data-plan="${planTitle}"] .discount-badge`)
-      .forEach(el => {
-        if (data.discount > 0) {
-          el.style.display = 'block';
-          el.textContent = `${data.discount * 100}% OFF`;
-        }
-      });
-  }
-</script>
