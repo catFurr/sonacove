@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "dev:wrangler": "wrangler pages dev ./dist --port 8787",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -12,19 +13,19 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",
-    "@astrojs/vue": "^5.0.13",
+    "@astrojs/vue": "^5.1.0",
     "@paddle/paddle-js": "^1.4.1",
-    "astro": "^5.7.12",
+    "astro": "^5.8.1",
     "jose": "^6.0.11",
     "pino": "^8.21.0",
     "tailwindcss": "^3.4.17",
     "tweetnacl": "^1.0.3",
-    "vue": "^3.5.13"
+    "vue": "^3.5.16"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250513.0",
-    "@types/bun": "^1.2.13",
-    "@types/node": "^22.15.17",
+    "@cloudflare/workers-types": "^4.20250529.0",
+    "@types/bun": "^1.2.15",
+    "@types/node": "^22.15.24",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
