@@ -14,7 +14,7 @@ function floorPrice(formattedPrice) {
   return {
     numeric,
     currencySymbol,
-    formatted: `${currencySymbol}${numeric.toFixed(1)}`
+    formatted: `${currencySymbol}${Math.floor(numeric * 10) / 10}`
   }
 }
 
@@ -46,8 +46,8 @@ onMounted(async () => {
 
     const prices = result.data.details.lineItems
 
-    const premiumData = floorPrice(prices[0].formattedUnitTotals.subtotal)
-    const orgData = floorPrice(prices[1].formattedUnitTotals.subtotal)
+    const premiumData = floorPrice(prices[0].formattedUnitTotals.total)
+    const orgData = floorPrice(prices[1].formattedUnitTotals.total)
     const freeData = {
       numeric: 0,
       currencySymbol: premiumData.currencySymbol,
