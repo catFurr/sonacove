@@ -11,10 +11,11 @@ const env = import.meta.env
 function floorPrice(formattedPrice) {
   const numeric = parseFloat(formattedPrice.replace(/[^0-9.]/g, ""))
   const currencySymbol = formattedPrice.trim().charAt(0)
+  const truncated = Math.floor(numeric * 100) / 100;
   return {
     numeric,
     currencySymbol,
-    formatted: `${currencySymbol}${numeric.toFixed(1)}`
+    formatted: `${currencySymbol}${truncated.toFixed(2)}`
   }
 }
 
@@ -46,8 +47,8 @@ onMounted(async () => {
 
     const prices = result.data.details.lineItems
 
-    const premiumData = floorPrice(prices[0].formattedUnitTotals.subtotal)
-    const orgData = floorPrice(prices[1].formattedUnitTotals.subtotal)
+    const premiumData = floorPrice(prices[0].formattedUnitTotals.total)
+    const orgData = floorPrice(prices[1].formattedUnitTotals.total)
     const freeData = {
       numeric: 0,
       currencySymbol: premiumData.currencySymbol,
@@ -60,8 +61,8 @@ onMounted(async () => {
     const premiumDiscounted = applyDiscount(premiumData.numeric, premiumDiscount)
     const orgDiscounted = applyDiscount(orgData.numeric, orgDiscount)
 
-    const premiumDiscountedFormatted = `${premiumData.currencySymbol}${premiumDiscounted.toFixed(1)}`
-    const orgDiscountedFormatted = `${orgData.currencySymbol}${orgDiscounted.toFixed(1)}`
+    const premiumDiscountedFormatted = `${premiumData.currencySymbol}${premiumDiscounted.toFixed(2)}`
+    const orgDiscountedFormatted = `${orgData.currencySymbol}${orgDiscounted.toFixed(2)}`
 
     window.plans = {
       "Free Plan": {
