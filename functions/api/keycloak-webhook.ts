@@ -1,12 +1,16 @@
-import { PaddleClient } from "../components/paddle.ts";
-import { posthog } from "../components/posthog.ts";
+import { PaddleClient } from '../components/paddle.ts';
 import {
   BrevoClient,
   type BrevoContactAttributes,
-} from "../components/brevo.ts";
-import { KeycloakClient } from "../components/keycloak.ts";
-import { getLogger, logWrapper } from "../components/pino-logger.ts";
-import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
+} from '../components/brevo.ts';
+import { KeycloakClient } from '../components/keycloak.ts';
+import { getLogger, logWrapper } from '../components/pino-logger.ts';
+import type {
+  Env,
+  WorkerContext,
+  WorkerFunction,
+} from '../components/types.ts';
+import { capturePosthogEvent } from '../components/posthog.ts';
 const logger = getLogger();
 
 // Webhook payload from Keycloak
@@ -223,6 +227,11 @@ async function WorkerHandler(context: WorkerContext) {
             headers: { "Content-Type": "application/json" },
           });
         }
+
+                await capturePosthogEvent({
+                  distinctId: webhookEvent.authDetails.userId,
+                  event: 'user_logged_in',
+                });   
 
         return new Response(
           JSON.stringify({
