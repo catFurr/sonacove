@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare
+name: Deploy
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Cloudflare
+    name: Cloudflare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -26,7 +26,7 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
-      - name: Deploy to Cloudflare (Production)
+      - name: Wrangler (Production)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: cloudflare/wrangler-action@v3
         with:
@@ -36,7 +36,7 @@ jobs:
           workingDirectory: "."
           wranglerVersion: "3"
 
-      - name: Deploy to Cloudflare (Preview)
+      - name: Wrangler (Preview)
         if: github.event_name == 'pull_request'
         uses: cloudflare/wrangler-action@v3
         with:
@@ -50,20 +50,19 @@ jobs:
       - name: Add deployment summary
         if: always()
         run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "**Preview URL:** [https://sonacove.com](https://sonacove.com)" >> $GITHUB_STEP_SUMMARY
             echo "**Deployment Type:** Production Deploy" >> $GITHUB_STEP_SUMMARY
+            echo "::notice title=Production Deployment::🚀 Deployed to production: https://sonacove.com"
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             # Extract preview URL from wrangler output if available
             PREVIEW_URL=$(echo "${{ steps.preview-deploy.outputs.deployment-url }}" | head -1)
             if [[ -n "$PREVIEW_URL" ]]; then
               echo "**Preview URL:** [$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
+              echo "::notice title=Preview Deployment::🚀 Preview deployed: $PREVIEW_URL"
             else
               echo "**Preview URL:** Preview deployment created" >> $GITHUB_STEP_SUMMARY
+              echo "::notice title=Preview Deployment::🚀 Preview deployment created successfully"
             fi
             echo "**Deployment Type:** Version Upload" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
