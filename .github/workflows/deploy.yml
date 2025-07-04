@@ -10,6 +10,7 @@ jobs:
   deploy:
     name: Cloudflare
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'preview' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,29 +24,68 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Extract and set environment variables
+        run: |
+          # Determine environment
+          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
+            ENV_NAME="prod"
+            echo "🏗️ Extracting variables for production environment"
+            # Extract prod environment variables
+            VARS=$(cat wrangler.jsonc | jq -r '.env.prod.vars // {} | to_entries[] | "\(.key)=\(.value)"')
+          else
+            ENV_NAME="preview"
+            echo "🏗️ Extracting variables for preview environment"
+            # Extract default/preview environment variables
+            VARS=$(cat wrangler.jsonc | jq -r '.vars // {} | to_entries[] | "\(.key)=\(.value)"')
+          fi
+
+          # Set variables as environment variables for subsequent steps
+          echo "$VARS" | while IFS='=' read -r key value; do
+            if [[ -n "$key" && -n "$value" ]]; then
+              echo "  Setting $key"
+              echo "$key=$value" >> $GITHUB_ENV
+            fi
+          done
+
+          echo "✅ Environment variables extracted and set for $ENV_NAME"
+
       - name: Build Astro site
         run: npm run build
 
-      - name: Wrangler (Production)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env prod --name sonacove-prod
-          workingDirectory: "."
-          wranglerVersion: "3"
+      - name: Sync secrets to Cloudflare
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
+            ENV_NAME="prod"
+            ENV_FLAG="--env prod"
+          else
+            ENV_NAME="preview"
+            ENV_FLAG=""
+          fi
 
-      - name: Wrangler (Preview)
-        if: github.event_name == 'pull_request'
+          echo "🔐 Syncing secrets to Cloudflare environment: $ENV_NAME"
+
+          echo "$ALL_SECRETS" | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while IFS='=' read -r key value; do
+            if [[ -n "$value" && "$value" != "null" ]]; then
+              echo "  Syncing secret: $key"
+              echo "$value" | npx wrangler secret put "$key" $ENV_FLAG
+            fi
+          done
+
+          echo "✅ Secret sync complete!"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+
+      - name: Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload --name sonacove
+          command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod --name sonacove-prod' || 'versions upload --name sonacove' }}
           workingDirectory: "."
           wranglerVersion: "3"
-        id: preview-deploy
+        id: deploy
 
       - name: Add deployment summary
         if: always()
@@ -56,7 +96,7 @@ jobs:
             echo "::notice title=Production Deployment::🚀 Deployed to production: https://sonacove.com"
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             # Extract preview URL from wrangler output if available
-            PREVIEW_URL=$(echo "${{ steps.preview-deploy.outputs.deployment-url }}" | head -1)
+            PREVIEW_URL=$(echo "${{ steps.deploy.outputs.deployment-url }}" | head -1)
             if [[ -n "$PREVIEW_URL" ]]; then
               echo "**Preview URL:** [$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
               echo "::notice title=Preview Deployment::🚀 Preview deployed: $PREVIEW_URL"
@@ -66,3 +106,18 @@ jobs:
             fi
             echo "**Deployment Type:** Version Upload" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - name: Update PR comment with preview
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview-deployment
+          message: |
+            ## 🚀 Preview Deployment
+
+            **Status:** ✅ Successfully deployed
+            **Deployment Type:** Version Upload
+            **Preview URL:** ${{ steps.deploy.outputs.deployment-url || 'Preview deployment created successfully' }}
+
+            ---
+            *This comment will be automatically updated when new commits are pushed.*
