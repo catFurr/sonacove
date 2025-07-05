@@ -93,7 +93,7 @@ jobs:
             ENV_FLAG="--env prod"
           else
             ENV_NAME="preview"
-            ENV_FLAG="--env ''"
+            ENV_FLAG=""
           fi
 
           echo "🔐 Syncing secrets to Cloudflare environment: $ENV_NAME"
