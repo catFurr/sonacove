@@ -1,0 +1,147 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    name: Cloudflare
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'preview' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract and set environment variables
+        run: |
+          # Determine environment
+          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
+            ENV_NAME="prod"
+            echo "🏗️ Extracting variables for production environment"
+            # Extract prod environment variables
+            VARS=$(cat wrangler.jsonc | jq -r '.env.prod.vars // {} | to_entries[] | "\(.key)=\(.value)"')
+          else
+            ENV_NAME="preview"
+            echo "🏗️ Extracting variables for preview environment"
+            # Extract default/preview environment variables
+            VARS=$(cat wrangler.jsonc | jq -r '.vars // {} | to_entries[] | "\(.key)=\(.value)"')
+          fi
+
+          # Set variables as environment variables for subsequent steps
+          echo "$VARS" | while IFS='=' read -r key value; do
+            if [[ -n "$key" && -n "$value" ]]; then
+              echo "  Setting $key"
+              echo "$key=$value" >> $GITHUB_ENV
+            fi
+          done
+
+          echo "✅ Environment variables extracted and set for $ENV_NAME"
+
+      - name: Build Astro site
+        run: npm run build
+
+      - name: Wrangler Upload
+        if: github.event_name == 'pull_request'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: "versions upload"
+          workingDirectory: "."
+          wranglerVersion: "3"
+        id: upload
+
+      - name: Extract Version ID
+        if: github.event_name == 'pull_request'
+        id: extract-version
+        run: |
+          # Extract version ID from the upload output
+          VERSION_ID=$(echo "${{ steps.upload.outputs.command-output }}" | grep -o "Worker Version ID: [a-f0-9-]*" | cut -d' ' -f4)
+          echo "VERSION_ID=$VERSION_ID" >> $GITHUB_OUTPUT
+          echo "Extracted Version ID: $VERSION_ID"
+
+      - name: Wrangler Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod' || format('versions deploy {0}@100 -y', steps.extract-version.outputs.VERSION_ID) }}
+          workingDirectory: "."
+          wranglerVersion: "3"
+        id: deploy
+
+      - name: Sync secrets to Cloudflare
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
+            ENV_NAME="prod"
+            ENV_FLAG="--env prod"
+          else
+            ENV_NAME="preview"
+            ENV_FLAG=""
+          fi
+
+          echo "🔐 Syncing secrets to Cloudflare environment: $ENV_NAME"
+
+          echo "$ALL_SECRETS" | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while IFS='=' read -r key value; do
+            if [[ -n "$value" && "$value" != "null" ]]; then
+              echo "  Syncing secret: $key"
+              echo "$value" | npx wrangler secret put "$key" $ENV_FLAG
+            fi
+          done
+
+          echo "✅ Secret sync complete!"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+
+      - name: Add deployment summary
+        if: always()
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "**Preview URL:** [https://sonacove.com](https://sonacove.com)" >> $GITHUB_STEP_SUMMARY
+            echo "**Deployment Type:** Production Deploy" >> $GITHUB_STEP_SUMMARY
+            echo "::notice title=Production Deployment::🚀 Deployed to production: https://sonacove.com"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # For PRs, we upload a version (gets unique preview URL) then deploy it
+            PREVIEW_URL="${{ steps.upload.outputs.deployment-url }}"
+            if [[ -n "$PREVIEW_URL" ]]; then
+              echo "**Preview URL:** [$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
+              echo "::notice title=Preview Deployment::🚀 Preview deployed: $PREVIEW_URL"
+            else
+              echo "**Preview URL:** Preview deployment created" >> $GITHUB_STEP_SUMMARY
+              echo "::notice title=Preview Deployment::🚀 Preview deployment created successfully"
+            fi
+            echo "**Deployment Type:** Version Upload + Deploy" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Update PR comment with preview
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview-deployment
+          message: |
+            ## 🚀 Preview Deployment
+
+            **Status:** ✅ Successfully deployed
+            **Deployment Type:** Version Upload + Deploy
+            **Preview URL:** ${{ steps.upload.outputs.deployment-url || 'Preview deployment created successfully' }}
+
+            ---
+            *This comment will be automatically updated when new commits are pushed.*

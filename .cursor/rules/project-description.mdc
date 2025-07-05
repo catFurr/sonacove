@@ -7,6 +7,5 @@ alwaysApply: true
 # General Project Info
 
 - Astro sites MUST build to fully static output. All runtime JS must be client side. Static files are served from a CDN (no SSR)
-- Use PROJ_ROOT/functions folder to deploy cloudflare functions.
 - PROJ_ROOT/functions/components folder contains reusable components that are plug-and-play. Create and use functions from these files. Use these to avoid code duplication.
 - We can run `bun test` from the PROJ_ROOT to validate codebase.

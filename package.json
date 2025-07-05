@@ -8,8 +8,7 @@
     "dev:wrangler": "wrangler pages dev ./dist --port 8787",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "deploy": "NODE_ENV=production bun deploy-cf.ts"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/tailwind": "^6.0.2",
