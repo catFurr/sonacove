@@ -62,17 +62,26 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: 'versions upload'
+          command: "versions upload"
           workingDirectory: "."
           wranglerVersion: "3"
         id: upload
+
+      - name: Extract Version ID
+        if: github.event_name == 'pull_request'
+        id: extract-version
+        run: |
+          # Extract version ID from the upload output
+          VERSION_ID=$(echo "${{ steps.upload.outputs.command-output }}" | grep -o "Worker Version ID: [a-f0-9-]*" | cut -d' ' -f4)
+          echo "VERSION_ID=$VERSION_ID" >> $GITHUB_OUTPUT
+          echo "Extracted Version ID: $VERSION_ID"
 
       - name: Wrangler Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod' || 'versions deploy' }}
+          command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod' || format('versions deploy {0}@100 -y', steps.extract-version.outputs.VERSION_ID) }}
           workingDirectory: "."
           wranglerVersion: "3"
         id: deploy
