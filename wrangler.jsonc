@@ -16,11 +16,13 @@
     "vars": {
         "KC_HOSTNAME": "staj.sonacove.com/auth",
         "KC_CLIENT_ID": "paddle-update-user",
+        "PUBLIC_KC_HOSTNAME": "staj.sonacove.com/auth",
         "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
         "PUBLIC_PADDLE_ENVIRONMENT": "sandbox",
         "PUBLIC_PADDLE_CLIENT_TOKEN": "test_aa747e41e1866be40d09da6d0f6",
         "PUBLIC_PADDLE_PRICE_ID": "pri_01jp00qykqy6wyd54gxv369hdr",
-        "PUBLIC_KC_HOSTNAME": "staj.sonacove.com/auth"
+        "PUBLIC_PADDLE_PREMIUM_PRICE_ID": "pri_01jwr9d18v2mwh8v1a6zj248mq",
+        "PUBLIC_PADDLE_ORGANIZATION_PRICE_ID": "pri_01jwrbqszxa7hzzzhh5xyrhzqj"
     },
     "env": {
         "prod": {
@@ -31,13 +33,15 @@
                 }
             ],
             "vars": {
+                "KC_HOSTNAME": "auth.sonacove.com",
+                "KC_CLIENT_ID": "paddle-update-user",
+                "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
                 "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
                 "PUBLIC_PADDLE_ENVIRONMENT": "production",
                 "PUBLIC_PADDLE_CLIENT_TOKEN": "live_a9e8dccd4f0a60784e864042cdd",
-                "PUBLIC_PADDLE_PRICE_ID": "pri_01jnzz5cz98ha49a538ssswszk",
-                "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
-                "KC_HOSTNAME": "auth.sonacove.com",
-                "KC_CLIENT_ID": "paddle-update-user"
+                "PUBLIC_PADDLE_PRICE_ID": "pri_01jxg3w25hshk3za8exew95x8v",
+                "PUBLIC_PADDLE_PREMIUM_PRICE_ID": "pri_01jxg3w25hshk3za8exew95x8v",
+                "PUBLIC_PADDLE_ORGANIZATION_PRICE_ID": "pri_01jxg3x35tm323gt3sk11ks858"
             },
             "routes": [
                 {
