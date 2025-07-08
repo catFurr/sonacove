@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "dev:wrangler": "wrangler pages dev ./dist --port 8787",
-    "build": "astro build",
+    "build": "npm run build:astro && npm run build:worker",
+    "build:astro": "astro build",
+    "build:worker": "cd functions && vite build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -25,7 +27,10 @@
     "@cloudflare/workers-types": "^4.20250529.0",
     "@types/bun": "^1.2.15",
     "@types/node": "^22.15.24",
-    "typescript": "^5.8.3"
+    "esbuild": "^0.25.6",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.3",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"

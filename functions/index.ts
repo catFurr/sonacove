@@ -39,8 +39,24 @@ export default {
       }
 
       try {
-        // Dynamically import the handler. Esbuild (via Wrangler) should handle .ts resolution.
-        const handlerModule = await import(`./api/${cleanHandlerName}.ts`);
+        // Dynamically import the handler. Esbuild will resolve this glob pattern at build time.
+        const handlerModules = import.meta.glob<{
+          default?: ApiModuleDefaultHandler;
+          onRequest?: ApiModuleOnRequestHandler;
+        }>("./api/*.ts");
+
+        const handlerModuleKey = `./api/${cleanHandlerName}.ts`;
+        const handlerModuleLoader = handlerModules[handlerModuleKey];
+
+        if (!handlerModuleLoader) {
+          console.log(`API module ./${cleanHandlerName}.ts not found.`);
+          return new Response(`API endpoint '${cleanHandlerName}' not found.`, {
+            status: 404,
+            headers: { "Content-Type": "text/plain" },
+          });
+        }
+
+        const handlerModule = await handlerModuleLoader();
 
         if (handlerModule && typeof handlerModule.default === "function") {
           const handler = handlerModule.default as ApiModuleDefaultHandler;
