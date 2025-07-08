@@ -28,6 +28,8 @@ export interface Env {
 
     GRAFANA_USERNAME: string;
     GRAFANA_API_KEY: string;
+
+    POSTHOG_API_KEY: string;
 }
 
 export type WorkerContext = EventContext<Env, any, Record<string, unknown>>

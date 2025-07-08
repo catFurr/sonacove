@@ -1,3 +1,4 @@
+import { capturePosthogEvent } from "../components/posthog.ts";
 import { PaddleClient } from "../components/paddle.ts";
 import {
   BrevoClient,
@@ -278,6 +279,32 @@ async function WorkerHandler(context: WorkerContext) {
           }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
+      }
+
+      case "access.LOGIN": {
+        logger.info('LOGIN event captured')
+        await capturePosthogEvent({
+          distinctId: webhookEvent.authDetails.userId,
+          event: 'user_logged_in',
+          env: context.env,
+        });   
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+
+      case "access.REGISTER": {
+        logger.info('REGISTER event captured')
+        await capturePosthogEvent({
+          distinctId: webhookEvent.authDetails.userId,
+          event: 'user_registered',
+          env: context.env,
+        });
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
       }
 
       default:
