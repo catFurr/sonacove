@@ -39,40 +39,24 @@ export default {
       }
 
       try {
-        // Try different import paths for bundled vs development
-        let handlerModule;
-        const importPaths = [
-          `./api/${cleanHandlerName}.ts`, // Original path (works in dev)
-          `./api/${cleanHandlerName}.js`, // Compiled JS version
-          `./api/${cleanHandlerName}`, // No extension
-          `api/${cleanHandlerName}.ts`, // Without leading dot
-          `api/${cleanHandlerName}.js`, // Without leading dot, JS
-          `api/${cleanHandlerName}`, // Without leading dot, no extension
-        ];
+        // Dynamically import the handler. Esbuild will resolve this glob pattern at build time.
+        const handlerModules = import.meta.glob<{
+          default?: ApiModuleDefaultHandler;
+          onRequest?: ApiModuleOnRequestHandler;
+        }>("./api/*.ts");
 
-        for (const importPath of importPaths) {
-          try {
-            handlerModule = await import(importPath);
-            console.log(
-              `Successfully loaded API module '${cleanHandlerName}' from: ${importPath}`
-            );
-            break;
-          } catch (importError) {
-            // Try the next path
-            continue;
-          }
-        }
+        const handlerModuleKey = `./api/${cleanHandlerName}.ts`;
+        const handlerModuleLoader = handlerModules[handlerModuleKey];
 
-        if (!handlerModule) {
-          console.log(
-            `API module for '${cleanHandlerName}' not found in any of the attempted paths:`,
-            importPaths
-          );
+        if (!handlerModuleLoader) {
+          console.log(`API module ./${cleanHandlerName}.ts not found.`);
           return new Response(`API endpoint '${cleanHandlerName}' not found.`, {
             status: 404,
             headers: { "Content-Type": "text/plain" },
           });
         }
+
+        const handlerModule = await handlerModuleLoader();
 
         if (handlerModule && typeof handlerModule.default === "function") {
           const handler = handlerModule.default as ApiModuleDefaultHandler;
@@ -117,6 +101,17 @@ export default {
           );
         }
       } catch (e: any) {
+        if (
+          e.message?.includes("Cannot find module") ||
+          e.message?.includes("module not found") ||
+          e.code === "MODULE_NOT_FOUND"
+        ) {
+          console.log(`API module ./${cleanHandlerName}.ts not found.`);
+          return new Response(`API endpoint '${cleanHandlerName}' not found.`, {
+            status: 404,
+            headers: { "Content-Type": "text/plain" },
+          });
+        }
         console.error(
           `Error executing API handler for '${cleanHandlerName}':`,
           e
