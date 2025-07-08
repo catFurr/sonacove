@@ -1,15 +1,11 @@
 {
   "name": "sonacove",
   "compatibility_date": "2025-05-07",
-  "main": "functions/index.ts",
-  "find_additional_modules": true,
-  "rules": [
-    {
-      "type": "ESModule",
-      "globs": ["functions/api/**/*.ts"],
-      "fallthrough": true
-    }
-  ],
+  "main": "dist/worker/index.js",
+  "build": {
+    "command": "npm run build:worker",
+    "watch_dir": "functions"
+  },
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",

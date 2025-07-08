@@ -28,6 +28,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Sync secrets to Cloudflare
+        id: sync-secrets
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
+            ENV_NAME="prod"
+            ENV_FLAG="--env prod"
+          else
+            ENV_NAME="preview"
+            ENV_FLAG=""
+          fi
+
+          echo "🔐 Syncing secrets to Cloudflare environment: $ENV_NAME"
+
+          # Filter out null and empty values from secrets JSON
+          FILTERED_SECRETS=$(echo "$ALL_SECRETS" | jq 'with_entries(select(.value != null and .value != ""))')
+
+          # Check if there are any secrets to sync
+          if [[ $(echo "$FILTERED_SECRETS" | jq 'length') -eq 0 ]]; then
+            echo "No secrets to sync."
+          else
+            echo "Syncing secrets using wrangler versions secret bulk..."
+            # Use wrangler versions secret bulk to upload secrets without deploying
+            echo "$FILTERED_SECRETS" | npx wrangler versions secret bulk $ENV_FLAG
+            echo "✅ Secret sync complete! A new version with updated secrets has been created."
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+
       - name: Extract and set environment variables
         run: |
           # Determine environment
@@ -78,38 +108,13 @@ jobs:
 
       - name: Wrangler Deploy
         uses: cloudflare/wrangler-action@v3
+        id: deploy
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod' || format('versions deploy {0}@100 -y', steps.extract-version.outputs.VERSION_ID) }}
           workingDirectory: "."
           wranglerVersion: "3"
-        id: deploy
-
-      - name: Sync secrets to Cloudflare
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
-            ENV_NAME="prod"
-            ENV_FLAG="--env prod"
-          else
-            ENV_NAME="preview"
-            ENV_FLAG=""
-          fi
-
-          echo "🔐 Syncing secrets to Cloudflare environment: $ENV_NAME"
-
-          echo "$ALL_SECRETS" | jq -r 'to_entries[] | "\(.key)=\(.value)"' | while IFS='=' read -r key value; do
-            if [[ -n "$value" && "$value" != "null" ]]; then
-              echo "  Syncing secret: $key"
-              echo "$value" | npx wrangler secret put "$key" $ENV_FLAG
-            fi
-          done
-
-          echo "✅ Secret sync complete!"
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ALL_SECRETS: ${{ toJSON(secrets) }}
 
       - name: Add deployment summary
         if: always()
