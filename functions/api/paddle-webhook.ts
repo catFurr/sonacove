@@ -2,6 +2,7 @@ import { KeycloakClient } from "../components/keycloak.ts";
 import { PaddleClient, PaddleWebhookEvent } from "../components/paddle.ts";
 import { getLogger, logWrapper } from "../components/pino-logger.ts";
 import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
+import { capturePosthogEvent } from "../components/posthog.ts";
 const logger = getLogger();
 
 // dsfdf
@@ -33,8 +34,42 @@ async function WorkerHandler(context: WorkerContext) {
     logger.info("Extracted Paddle data:", JSON.stringify(extractedData));
 
     // Process the subscription data and update Keycloak
+    let user = undefined;
     if (extractedData.subscription) {
-      await processSubscriptionUpdate(extractedData, context.env);
+      user = await processSubscriptionUpdate(extractedData, context.env);
+      // Subscription activation event
+      if (event.event_type === "subscription.created" && user) {
+        await capturePosthogEvent({
+          distinctId: user.id,
+          event: "subscription_activated",
+          env: context.env,
+        });
+      }
+    }
+    // Handle transaction events for subscription payment
+    if (extractedData.transaction) {
+      // Try to find the user by subscription_id or customer_id
+      const keycloak = new KeycloakClient(context.env);
+      const tx = extractedData.transaction;
+      // Try by subscription_id first
+      if (tx.subscription_id) {
+        user = await keycloak.getUser(undefined, tx.subscription_id);
+      }
+      // Fallback to customer_id if not found
+      if (!user && tx.customer_id) {
+        const customerDetails = await PaddleClient.fetchCustomer(tx.customer_id, context.env);
+        if (customerDetails && customerDetails.email) {
+          user = await keycloak.getUser(customerDetails.email, undefined);
+        }
+      }
+      // Subscription payment event: only fire for successful payments
+      if (event.event_type === "transaction.updated" && user && tx.status === "paid") {
+        await capturePosthogEvent({
+          distinctId: user.id,
+          event: "subscription_payment",
+          env: context.env,
+        });
+      }
     }
     // For now, we're only handling subscription events
     // We could add transaction handling later if needed
@@ -139,6 +174,7 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
     logger.info(
       `Successfully updated user ${user.id} with subscription data`
     );
+    return user;
   } catch (error) {
     logger.error("Error processing subscription update:", error);
     throw error;
