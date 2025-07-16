@@ -37,9 +37,9 @@
         }
       ],
       "vars": {
-        "KC_HOSTNAME": "auth.sonacove.com",
+        "KC_HOSTNAME": "meet.sonacove.com/auth",
         "KC_CLIENT_ID": "paddle-update-user",
-        "PUBLIC_KC_HOSTNAME": "auth.sonacove.com",
+        "PUBLIC_KC_HOSTNAME": "meet.sonacove.com/auth",
         "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
         "PUBLIC_PADDLE_ENVIRONMENT": "production",
         "PUBLIC_PADDLE_CLIENT_TOKEN": "live_a9e8dccd4f0a60784e864042cdd",

@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "dev:wrangler": "wrangler pages dev ./dist --port 8787",
+    "dev": "node --env-file .dev.vars ./node_modules/astro/astro.js dev",
+    "dev:wrangler": "wrangler dev --port 8787",
     "build": "npm run build:astro && npm run build:worker",
     "build:astro": "astro build",
     "build:worker": "cd functions && vite build",
