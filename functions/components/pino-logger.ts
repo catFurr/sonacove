@@ -135,7 +135,7 @@ async function flushLogs(env: Env): Promise<void> {
         severity: logEntry.level.toUpperCase(), // Use the stored level, converted to uppercase
         body: message,
         attributes: {
-          "service.name": "cloudflare-worker",
+          "service.name": "cf-worker" + env.PUBLIC_PADDLE_ENVIRONMENT === "sandbox" ? "-staj" : "",
           ...(logEntry.bindings?.[0] || {}), // Include child logger context from stored bindings
         },
       };
