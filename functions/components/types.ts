@@ -24,7 +24,7 @@ export interface Env {
 
     PADDLE_WEBHOOK_SECRET: string;
     PADDLE_API_KEY: string;
-    PUBLIC_PADDLE_ENVIRONMENT?: string;
+    PUBLIC_PADDLE_ENVIRONMENT?: "production" | "sandbox";
 
     GRAFANA_USERNAME: string;
     GRAFANA_API_KEY: string;
