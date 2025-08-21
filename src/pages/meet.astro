@@ -1,0 +1,141 @@
+---
+// @ts-expect-error
+import { generateRoomWithoutSeparator } from '@jitsi/js-utils/random';
+import Layout from "../layouts/Layout.astro";
+
+const meetingsList = [
+  { date: "Aug 18, 2025", room: "er", time: "12:34 PM", duration: "00:00" },
+  { date: "Aug 17, 2025", room: "zaidahmed", time: "7:06 PM", duration: "20:15" },
+  { date: "Aug 12, 2025", room: "test", time: "3:25 PM", duration: "36:50" },
+  { date: "Aug 7, 2025", room: "meet", time: "12:26 PM", duration: "06:33" },
+  { date: "Aug 1, 2025", room: "sonacove", time: "9:15 AM", duration: "01:45" },
+  { date: "Jul 30, 2025", room: "jitsi-meet", time: "11:00 AM", duration: "02:30" },
+  { date: "Jul 25, 2025", room: "test-room", time: "4:20 PM", duration: "15:00" },
+  { date: "Jul 20, 2025", room: "demo-room", time: "10:10 AM", duration: "30:00" },
+];
+
+const placeholderWords = Array.from({ length: 10 }, () => generateRoomWithoutSeparator());
+const initialRoomPlaceholder = placeholderWords[0];
+---
+
+<Layout title="Sonacove Meets">
+  <div class="container px-4 py-12">
+    <div class="rounded-xl overflow-hidden p-8">
+      <h1 class="text-3xl font-bold text-center mb-2">Sonacove Meets</h1>
+      <p class="text-center text-lg text-gray-600 mb-6">Secure and high quality meetings</p>
+      
+      <form id="room-form" class="max-w-xl mx-auto flex flex-col sm:flex-row gap-3 justify-center mb-8">
+        <input id="room-input" type="text" placeholder={initialRoomPlaceholder} class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" />
+        <button type="submit" class="text-center px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-small rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] whitespace-nowrap">Start meeting</button>
+      </form>
+      
+      <script is:inline define:vars={{ placeholderWords }}>
+          const input = document.getElementById('room-input');
+          let currentWord;
+          if (input) {
+            let wordIndex = 0;
+            let timeoutId = null;
+            const typingSpeed = 100;
+            const erasingSpeed = 50;
+            const pauseDuration = 1500;
+            
+            const type = (word, onDone) => { 
+              let i = 0; 
+              if (document.activeElement !== input) input.placeholder = '';
+               const typeChar = () => { 
+                if (i < word.length) { 
+                  input.placeholder += word.charAt(i); i++;
+                  timeoutId = setTimeout(typeChar, typingSpeed); 
+                } else if (onDone) {
+                   onDone(); 
+                  } }; typeChar(); };
+
+            const erase = (onDone) => { 
+              const word = input.placeholder; 
+              let i = word.length; 
+              const eraseChar = () => { 
+                if (i > 0) { 
+                  input.placeholder = word.substring(0, i - 1); 
+                  i--; 
+                  timeoutId = setTimeout(eraseChar, erasingSpeed); 
+                } else if (onDone) {
+                   onDone(); 
+                  } }; eraseChar(); };
+
+            const animationLoop = () => { 
+              currentWord = placeholderWords[wordIndex]; 
+              type(currentWord, () => { 
+                timeoutId = setTimeout(() => { 
+                  erase(() => { wordIndex = (wordIndex + 1) % placeholderWords.length; 
+                    animationLoop(); }); }, pauseDuration); }); };
+
+            window.addEventListener('DOMContentLoaded', animationLoop);
+          }
+
+        const roomForm = document.getElementById('room-form');
+        const roomInput = document.getElementById('room-input');
+
+        if (roomForm && roomInput) {
+          roomForm.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+
+            if (currentWord) {
+              window.location.href = `/meet/${currentWord}`;
+            }
+          });
+        }
+      </script>
+<div class="max-w-2xl mx-auto bg-gray-50 rounded-lg p-4 mb-8 shadow-sm">
+        <h2 class="text-lg font-semibold mb-2 px-2">Recent Meetings</h2>
+        {meetingsList.length === 0 ? (
+          <div class="flex items-center justify-center min-h-[220px] bg-blue-100 rounded-lg">
+            <p class="text-center text-gray-700 px-4 py-8">
+              Your recent list is currently empty. Chat with your team and you will<br />
+              find all your recent meetings here.
+            </p>
+          </div>
+        ) : (
+          /* MODIFICATION 1: Added space-y-3 for gaps and p-1 for breathing room */
+          <ul class="max-h-72 overflow-y-auto space-y-3 p-1">
+            {meetingsList.map((meeting) => (
+              /* MODIFICATION 2: Converted the <li> into a card */
+              <li class="flex items-center gap-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                {/* Left Column: Date & Time */}
+                <div class="flex flex-col w-32 shrink-0">
+                  <span class="text-sm font-medium text-gray-800">{meeting.date}</span>
+                  <span class="text-sm text-gray-500">{meeting.time}</span>
+                </div>
+
+                {/* Right Column: Room Name & Duration */}
+                <div class="flex flex-col min-w-0">
+                  <span class="text-sm font-semibold text-gray-900 truncate">{meeting.room}</span>
+                  <span class="text-sm text-gray-500">{meeting.duration}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div class="max-w-2xl mx-auto mt-8 pl-14">
+        <h2 class="text-xl font-bold mb-4">Account</h2>
+        <!-- <div class="flex flex-col gap-3 mb-4"> -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- <p><span class="font-semibold mr-2">Name:</span> Zaid Ahmed</p>
+          <p><span class="font-semibold mr-2">Email:</span> zaidahmed0412@gmail.com</p>
+          <p><span class="font-semibold mr-2">Subscription Status:</span> Active</p> -->
+          <p>Name:</p>
+          <p>Zaid Ahmed</p>
+          <p>Email:</p>
+          <p>zaidahmed0412@gmail.com</p>
+          <p class='pb-4'>Subscription:</p>
+          <p>Active</p>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <button class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:text-gray-700 disabled:bg-gray-300">Manage Account</button>
+          <button class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:text-gray-700 disabled:bg-gray-300">Manage Subscription</button>
+          <button class="px-6 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

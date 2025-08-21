@@ -1,5 +1,6 @@
 ---
 const navLinks = [
+  { href: "/meet", label: "Visit Platform", id: "platform" },
   { href: "/features", label: "Features", id: "features" },
   { href: "/comparison", label: "Comparison", id: "comparison" },
   { href: "/#pricing", label: "Pricing", id: "pricing" },
@@ -12,6 +13,7 @@ function getActiveId(pathname: string) {
   if (pathname === "/") return "home";
   if (pathname.startsWith("/features")) return "features";
   if (pathname.startsWith("/comparison")) return "comparison";
+  if (pathname.startsWith("/meet")) return "platform";
   // Pricing and FAQ are only highlighted on homepage
   return null;
 }
