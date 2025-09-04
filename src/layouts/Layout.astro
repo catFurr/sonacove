@@ -44,10 +44,12 @@ const {
 
     <PostHog />
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
+  <body class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex flex-col">
     <Header />
-    <slot />
-    <footer class="py-6 text-center text-xs text-gray-500">
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="py-6 text-center text-xs text-gray-500 mt-auto">
       <div class="container mx-auto px-4">
         <p>
           © {new Date().getFullYear()} Sonacove Meets by Alfaz Studio. All rights
