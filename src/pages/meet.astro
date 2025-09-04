@@ -1,10 +1,10 @@
 ---
-// @ts-expect-error 
+// @ts-expect-error
 import { generateRoomWithoutSeparator } from '@jitsi/js-utils/random';
 import Layout from "../layouts/Layout.astro";
 
 // Demo purposes only (replace with auth logic later)
-const isLoggedIn = true;
+const isLoggedIn = false;
 
 const userData = {
   name: "Josim Uddin",
@@ -34,14 +34,79 @@ const env = {
 ---
 
 <Layout title="Sonacove Meets">
-  <div class="bg-gray-50 min-h-screen p-4">
+  <div class="bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4">
     {!isLoggedIn ? (
-      <!-- Logged Out State -->
-      <div class="container px-4 py-8 mx-auto text-center">
-        <!-- logged out content -->
+      <div class="w-full max-w-[1700px] mx-auto px-8">
+        <!-- Logged-Out Header -->
+        <div class="w-full flex justify-center pt-4 mb-8">
+          <header class="w-full flex justify-between items-center px-6 py-3 bg-white rounded-full border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-4">
+              <img src="/sonacove-orange.svg" alt="Sonacove Logo" class="w-10 h-8" />
+              <span class="text-2xl font-semibold text-black">Sonacove</span>
+            </div>
+            <!-- Login/Signup Buttons -->
+            <div class="flex items-center gap-4">
+              <button class="px-7 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-colors">
+                Log in
+              </button>
+              <button class="px-7 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors">
+                Sign up
+              </button>
+            </div>
+          </header>
+        </div>
+
+        <!-- Logged-Out Main Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-[5vw] items-center pt-8 mt-4">
+          <!-- Left Column -->
+          <div>
+            <h1 class="text-6xl font-semibold text-black mb-6 leading-tight">
+              Secure and high quality meetings
+            </h1>
+            <p class="text-xl text-gray-600 mb-20">
+              The only online meeting platform that adapts to your teaching style, not the other way around.
+            </p>
+            <form id="room-form" class="max-w-lg">
+              <div class="relative w-full">
+                <input
+                  id="room-input"
+                  type="text"
+                  placeholder="Enter here"
+                  class="w-full bg-transparent border-0 border-b border-gray-300 py-3 pl-3 text-3xl font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-colors"
+                />
+              </div>
+              <p class="mt-3 mb-8 text-sm text-gray-500">
+                Enter subject or Meeting ID to get started
+              </p>
+              <div class="flex items-center gap-4">
+                <button
+                  type="submit"
+                  class="px-8 py-4 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 shadow-sm transition-transform hover:scale-105"
+                >
+                  Join meeting
+                </button>
+                <button
+                  type="button"
+                  class="px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 shadow-sm transition-transform hover:scale-105"
+                >
+                  Book meeting
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right Column -->
+          <div class="hidden lg:flex justify-center items-center w-auto h-full">
+            <img
+              src="/logged-out-illustration.png"
+              alt="Illustration of a person in an online meeting with files and folders"
+              class="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </main>
       </div>
     ) : (
-      <div class="w-full max-w-[1700px] mx-auto px-8">
+      <div class="bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] w-full max-w-[1700px] mx-auto px-8">
         <!-- Header -->
         <div class="w-full flex justify-center pt-4 mb-8">
           <header class="w-full flex justify-between items-center px-6 py-3 bg-white rounded-full border border-gray-200 shadow-sm">
@@ -102,9 +167,7 @@ const env = {
                 <img src={userData.avatarUrl} alt={userData.name} class="w-16 h-16 rounded-full object-cover" />
                 <div class="flex flex-col gap-1">
                   <h3 class="text-2xl font-semibold text-black">{userData.name}</h3>
-                  <p class="leading-tight">
-                    {userData.email.replace(".com", ".\ncom")}
-                  </p>
+                  <p class="leading-tight">{userData.email.replace(".com", ".\ncom")}</p>
                   <p class="text-xl text-gray-500 mt-2 pt-4">
                     Plan: <span class="font-bold text-black">{userData.plan}</span>
                   </p>
@@ -234,15 +297,35 @@ const env = {
 
   <!-- Custom Styling -->
   <style>
-    .bg-orange-500 { background-color: #F05023; }
-    .hover\:bg-orange-600:hover { background-color: #D8431C; }
-    .text-orange-500 { color: #F05023; }
-    .text-orange-600 { color: #D9480F; }
-    .border-orange-500 { border-color: #F05023; }
-    .bg-orange-100 { background-color: #FFF4E6; }
-    .hover\:bg-orange-50:hover { background-color: #FFF9F2; }
-    .focus\:ring-orange-400:focus { --tw-ring-color: #F05023; }
-    .text-green-600 { color: #16A34A; }
-    .bg-gray-50 { background-color: #F9FAFB; }
+    .bg-orange-500 {
+      background-color: #F05023;
+    }
+    .hover\:bg-orange-600:hover {
+      background-color: #D8431C;
+    }
+    .text-orange-500 {
+      color: #F05023;
+    }
+    .text-orange-600 {
+      color: #D9480F;
+    }
+    .border-orange-500 {
+      border-color: #F05023;
+    }
+    .bg-orange-100 {
+      background-color: #FFF4E6;
+    }
+    .hover\:bg-orange-50:hover {
+      background-color: #FFF9F2;
+    }
+    .focus\:ring-orange-400:focus {
+      --tw-ring-color: #F05023;
+    }
+    .text-green-600 {
+      color: #16A34A;
+    }
+    .bg-gray-50 {
+      background-color: #F9FAFB;
+    }
   </style>
 </Layout>
