@@ -1,0 +1,45 @@
+---
+interface Props {
+  initialRoomPlaceholder: string;
+}
+
+const { initialRoomPlaceholder } = Astro.props;
+---
+
+<h1 class="text-6xl font-semibold text-black mb-6 leading-tight">
+  Secure and high quality meetings
+</h1>
+
+<p class="text-xl text-gray-600 mb-20">
+  The only online meeting platform that adapts to your teaching style, not the other way around.
+</p>
+
+<form id="room-form" class="max-w-lg">
+  <div class="relative w-full">
+    <input
+      id="room-input"
+      type="text"
+      placeholder={initialRoomPlaceholder}
+      class="w-full bg-transparent border-0 border-b border-gray-300 py-3 pl-3 text-3xl font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-colors"
+    />
+  </div>
+
+  <p class="mt-3 mb-8 text-sm text-gray-500">
+    Enter subject or Meeting ID to get started
+  </p>
+
+  <div class="flex items-center gap-4">
+    <button
+      type="submit"
+      class="px-8 py-4 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 shadow-sm transition-transform hover:scale-105"
+    >
+      Join meeting
+    </button>
+    <button
+      type="button"
+      class="px-8 py-4 bg-black text-white font-semibold rounded-full hover:bg-gray-800 shadow-sm transition-transform hover:scale-105"
+    >
+      Book meeting
+    </button>
+  </div>
+</form>
