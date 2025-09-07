@@ -1,7 +1,9 @@
 ---
 // @ts-expect-error
 import { generateRoomWithoutSeparator } from "@jitsi/js-utils/random";
+
 import Layout from "../layouts/Layout.astro";
+import TabbedContent from "../components/TabbedContent.astro";
 import WelcomeContent from "../components/WelcomeContent.astro";
 
 // Demo purposes only
@@ -166,169 +168,42 @@ const env = {
             <WelcomeContent {initialRoomPlaceholder} />
           </div>
 
-          <!-- Right Column (Logged In) -->
-            <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3">
-            <!-- User Info -->
-            <div class="mb-8">
-                <!-- ... your user info content remains the same ... -->
-                <div class="flex justify-between items-start mb-4">
-                    <img src={userData.avatarUrl} alt={userData.name} class="w-20 h-20 rounded-full object-cover"/>
-                    <div class="flex flex-col gap-2">
-                        <button class="px-7 py-3 border border-orange-500 text-orange-500 text-sm font-semibold rounded-full hover:bg-orange-50">
-                            Manage Account
-                        </button>
-                        <button class="px-7 py-3 border border-black text-black text-sm font-semibold rounded-full hover:bg-gray-100">
-                            Manage Plan
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-3xl font-bold text-black">{userData.name}</h3>
-                    <p class="text-gray-500 text-lg">{userData.email}</p>
-                    <p class="text-gray-500 text-lg mt-2">Plan: <span class="font-bold text-black">{userData.plan}</span></p>
-                </div>
-            </div>
-
-            <!-- Tab Container -->
-            <div data-tabs-container>
-                <!-- Tab Buttons -->
-                <div class="flex gap-8 mb-6 border-b border-gray-200">
-                <button data-tab="meetings" class="flex-1 tab-button pb-3 text-lg font-semibold text-orange-500 border-b-2 border-orange-500 hover:text-orange-500">
-                    My Meetings
+        <!-- Right Column (Logged In) -->
+        <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3">
+        <!-- User Info -->
+        <div class="mb-8">
+            <div class="flex justify-between items-start mb-4">
+            <img
+                src={userData.avatarUrl}
+                alt={userData.name}
+                class="w-20 h-20 rounded-full object-cover"
+            />
+            <div class="flex flex-col gap-2">
+                <button
+                class="px-7 py-3 border border-orange-500 text-orange-500 text-sm font-semibold rounded-full hover:bg-orange-50"
+                >
+                Manage Account
                 </button>
-                <button data-tab="recordings" class="flex-1 tab-button pb-3 text-lg font-semibold text-gray-400 hover:text-orange-500">
-                    Recordings
+                <button
+                class="px-7 py-3 border border-black text-black text-sm font-semibold rounded-full hover:bg-gray-100"
+                >
+                Manage Plan
                 </button>
-                <button data-tab="notes" class="flex-1 tab-button pb-3 text-lg font-semibold text-gray-400 hover:text-orange-500">
-                    Notes
-                </button>
-                </div>
-
-                <!-- Tab Content Panels -->
-                <div>
-
-                <!-- Meetings Panel -->
-                <div data-content="meetings" class="tab-content">
-                {meetingsList.length === 0 ? (
-                    <!-- Placeholder for when there are no meetings -->
-                    <div class="text-center py-12">
-                    <p class="text-xl text-gray-500">You have no scheduled meetings.</p>
-                    <button class="mt-4 px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600">
-                        Book a Meeting
-                    </button>
-                    </div>
-                ) : (
-                    <!-- Original content for when meetings exist -->
-                    <>
-                    <div class="inline-flex bg-gray-100 rounded-full p-1 space-x-1 mb-8">
-                        <button class="px-6 py-2 bg-white text-black font-semibold rounded-full shadow-sm text-sm transition-colors">All</button>
-                        <button class="px-6 py-2 text-gray-500 font-semibold hover:text-black rounded-full text-sm transition-colors">Upcoming</button>
-                        <button class="px-6 py-2 text-gray-500 font-semibold hover:text-black rounded-full text-sm transition-colors">Past</button>
-                    </div>
-                    <div class="space-y-6">
-                        {meetingsList.map((meeting) => (
-                        <div class="flex items-start justify-between md:justify-normal md:gap-24 pb-4 border-b border-gray-100 last:border-b-0">
-                            <div class="text-left text-gray-600 text-lg"><p>{meeting.date}</p><p>{meeting.time}</p></div>
-                            <div class="text-right md:text-left">
-                            <p class="text-2xl font-bold text-black mb-2">{meeting.title}</p>
-                            <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full">
-                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
-                                {meeting.status}
-                            </span>
-                            </div>
-                        </div>
-                        ))}
-                    </div>
-                    </>
-                )}
-                </div>
-
-                <!-- Recordings Panel -->
-                <div data-content="recordings" class="tab-content hidden">
-                {recordings.length === 0 ? (
-                    <!-- Placeholder for when there are no recordings -->
-                    <div class="text-center py-12">
-                    <p class="text-xl text-gray-500">Recordings from your past meetings will appear here.</p>
-                    </div>
-                ) : (
-                    <!-- Original content for when recordings exist -->
-                    <div class="space-y-6">
-                    {recordings.map((rec) => (
-                        <div class="flex items-start justify-between pb-4 border-b border-gray-100 last:border-b-0">
-                            <div class="text-left text-gray-600 text-lg"><p>{rec.date}</p><p class="text-sm">Duration: {rec.duration}</p></div>
-                            <p class="text-2xl font-bold text-black text-right">{rec.title}</p>
-                        </div>
-                    ))}
-                    </div>
-                )}
-                </div>
-
-                <!-- Notes Panel -->
-                <div data-content="notes" class="tab-content hidden">
-                    {notes.length === 0 ? (
-                    <div class="text-center py-12">
-                        <p class="text-xl text-gray-500">You don't have any notes yet.</p>
-                    </div>
-                    ) : (
-                    <div class="space-y-4">
-                        <!-- List of notes -->
-                        <div class="space-y-4">
-                            {notes.map((note) => (
-                                <div class="flex items-start justify-between gap-4 p-4 border rounded-xl hover:bg-gray-50 transition-colors">
-                                <div class="flex-grow">
-                                    <p class="text-sm text-gray-500">{note.date}</p>
-                                    <h4 class="text-xl font-bold text-black mt-1">{note.title}</h4>
-                                    <p class="text-gray-600 mt-2 text-md leading-relaxed">
-                                    {note.content.substring(0, 120)}...
-                                    </p>
-                                </div>
-                                <div class="flex flex-col gap-2 flex-shrink-0">
-                                    <button class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-                                    View
-                                    </button>
-                                    <button class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100">
-                                    Delete
-                                    </button>
-                                </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    )}
-                </div>
-                </div>
             </div>
-
-            <script>
-                const tabsContainer = document.querySelector('[data-tabs-container]');
-                
-                const tabButtons = tabsContainer.querySelectorAll('.tab-button');
-                const tabContents = tabsContainer.querySelectorAll('.tab-content');
-
-                tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetTab = button.dataset.tab;
-
-                    // Update button styles
-                    tabButtons.forEach(btn => {
-                    btn.classList.remove('text-orange-500', 'border-orange-500', 'border-b-2');
-                    btn.classList.add('text-gray-400');
-                    });
-                    button.classList.add('text-orange-500', 'border-orange-500', 'border-b-2');
-                    button.classList.remove('text-gray-400');
-
-                    // Update content visibility
-                    tabContents.forEach(content => {
-                    if (content.dataset.content === targetTab) {
-                        content.classList.remove('hidden');
-                    } else {
-                        content.classList.add('hidden');
-                    }
-                    });
-                });
-                });
-            </script>
             </div>
+            <div>
+            <h3 class="text-3xl font-bold text-black">{userData.name}</h3>
+            <p class="text-gray-500 text-lg">{userData.email}</p>
+            <p class="text-gray-500 text-lg mt-2">
+                Plan:
+                <span class="font-bold text-black">{userData.plan}</span>
+            </p>
+            </div>
+        </div>
+
+        <TabbedContent {meetingsList} {recordings} {notes} />
+
+        </div>
         </main>
       ) : (
         <main
