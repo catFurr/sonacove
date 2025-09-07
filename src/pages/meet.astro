@@ -6,78 +6,70 @@ import Layout from "../layouts/Layout.astro";
 import TabbedContent from "../components/TabbedContent.astro";
 import WelcomeContent from "../components/WelcomeContent.astro";
 
-// Demo purposes only
-const isLoggedIn = true;
-
-const userData = {
-  name: "Josim Uddin",
-  email: "josim.design@gmail.com",
-  plan: "Trialing",
-  avatarUrl:
-    "data:image/png;base64,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"
-};
-
 const meetingsList = [
   {
     date: "August 25, 2025",
     title: "Design Workshop with Ibrahim",
     time: "8:20 PM",
-    status: "Upcoming"
+    status: "Upcoming",
   },
   {
     date: "August 25, 2025",
     title: "Design Workshop with Ibrahim",
     time: "8:20 PM",
-    status: "Upcoming"
+    status: "Upcoming",
   },
   {
     date: "August 26, 2025",
     title: "Project Sync-Up",
     time: "10:00 AM",
-    status: "Upcoming"
+    status: "Upcoming",
   },
   {
     date: "August 27, 2025",
     title: "Marketing Brainstorm",
     time: "3:30 PM",
-    status: "Upcoming"
-  }
+    status: "Upcoming",
+  },
 ];
 
 const recordings = [
   {
     title: "Design Workshop with Ibrahim",
     date: "August 20, 2025",
-    duration: "1h 15m"
+    duration: "1h 15m",
   },
   {
     title: "Project Sync-Up",
     date: "August 18, 2025",
-    duration: "45m"
+    duration: "45m",
   },
   {
     title: "Marketing Brainstorm",
     date: "August 15, 2025",
-    duration: "30m"
-  }
+    duration: "30m",
+  },
 ];
 
 const notes = [
   {
     title: "Follow-up: Q3 Roadmap",
     date: "August 25, 2025",
-    content: "Key takeaways from the design workshop. Ibrahim mentioned we need to focus on the new user onboarding flow and simplify the dashboard..."
+    content:
+      "Key takeaways from the design workshop. Ibrahim mentioned we need to focus on the new user onboarding flow and simplify the dashboard...",
   },
   {
     title: "Ideas from Marketing Sync",
     date: "August 22, 2025",
-    content: "We discussed potential new ad campaigns. The 'Teach Anything' angle seems promising. Need to mock up some visuals for next week's review."
+    content:
+      "We discussed potential new ad campaigns. The 'Teach Anything' angle seems promising. Need to mock up some visuals for next week's review.",
   },
   {
     title: "Client Onboarding Feedback",
     date: "August 20, 2025",
-    content: "The client found the initial setup process a bit confusing. We should consider adding an interactive checklist or a setup wizard."
-  }
+    content:
+      "The client found the initial setup process a bit confusing. We should consider adding an interactive checklist or a setup wizard.",
+  },
 ];
 
 const placeholderWords = Array.from({ length: 10 }, () =>
@@ -89,7 +81,7 @@ const env = {
   PUBLIC_KC_HOSTNAME: import.meta.env.PUBLIC_KC_HOSTNAME,
   PUBLIC_PADDLE_ENVIRONMENT: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT,
   PUBLIC_PADDLE_CLIENT_TOKEN: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN,
-  PUBLIC_PADDLE_PRICE_ID: import.meta.env.PUBLIC_PADDLE_PRICE_ID
+  PUBLIC_PADDLE_PRICE_ID: import.meta.env.PUBLIC_PADDLE_PRICE_ID,
 };
 ---
 
@@ -114,122 +106,143 @@ const env = {
             </span>
           </div>
 
-          {isLoggedIn ? (
-            <>
-              <!-- Hamburger (Mobile) -->
-              <button class="lg:hidden p-2">
-                <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14.0713 17.8027C14.8976 17.8029 15.5672 18.4725 15.5674 19.2988C15.5674 20.1253 14.8977 20.7957 14.0713 20.7959H4.09375C3.26749 20.7956 2.59766 20.1252 2.59766 19.2988C2.5978 18.4726 3.26758 17.803 4.09375 17.8027H14.0713ZM20.0576 10.8193C20.8839 10.8196 21.5536 11.4892 21.5537 12.3154C21.5535 13.1416 20.8838 13.8123 20.0576 13.8125H4.09375C3.26765 13.8122 2.59791 13.1415 2.59766 12.3154C2.59778 11.4892 3.26757 10.8196 4.09375 10.8193H20.0576ZM20.0576 3.83496C20.8839 3.83512 21.5536 4.50474 21.5537 5.33105C21.5537 6.15748 20.884 6.82796 20.0576 6.82812H10.0801C9.25376 6.82788 8.58399 6.15743 8.58398 5.33105C8.58411 4.50479 9.25384 3.8352 10.0801 3.83496H20.0576Z" fill="black"/>
-                </svg>
+          <!-- LOGGED IN HEADER -->
+          <div class="logged-in-ui flex gap-4">
+            <button
+              id="logout-btn"
+              class="px-7 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-colors"
+            >
+              Log Out
+            </button>
 
-              </button>
-              <!-- Avatar (Desktop) -->
-              <div class="hidden lg:flex items-center">
-                <img
-                  src={userData.avatarUrl}
-                  alt={userData.name}
-                  class="w-10 h-10 rounded-full object-cover"
+            <!-- Hamburger (Mobile) -->
+            <button class="sm:hidden p-2">
+              <svg
+                width="25"
+                height="25"
+                viewBox="0 0 25 25"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14.0713 17.8027C14.8976 17.8029 15.5672 18.4725 15.5674 19.2988C15.5674 20.1253 14.8977 20.7957 14.0713 20.7959H4.09375C3.26749 20.7956 2.59766 20.1252 2.59766 19.2988C2.5978 18.4726 3.26758 17.803 4.09375 17.8027H14.0713ZM20.0576 10.8193C20.8839 10.8196 21.5536 11.4892 21.5537 12.3154C21.5535 13.1416 20.8838 13.8123 20.0576 13.8125H4.09375C3.26765 13.8122 2.59791 13.1415 2.59766 12.3154C2.59778 11.4892 3.26757 10.8196 4.09375 10.8193H20.0576ZM20.0576 3.83496C20.8839 3.83512 21.5536 4.50474 21.5537 5.33105C21.5537 6.15748 20.884 6.82796 20.0576 6.82812H10.0801C9.25376 6.82788 8.58399 6.15743 8.58398 5.33105C8.58411 4.50479 9.25384 3.8352 10.0801 3.83496H20.0576Z"
+                  fill="black"
                 />
-              </div>
-            </>
-          ) : (
-            <>
-              <!-- Hamburger (Mobile) -->
-              <button class="lg:hidden p-2">
-                <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14.0713 17.8027C14.8976 17.8029 15.5672 18.4725 15.5674 19.2988C15.5674 20.1253 14.8977 20.7957 14.0713 20.7959H4.09375C3.26749 20.7956 2.59766 20.1252 2.59766 19.2988C2.5978 18.4726 3.26758 17.803 4.09375 17.8027H14.0713ZM20.0576 10.8193C20.8839 10.8196 21.5536 11.4892 21.5537 12.3154C21.5535 13.1416 20.8838 13.8123 20.0576 13.8125H4.09375C3.26765 13.8122 2.59791 13.1415 2.59766 12.3154C2.59778 11.4892 3.26757 10.8196 4.09375 10.8193H20.0576ZM20.0576 3.83496C20.8839 3.83512 21.5536 4.50474 21.5537 5.33105C21.5537 6.15748 20.884 6.82796 20.0576 6.82812H10.0801C9.25376 6.82788 8.58399 6.15743 8.58398 5.33105C8.58411 4.50479 9.25384 3.8352 10.0801 3.83496H20.0576Z" fill="black"/>
-                </svg>
-              </button>
+              </svg>
+            </button>
 
-              <!-- Auth Buttons (Desktop) -->
-              <div class="hidden lg:flex items-center gap-4">
-                <button
-                  class="px-7 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-colors"
-                >
-                  Log in
-                </button>
-                <button
-                  class="px-7 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors"
-                >
-                  Sign up
-                </button>
-              </div>
-            </>
-          )}
+            <!-- Avatar (Desktop) -->
+            <div class="hidden sm:flex items-center">
+              <img
+                alt="User Avatar"
+                class="user-avatar w-10 h-10 rounded-full object-cover"
+              />
+            </div>
+          </div>
+
+          <!-- LOGGED OUT HEADER -->
+          <div class="logged-out-ui hidden">
+            <!-- Hamburger (Mobile) -->
+            <button class="lg:hidden p-2">
+              <svg
+                width="25"
+                height="25"
+                viewBox="0 0 25 25"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14.0713 17.8027C14.8976 17.8029 15.5672 18.4725 15.5674 19.2988C15.5674 20.1253 14.8977 20.7957 14.0713 20.7959H4.09375C3.26749 20.7956 2.59766 20.1252 2.59766 19.2988C2.5978 18.4726 3.26758 17.803 4.09375 17.8027H14.0713ZM20.0576 10.8193C20.8839 10.8196 21.5536 11.4892 21.5537 12.3154C21.5535 13.1416 20.8838 13.8123 20.0576 13.8125H4.09375C3.26765 13.8122 2.59791 13.1415 2.59766 12.3154C2.59778 11.4892 3.26757 10.8196 4.09375 10.8193H20.0576ZM20.0576 3.83496C20.8839 3.83512 21.5536 4.50474 21.5537 5.33105C21.5537 6.15748 20.884 6.82796 20.0576 6.82812H10.0801C9.25376 6.82788 8.58399 6.15743 8.58398 5.33105C8.58411 4.50479 9.25384 3.8352 10.0801 3.83496H20.0576Z"
+                  fill="black"
+                />
+              </svg>
+            </button>
+
+            <!-- Auth Buttons (Desktop) -->
+            <div class="hidden lg:flex items-center gap-4">
+              <button
+                id="login-btn"
+                class="px-7 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-colors"
+              >
+                Log in
+              </button>
+              <button
+                id="signup-btn"
+                class="px-7 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors"
+              >
+                Sign up
+              </button>
+            </div>
+          </div>
         </header>
       </div>
 
-      <!-- CONDITIONAL MAIN CONTENT -->
-      {isLoggedIn ? (
-        <main
-          class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4"
-        >
-          <div class="lg:col-span-2">
-            <WelcomeContent {initialRoomPlaceholder} />
-          </div>
+      <!-- LOGGED IN MAIN -->
+      <main
+        class="logged-in-ui grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4"
+      >
+        <div class="lg:col-span-2">
+          <WelcomeContent {initialRoomPlaceholder} />
+        </div>
 
         <!-- Right Column (Logged In) -->
         <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3">
-        <!-- User Info -->
-        <div class="mb-8">
-            <div class="flex justify-between items-start mb-4">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-6 mb-8">
+            <!-- Avatar -->
             <img
-                src={userData.avatarUrl}
-                alt={userData.name}
-                class="w-20 h-20 rounded-full object-cover"
+              alt="User Avatar"
+              class="user-avatar w-20 h-20 rounded-full object-cover mx-auto sm:mx-0"
             />
-            <div class="flex flex-col gap-2">
-                <button
-                class="px-7 py-3 border border-orange-500 text-orange-500 text-sm font-semibold rounded-full hover:bg-orange-50"
-                >
-                Manage Account
-                </button>
-                <button
-                class="px-7 py-3 border border-black text-black text-sm font-semibold rounded-full hover:bg-gray-100"
-                >
-                Manage Plan
-                </button>
-            </div>
-            </div>
-            <div>
-            <h3 class="text-3xl font-bold text-black">{userData.name}</h3>
-            <p class="text-gray-500 text-lg">{userData.email}</p>
-            <p class="text-gray-500 text-lg mt-2">
+
+            <!-- User Info -->
+            <div class="flex-1 text-center sm:text-left flex flex-col justify-center">
+              <h3 class="text-3xl font-bold text-black" id="user-name">
+                Username
+              </h3>
+              <p class="text-gray-500 text-lg" id="user-email">user@example.com</p>
+              <p class="text-gray-500 text-lg mt-2">
                 Plan:
-                <span class="font-bold text-black">{userData.plan}</span>
-            </p>
+                <span class="font-bold text-black" id="user-plan">Active</span>
+              </p>
             </div>
-        </div>
 
-        <TabbedContent {meetingsList} {recordings} {notes} />
-
-        </div>
-        </main>
-      ) : (
-        <main
-          class="grid grid-cols-1 lg:grid-cols-2 gap-[5vw] items-center pt-8 mt-4"
-        >
-          <div>
-            <WelcomeContent {initialRoomPlaceholder} />
+            <!-- Buttons -->
+            <div class="flex flex-col gap-2 mt-4 sm:mt-0 sm:ml-4 items-center sm:items-end">
+              <button class="px-7 py-3 border border-orange-500 text-orange-500 text-sm font-semibold rounded-full hover:bg-orange-50 w-full">
+                Manage Account
+              </button>
+              <button class="px-7 py-3 border border-black text-black text-sm font-semibold rounded-full hover:bg-gray-100 w-full">
+                Manage Plan
+              </button>
+            </div>
           </div>
-          <div
-            class="flex justify-center items-center w-auto h-full mt-12 lg:mt-0"
-            >
-                <img
-                    src="/logged-out-illustration.png"
-                    alt="Illustration of a person in an online meeting with files and folders"
-                    class="max-w-full max-h-full object-contain"
-                />
-           </div>
-        </main>
-      )}
+          <TabbedContent {meetingsList} {recordings} {notes} />
+        </div>
+      </main>
+
+      <!-- LOGGED OUT MAIN -->
+      <main
+        class="logged-out-ui hidden grid grid-cols-1 lg:grid-cols-2 gap-[5vw] items-center pt-8 mt-4"
+      >
+        <div>
+          <WelcomeContent {initialRoomPlaceholder} />
+        </div>
+        <div class="flex justify-center items-center w-auto h-full mt-12 lg:mt-0">
+          <img
+            src="/logged-out-illustration.png"
+            alt="Illustration of a person in an online meeting with files and folders"
+            class="max-w-full max-h-full object-contain"
+          />
+        </div>
+      </main>
     </div>
   </div>
 
   <!-- Animation Script -->
-  <script is:inline define:vars={{ placeholderWords }}>
+  <script type="module" is:inline define:vars={{ placeholderWords }}>
     const input = document.getElementById("room-input");
     let currentWord;
+
     if (input) {
       let wordIndex = 0;
       let timeoutId = null;
@@ -272,6 +285,7 @@ const env = {
           }, pauseDuration);
         });
       };
+
       window.addEventListener("DOMContentLoaded", animationLoop);
     }
 
@@ -282,6 +296,16 @@ const env = {
         if (currentWord) window.location.href = `/meet/${currentWord}`;
       });
     }
+  </script>
+
+  <script>
+    import { setupAuthButtons } from "../utils/oidc-client";
+    setupAuthButtons();
+  </script>
+
+  <script>
+    import { updateLoginUI } from "../utils/user-ui";
+    updateLoginUI();
   </script>
 
   <!-- Custom Styles -->
