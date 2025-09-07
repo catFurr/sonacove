@@ -1,11 +1,11 @@
 ---
 // @ts-expect-error
-import { generateRoomWithoutSeparator } from '@jitsi/js-utils/random';
+import { generateRoomWithoutSeparator } from "@jitsi/js-utils/random";
 import Layout from "../layouts/Layout.astro";
-import WelcomeContent from '../components/WelcomeContent.astro';
+import WelcomeContent from "../components/WelcomeContent.astro";
 
 // Demo purposes only
-const isLoggedIn = true;
+const isLoggedIn = false;
 
 const userData = {
   name: "Josim Uddin",
@@ -16,112 +16,215 @@ const userData = {
 };
 
 const meetingsList = [
-  { date: "August 25, 2025", title: "Design Workshop with Ibrahim", time: "8:20 PM", status: "Upcoming" },
-  { date: "August 25, 2025", title: "Design Workshop with Ibrahim", time: "8:20 PM", status: "Upcoming" },
-  { date: "August 26, 2025", title: "Project Sync-Up", time: "10:00 AM", status: "Upcoming" },
-  { date: "August 27, 2025", title: "Marketing Brainstorm", time: "3:30 PM", status: "Upcoming" }
+  {
+    date: "August 25, 2025",
+    title: "Design Workshop with Ibrahim",
+    time: "8:20 PM",
+    status: "Upcoming"
+  },
+  {
+    date: "August 25, 2025",
+    title: "Design Workshop with Ibrahim",
+    time: "8:20 PM",
+    status: "Upcoming"
+  },
+  {
+    date: "August 26, 2025",
+    title: "Project Sync-Up",
+    time: "10:00 AM",
+    status: "Upcoming"
+  },
+  {
+    date: "August 27, 2025",
+    title: "Marketing Brainstorm",
+    time: "3:30 PM",
+    status: "Upcoming"
+  }
 ];
 
-const placeholderWords = Array.from({ length: 10 }, () => generateRoomWithoutSeparator());
+const placeholderWords = Array.from({ length: 10 }, () =>
+  generateRoomWithoutSeparator()
+);
 const initialRoomPlaceholder = placeholderWords[0];
 
 const env = {
   PUBLIC_KC_HOSTNAME: import.meta.env.PUBLIC_KC_HOSTNAME,
-  // ...other env variables
+  PUBLIC_PADDLE_ENVIRONMENT: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT,
+  PUBLIC_PADDLE_CLIENT_TOKEN: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN,
+  PUBLIC_PADDLE_PRICE_ID: import.meta.env.PUBLIC_PADDLE_PRICE_ID
 };
 ---
 
 <Layout title="Sonacove Meets">
-  <div class="bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4">
+  <div class="bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4 overflow-x-hidden">
     <div class="w-full max-w-[1700px] mx-auto px-8">
-      <!-- SHARED HEADER STRUCTURE -->
-      <div class="w-full flex justify-center pt-4 mb-8">
-        <header class="w-full flex justify-between items-center px-6 py-3 bg-white rounded-full border border-gray-200 shadow-sm">
+      
+      <!-- SHARED HEADER -->
+      <div class="w-full flex justify-center pt-4 mb-4 lg:mb-8">
+        <header
+          class="w-full flex justify-between items-center px-4 py-3 lg:px-6 lg:py-3 lg:rounded-full border-b lg:border border-gray-200 lg:shadow-sm"
+        >
+          <!-- Logo -->
           <div class="flex items-center gap-4">
-            <img src="/sonacove-orange.svg" alt="Sonacove Logo" class="w-10 h-8" />
-            <span class="text-2xl font-semibold text-black">Sonacove</span>
+            <img
+              src="/sonacove-orange.svg"
+              alt="Sonacove Logo"
+              class="w-8 h-7 lg:w-10 lg:h-8"
+            />
+            <span class="text-xl lg:text-2xl font-semibold text-black">
+              Sonacove
+            </span>
           </div>
 
-          <!-- CONDITIONAL HEADER BUTTONS -->
           {isLoggedIn ? (
-            <div class="flex items-center">
-              <img src={userData.avatarUrl} alt={userData.name} class="w-10 h-10 rounded-full object-cover" />
-            </div>
+            <>
+              <!-- Hamburger (Mobile) -->
+              <button class="lg:hidden p-2">
+                <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.0713 17.8027C14.8976 17.8029 15.5672 18.4725 15.5674 19.2988C15.5674 20.1253 14.8977 20.7957 14.0713 20.7959H4.09375C3.26749 20.7956 2.59766 20.1252 2.59766 19.2988C2.5978 18.4726 3.26758 17.803 4.09375 17.8027H14.0713ZM20.0576 10.8193C20.8839 10.8196 21.5536 11.4892 21.5537 12.3154C21.5535 13.1416 20.8838 13.8123 20.0576 13.8125H4.09375C3.26765 13.8122 2.59791 13.1415 2.59766 12.3154C2.59778 11.4892 3.26757 10.8196 4.09375 10.8193H20.0576ZM20.0576 3.83496C20.8839 3.83512 21.5536 4.50474 21.5537 5.33105C21.5537 6.15748 20.884 6.82796 20.0576 6.82812H10.0801C9.25376 6.82788 8.58399 6.15743 8.58398 5.33105C8.58411 4.50479 9.25384 3.8352 10.0801 3.83496H20.0576Z" fill="black"/>
+                </svg>
+
+              </button>
+              <!-- Avatar (Desktop) -->
+              <div class="hidden lg:flex items-center">
+                <img
+                  src={userData.avatarUrl}
+                  alt={userData.name}
+                  class="w-10 h-10 rounded-full object-cover"
+                />
+              </div>
+            </>
           ) : (
-            <div class="flex items-center gap-4">
-              <button class="px-7 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-colors">
-                Log in
+            <>
+              <!-- Hamburger (Mobile) -->
+              <button class="lg:hidden p-2">
+                <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.0713 17.8027C14.8976 17.8029 15.5672 18.4725 15.5674 19.2988C15.5674 20.1253 14.8977 20.7957 14.0713 20.7959H4.09375C3.26749 20.7956 2.59766 20.1252 2.59766 19.2988C2.5978 18.4726 3.26758 17.803 4.09375 17.8027H14.0713ZM20.0576 10.8193C20.8839 10.8196 21.5536 11.4892 21.5537 12.3154C21.5535 13.1416 20.8838 13.8123 20.0576 13.8125H4.09375C3.26765 13.8122 2.59791 13.1415 2.59766 12.3154C2.59778 11.4892 3.26757 10.8196 4.09375 10.8193H20.0576ZM20.0576 3.83496C20.8839 3.83512 21.5536 4.50474 21.5537 5.33105C21.5537 6.15748 20.884 6.82796 20.0576 6.82812H10.0801C9.25376 6.82788 8.58399 6.15743 8.58398 5.33105C8.58411 4.50479 9.25384 3.8352 10.0801 3.83496H20.0576Z" fill="black"/>
+                </svg>
               </button>
-              <button class="px-7 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors">
-                Sign up
-              </button>
-            </div>
+
+              <!-- Auth Buttons (Desktop) -->
+              <div class="hidden lg:flex items-center gap-4">
+                <button
+                  class="px-7 py-3 bg-black text-white font-semibold rounded-full hover:bg-gray-800 transition-colors"
+                >
+                  Log in
+                </button>
+                <button
+                  class="px-7 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-colors"
+                >
+                  Sign up
+                </button>
+              </div>
+            </>
           )}
         </header>
       </div>
 
       <!-- CONDITIONAL MAIN CONTENT -->
       {isLoggedIn ? (
-        <main class="grid grid-cols-1 lg:grid-cols-5 gap-[10vw] items-start pt-8 mt-4">
+        <main
+          class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4"
+        >
           <div class="lg:col-span-2">
             <WelcomeContent {initialRoomPlaceholder} />
           </div>
 
           <!-- Right Column (Logged In) -->
-          <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3">
-            <div class="bg-gray-100 p-5 py-8 rounded-2xl flex justify-between items-start mb-8">
-              <div class="flex gap-4">
-                <img src={userData.avatarUrl} alt={userData.name} class="w-16 h-16 rounded-full object-cover" />
-                <div class="flex flex-col gap-1">
-                  <h3 class="text-2xl font-semibold text-black">{userData.name}</h3>
-                  <p class="leading-tight">{userData.email.replace(".com", ".\ncom")}</p>
-                  <p class="text-xl text-gray-500 mt-2 pt-4">
-                    Plan: <span class="font-bold text-black">{userData.plan}</span>
-                  </p>
+          <div
+            class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3"
+          >
+            <!-- User Info -->
+            <div class="mb-8">
+              <div class="flex justify-between items-start mb-4">
+                <img
+                  src={userData.avatarUrl}
+                  alt={userData.name}
+                  class="w-20 h-20 rounded-full object-cover"
+                />
+                <div class="flex flex-col gap-2">
+                  <button
+                    class="px-7 py-3 border border-orange-500 text-orange-500 text-sm font-semibold rounded-full hover:bg-orange-50"
+                  >
+                    Manage Account
+                  </button>
+                  <button
+                    class="px-7 py-3 border border-black text-black text-sm font-semibold rounded-full hover:bg-gray-100"
+                  >
+                    Manage Plan
+                  </button>
                 </div>
               </div>
-              <div class="flex flex-col gap-2 flex-shrink-0">
-                <button class="px-7 py-3.5 border-4 border-orange-500 text-orange-500 text-m font-semibold rounded-full hover:bg-orange-50 transition-colors">
-                  Manage Account
-                </button>
-                <button class="px-7 py-3.5 border-4 border-black text-black text-m font-semibold rounded-full hover:bg-gray-100 transition-colors">
-                  Manage Plan
-                </button>
+              <div>
+                <h3 class="text-3xl font-bold text-black">{userData.name}</h3>
+                <p class="text-gray-500 text-lg">{userData.email}</p>
+                <p class="text-gray-500 text-lg mt-2">
+                  Plan:
+                  <span class="font-bold text-black">{userData.plan}</span>
+                </p>
               </div>
             </div>
 
             <!-- Tabs -->
             <div class="flex gap-8 mb-6 border-b border-gray-200">
-              <button class="flex-1 pb-3 text-lg font-semibold text-orange-500 border-b-2 border-orange-500">
+              <button
+                class="pb-3 text-lg font-semibold text-orange-500 border-b-2 border-orange-500"
+              >
                 My Meetings
               </button>
-              <button class="flex-1 pb-3 text-lg font-semibold text-gray-400 hover:text-orange-500">
+              <button
+                class="pb-3 text-lg font-semibold text-gray-400 hover:text-orange-500"
+              >
                 Recordings
               </button>
-              <button class="flex-1 pb-3 text-lg font-semibold text-gray-400 hover:text-orange-500">
+              <button
+                class="pb-3 text-lg font-semibold text-gray-400 hover:text-orange-500"
+              >
                 Notes
               </button>
             </div>
 
-            <!-- Filters -->
-            <div class="inline-flex bg-gray-100 rounded-md p-1 space-x-1 mb-6">
-              <button class="px-7 py-3 bg-white text-black font-semibold rounded-md shadow-sm text-sm transition-colors">All</button>
-              <button class="px-7 py-3 text-gray-500 font-semibold hover:text-black rounded-md text-sm transition-colors">Upcoming</button>
-              <button class="px-7 py-3 text-gray-500 font-semibold hover:text-black rounded-md text-sm transition-colors">Past</button>
+            <!-- Sub Tabs -->
+            <div class="inline-flex bg-gray-100 rounded-full p-1 space-x-1 mb-8">
+              <button
+                class="px-6 py-2 bg-white text-black font-semibold rounded-full shadow-sm text-sm transition-colors"
+              >
+                All
+              </button>
+              <button
+                class="px-6 py-2 text-gray-500 font-semibold hover:text-black rounded-full text-sm transition-colors"
+              >
+                Upcoming
+              </button>
+              <button
+                class="px-6 py-2 text-gray-500 font-semibold hover:text-black rounded-full text-sm transition-colors"
+              >
+                Past
+              </button>
             </div>
 
-            <!-- Meetings List -->
-            <div class="space-y-4 min-h-[400px]">
+            <!-- Meetings -->
+            <div class="space-y-6">
               {meetingsList.map((meeting) => (
-                <div class="flex items-center gap-24 p-4 border-b border-gray-100 last:border-b-0">
-                  <div class="text-left">
-                    <p class="font-semibold text-xl text-slate-700">{meeting.date}</p>
-                    <p class="text-gray-500 text-xl">{meeting.time}</p>
+                <div
+                  class="flex items-start justify-between md:justify-normal md:gap-24 pb-4 border-b border-gray-100 last:border-b-0"
+                >
+                  <div class="text-left text-gray-600 text-lg">
+                    <p>{meeting.date}</p>
+                    <p>{meeting.time}</p>
                   </div>
-                  <div class="text-left">
-                    <p class="text-2xl text-black mb-2">{meeting.title}</p>
-                    <span class="inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-sm">
-                      <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <div class="text-right md:text-left">
+                    <p class="text-2xl font-bold text-black mb-2">
+                      {meeting.title}
+                    </p>
+                    <span
+                      class="inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
                         <path
                           fill-rule="evenodd"
                           clip-rule="evenodd"
@@ -137,14 +240,21 @@ const env = {
           </div>
         </main>
       ) : (
-        <main class="grid grid-cols-1 lg:grid-cols-2 gap-[5vw] items-center pt-8 mt-4">
+        <main
+          class="grid grid-cols-1 lg:grid-cols-2 gap-[5vw] items-center pt-8 mt-4"
+        >
           <div>
             <WelcomeContent {initialRoomPlaceholder} />
           </div>
-          <!-- Right Column (Logged Out) -->
-          <div class="hidden lg:flex justify-center items-center w-auto h-full">
-            <img src="/logged-out-illustration.png" alt="Illustration..." class="max-w-full max-h-full object-contain" />
-          </div>
+          <div
+            class="flex justify-center items-center w-auto h-full mt-12 lg:mt-0"
+            >
+                <img
+                    src="/logged-out-illustration.png"
+                    alt="Illustration of a person in an online meeting with files and folders"
+                    class="max-w-full max-h-full object-contain"
+                />
+           </div>
         </main>
       )}
     </div>
@@ -208,37 +318,37 @@ const env = {
     }
   </script>
 
-  <!-- Custom Styling -->
+  <!-- Custom Styles -->
   <style>
     .bg-orange-500 {
-      background-color: #F05023;
+      background-color: #f05023;
     }
     .hover\:bg-orange-600:hover {
-      background-color: #D8431C;
+      background-color: #d8431c;
     }
     .text-orange-500 {
-      color: #F05023;
+      color: #f05023;
     }
     .text-orange-600 {
-      color: #D9480F;
+      color: #d9480f;
     }
     .border-orange-500 {
-      border-color: #F05023;
+      border-color: #f05023;
     }
     .bg-orange-100 {
-      background-color: #FFF4E6;
+      background-color: #fff4e6;
     }
     .hover\:bg-orange-50:hover {
-      background-color: #FFF9F2;
+      background-color: #fff9f2;
     }
     .focus\:ring-orange-400:focus {
-      --tw-ring-color: #F05023;
+      --tw-ring-color: #f05023;
     }
     .text-green-600 {
-      color: #16A34A;
+      color: #16a34a;
     }
     .bg-gray-50 {
-      background-color: #F9FAFB;
+      background-color: #f9fafb;
     }
   </style>
 </Layout>
