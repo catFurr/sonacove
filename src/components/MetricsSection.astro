@@ -1,0 +1,57 @@
+---
+import { Image } from "astro:assets";
+import cta_illustration from "../assets/metrics-image.png";
+---
+
+<section class="py-16 md:py-24">
+  <div class="w-[90%] mx-auto px-2">
+    <!-- Orange container -->
+    <div class="rounded-3xl bg-[#F05023] p-8 md:p-16 lg:p-20">
+      <div class="grid items-center gap-12 md:grid-cols-2">
+        
+        <!-- Left Column: Text -->
+        <div class="text-white">
+          <h2 class="mb-6 text-5xl font-bold leading-tight lg:text-6xl">
+            Join the movement
+          </h2>
+          <p class="mb-12 max-w-lg text-lg text-white/80">
+            Say goodbye to technical glitches and hello to seamless, joyful teaching. 
+            No downloads. No fuss. Just you and your students, connecting like never before.
+          </p>
+
+          <!-- Stats -->
+          <div class="mb-12 flex flex-col gap-10 sm:flex-row">
+            <div>
+              <p class="text-4xl font-bold lg:text-5xl">50,000+</p>
+              <p class="text-lg text-white/90">Educators</p>
+              <p class="mt-1 text-white/70">Transforming teaching.</p>
+            </div>
+            <div>
+              <p class="text-4xl font-bold lg:text-5xl">1M+</p>
+              <p class="text-lg text-white/90">Hours</p>
+              <p class="mt-1 text-white/70">Seamless lessons delivered.</p>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <a 
+            href="/onboarding" 
+            class="inline-block rounded-full bg-white px-8 py-4 font-semibold text-orange-600 transition-transform hover:scale-105 will-change-transform"
+          >
+            Start Teaching for Free
+          </a>
+        </div>
+
+        <!-- Right Column: Illustration -->
+        <div class="hidden md:block">
+          <Image 
+            src={cta_illustration} 
+            alt="Illustration of a person at a desk using a laptop for an online meeting with analytics"
+            class="w-full"
+          />
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

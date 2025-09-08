@@ -1,0 +1,58 @@
+---
+import { Image } from "astro:assets";
+
+// Import the badge images from your assets folder
+import gdprBadge from "../assets/gdpr-compliant.png";
+import soc2Badge from "../assets/soc2-type2-certified.png";
+import uptimeBadge from "../assets/uptime-guarantee.png";
+import isoBadge from "../assets/iso-certified.png";
+
+// Create a data structure to easily manage the badges
+const badges = [
+  {
+    imgSrc: gdprBadge,
+    text: "GDPR Compliant",
+  },
+  {
+    imgSrc: soc2Badge,
+    text: "SOC 2 Type II Certified",
+  },
+  {
+    imgSrc: uptimeBadge,
+    text: "99.9% Uptime Guarantee",
+  },
+  {
+    imgSrc: isoBadge,
+    text: "ISO 27001 Security Standards",
+  },
+];
+---
+
+<section class="py-20 md:py-28 bg-white">
+  <div class="container mx-auto px-4">
+    
+    <!-- Section Header -->
+    <div class="text-center max-w-4xl mx-auto">
+      <p class="text-lg font-semibold text-orange-500 mb-2">Features</p>
+      <h2 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+        Make magic with your passionate service with Sonacove Meets
+      </h2>
+    </div>
+
+    <!-- Badges Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mt-16 max-w-6xl mx-auto">
+      {
+        badges.map((badge) => (
+          <div class="bg-gray-50/50 rounded-2xl p-6 text-center border border-gray-200/80 hover:shadow-xl transition-shadow duration-300">
+            <Image
+              src={badge.imgSrc}
+              alt={badge.text}
+              class="h-24 w-auto mx-auto mb-6 object-contain"
+            />
+            <p class="font-semibold text-gray-700">{badge.text}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

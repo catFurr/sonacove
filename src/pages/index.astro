@@ -6,6 +6,11 @@ import AdvancedFeaturesSection from "../components/AdvancedFeaturesSection.astro
 import PricingSection from "../components/PricingSection.astro";
 import FAQSection from "../components/FAQSection.astro";
 import WaitlistCTA from "../components/WaitlistCTA.astro";
+
+import MetricsSection from "../components/MetricsSection.astro"
+import CTASection from "../components/CTASection.astro"
+import TrustSection from "../components/TrustSection.astro"
+import CustomizationSection from "../components/CustomizationSection.astro" 
 ---
 
 <Layout title="Sonacove Meets - Fast, Simple, Secure Online Meetings">
@@ -16,14 +21,50 @@ import WaitlistCTA from "../components/WaitlistCTA.astro";
       <FeatureSection />
     </div>
 
-    <AdvancedFeaturesSection />
+    <MetricsSection />
+
+    <TrustSection />
+
+    <CustomizationSection />
 
     <div id="pricing">
       <PricingSection />
     </div>
 
-    <FAQSection />
-
-    <WaitlistCTA />
+    <CTASection />
   </main>
+  
+  <!-- Custom Styles -->
+  <style>
+    .bg-orange-500 {
+      background-color: #f05023;
+    }
+    .hover\:bg-orange-600:hover {
+      background-color: #d8431c;
+    }
+    .text-orange-500 {
+      color: #f05023;
+    }
+    .text-orange-600 {
+      color: #d9480f;
+    }
+    .border-orange-500 {
+      border-color: #f05023;
+    }
+    .bg-orange-100 {
+      background-color: #fff4e6;
+    }
+    .hover\:bg-orange-50:hover {
+      background-color: #fff9f2;
+    }
+    .focus\:ring-orange-400:focus {
+      --tw-ring-color: #f05023;
+    }
+    .text-green-600 {
+      color: #16a34a;
+    }
+    .bg-gray-50 {
+      background-color: #f9fafb;
+    }
+  </style>
 </Layout>
