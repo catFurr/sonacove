@@ -2,9 +2,12 @@
 // @ts-expect-error
 import { generateRoomWithoutSeparator } from "@jitsi/js-utils/random";
 
+import meet_background from "../assets/meet-background.png"
+
 import Layout from "../layouts/Layout.astro";
 import TabbedContent from "../components/TabbedContent.astro";
 import WelcomeContent from "../components/WelcomeContent.astro";
+import { Image } from "astro:assets";
 
 const meetingsList = [
   {
@@ -76,13 +79,6 @@ const placeholderWords = Array.from({ length: 10 }, () =>
   generateRoomWithoutSeparator()
 );
 const initialRoomPlaceholder = placeholderWords[0];
-
-const env = {
-  PUBLIC_KC_HOSTNAME: import.meta.env.PUBLIC_KC_HOSTNAME,
-  PUBLIC_PADDLE_ENVIRONMENT: import.meta.env.PUBLIC_PADDLE_ENVIRONMENT,
-  PUBLIC_PADDLE_CLIENT_TOKEN: import.meta.env.PUBLIC_PADDLE_CLIENT_TOKEN,
-  PUBLIC_PADDLE_PRICE_ID: import.meta.env.PUBLIC_PADDLE_PRICE_ID,
-};
 ---
 
 <Layout title="Sonacove Meets">
@@ -228,8 +224,8 @@ const env = {
           <WelcomeContent {initialRoomPlaceholder} />
         </div>
         <div class="flex justify-center items-center w-auto h-full mt-12 lg:mt-0">
-          <img
-            src="/logged-out-illustration.png"
+          <Image
+            src={meet_background}
             alt="Illustration of a person in an online meeting with files and folders"
             class="max-w-full max-h-full object-contain"
           />
