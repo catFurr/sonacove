@@ -1,43 +1,20 @@
 ---
 import { Image } from "astro:assets";
 import hero_image from "../assets/hero-image.png";
+import Header from "./Header";
 ---
 
 <!-- Main container -->
-<div class="bg-[#F9FAFB] px-4 py-6">
+<div class="bg-[#F9FAFB] px-4 py-2">
 
-  <!-- Floating Header -->
-  <header class="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-gray-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
-    
-    <!-- Logo -->
-    <a href="/" class="flex items-center gap-2 pl-4">
-      <img src="/sonacove-orange.svg" alt="Sonacove Logo" class="h-8 w-8" />
-      <span class="text-xl font-semibold text-black">Sonacove</span>
-    </a>
-    
-    <!-- Navigation Links -->
-    <nav class="hidden items-center gap-8 md:flex">
-      <a href="/features" class="text-gray-600 hover:text-black">Features</a>
-      <a href="/comparison" class="text-gray-600 hover:text-black">Comparison</a>
-      <a href="/pricing" class="text-gray-600 hover:text-black">Pricing</a>
-      <a href="/faq" class="text-gray-600 hover:text-black">FAQ</a>
-    </nav>
-
-    <!-- Header CTA -->
-    <a 
-      href="/onboarding" 
-      class="rounded-full bg-orange-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-orange-500"
-    >
-      Start Teaching for Free
-    </a>
-  </header>
+  <Header client:only='react' pageType="landing"/>
 
   <!-- Hero Section -->
   <section class="py-20 text-center md:py-28">
-    <div class="mx-auto max-w-4xl px-4">
+    <div class="mx-auto px-4">
       
-      <!-- Headline -->
-      <h1 class="mb-6 text-5xl font-bold leading-tight text-gray-900 md:text-6xl">
+      <!-- Responsive Headline -->
+      <h1 class="mb-6 text-4xl font-bold leading-tight text-gray-900 sm:text-5xl md:text-6xl">
         Teach like never before,<br /> effortless and fun!
       </h1>
       
@@ -46,7 +23,7 @@ import hero_image from "../assets/hero-image.png";
         The only online meeting platform that adapts to your teaching style, not the other way around.
       </p>
 
-      <!-- CTA Buttons -->
+      <!-- CTA Buttons (Updated for mobile) -->
       <div class="mb-20 flex flex-col items-center justify-center gap-4 sm:flex-row">
         <a 
           href="/onboarding" 
@@ -54,20 +31,21 @@ import hero_image from "../assets/hero-image.png";
         >
           Start Teaching for Free
         </a>
+        <!-- Updated secondary button -->
         <a 
-          href="/onboarding-secondary" 
-          class="w-full rounded-full bg-black px-8 py-4 text-center font-semibold text-white transition-transform hover:scale-105 hover:bg-black sm:w-auto"
+          href="#how-it-works" 
+          class="w-full rounded-full bg-gray-100 px-8 py-4 text-center font-semibold text-black transition-transform hover:scale-105 hover:bg-gray-200 sm:w-auto border border-gray-200"
         >
-          Start Teaching for Free
+          See How It Works
         </a>
       </div>
 
       <!-- Hero Image -->
-      <div class="mx-auto max-w-5xl">
+      <div class="w-[80%] mx-auto [-webkit-mask-image:linear-gradient(to_top,transparent_0%,black_40%)] [mask-image:linear-gradient(to_top,transparent_0%,black_40%)]">
         <Image
           src={hero_image}
           alt="Illustration of a teacher conducting an online class with multiple students on screen"
-          class="w-full rounded-xl"
+          class="w-full"
         />
       </div>
 

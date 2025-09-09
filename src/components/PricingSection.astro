@@ -6,11 +6,12 @@ const plans = [
     title: "Free Plan",
     price: "$0.0",
     billingInfo: "Per user/month, billed annually",
-    icon: `<svg width="33" height="32" viewBox="0 0 33 32" fill="none"><path d="M16.501 30.333C24.4171..."/></svg>`,
+    icon: `<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.998 23.7334C17.9351 23.7334 22.748 18.9205 22.748 12.9834C22.7479 7.04646 17.935 2.2334 11.998 2.2334C6.0613 2.23365 1.2482 7.04662 1.24805 12.9834C1.24805 18.9203 6.0612 23.7331 11.998 23.7334ZM8.43945 11.7334C7.45536 11.7334 6.60938 11.1145 6.29395 10.2373C6.15395 9.84761 6.35643 9.41848 6.74609 9.27832C7.13579 9.13819 7.5658 9.33988 7.70605 9.72949C7.80961 10.0175 8.09464 10.2334 8.43945 10.2334C8.78408 10.2332 9.06934 10.0174 9.17285 9.72949C9.3132 9.34008 9.74225 9.13827 10.1318 9.27832C10.5216 9.41846 10.724 9.84757 10.584 10.2373C10.2686 11.1144 9.42337 11.7332 8.43945 11.7334ZM15.5605 11.7334C14.5765 11.7334 13.7314 11.1145 13.416 10.2373C13.276 9.8477 13.4777 9.41865 13.8672 9.27832C14.2568 9.13821 14.6868 9.33998 14.8271 9.72949C14.9307 10.0175 15.2158 10.2334 15.5605 10.2334C15.9054 10.2334 16.1904 10.0175 16.2939 9.72949C16.4342 9.33996 16.8643 9.1382 17.2539 9.27832C17.6433 9.41858 17.8459 9.84774 17.7061 10.2373C17.3906 11.1145 16.5446 11.7334 15.5605 11.7334ZM11.999 18.7334C10.1176 18.7333 8.44704 17.8285 7.39941 16.4336C7.15075 16.1025 7.2178 15.6326 7.54883 15.3838C7.88003 15.135 8.34988 15.202 8.59863 15.5332C9.37517 16.567 10.6094 17.2333 11.999 17.2334C13.3886 17.2334 14.6228 16.567 15.3994 15.5332C15.6481 15.202 16.118 15.1351 16.4492 15.3838C16.7804 15.6325 16.8474 16.1024 16.5986 16.4336C15.551 17.8284 13.8805 18.7334 11.999 18.7334Z" fill="black"/></svg>`,
     features: [
       "Access to core AI tools",
       "Up to 1000 total meeting minutes",
       "Up to 100 guests per meeting",
+      "End-to-end encryption",
       "End-to-end encryption",
     ],
     highlighted: false,
@@ -20,7 +21,14 @@ const plans = [
     title: "Premium Plan",
     price: "$10.0",
     billingInfo: "Per user/month, billed annually",
-    icon: `<svg width="33" height="32" ... /></svg>`,
+    icon: `<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15.1727 18.1001C16.8998 16.9432 19.1004 16.9432 20.8275 18.1001C21.1375 18.2961 21.8435 18.7439 22.2143 19.1521C22.4496 19.4113 22.6977 19.7791 22.7429 20.245C22.7915 20.7451 22.5935 21.2046 22.2317 21.5924C21.6846 22.1788 20.953 22.7324 19.9597 22.7324H16.0405C15.0472 22.7324 14.3156 22.1788 13.7685 21.5924C13.4067 21.2046 13.2087 20.7451 13.2573 20.245C13.3025 19.7791 13.5506 19.4113 13.7859 19.1521C14.1567 18.7439 14.8627 18.2961 15.1727 18.1001Z" fill="white"/>
+<path d="M15.25 13.4824C15.25 11.9636 16.4812 10.7324 18 10.7324C19.5188 10.7324 20.75 11.9636 20.75 13.4824C20.75 15.0012 19.5188 16.2324 18 16.2324C16.4812 16.2324 15.25 15.0012 15.25 13.4824Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M9 4.23242C9 3.68014 9.44772 3.23242 10 3.23242L18 3.23242C18.5523 3.23242 19 3.68014 19 4.23242C19 4.78471 18.5523 5.23242 18 5.23242L10 5.23242C9.44772 5.23242 9 4.78471 9 4.23242ZM9 7.23242C9 6.68014 9.44772 6.23242 10 6.23242L15 6.23242C15.5523 6.23242 16 6.68014 16 7.23242C16 7.78471 15.5523 8.23242 15 8.23242L10 8.23242C9.44772 8.23242 9 7.78471 9 7.23242Z" fill="white"/>
+<path d="M7.70671 16.1796C7.75011 15.8568 7.75006 15.46 7.75001 15.0272L7.75001 11.7324L11.75 11.7324C12.3023 11.7324 12.75 11.2847 12.75 10.7324C12.75 10.1801 12.3023 9.73242 11.75 9.73242H5.75L5.7467 9.73243L3.95526 9.73243C3.52244 9.73237 3.12561 9.73233 2.8028 9.77573C2.44732 9.82352 2.07159 9.93597 1.76257 10.245C1.45355 10.554 1.3411 10.9297 1.29331 11.2852C1.24991 11.608 1.24995 12.0049 1.25 12.4377L1.25 15.0272C1.24995 15.46 1.24991 15.8568 1.29331 16.1796C1.3411 16.5351 1.45355 16.9108 1.76257 17.2199C2.07159 17.5289 2.44732 17.6413 2.8028 17.6891C3.1256 17.7325 3.52246 17.7325 3.95525 17.7324H3.95526H5.0448H5.04481C5.47761 17.7325 5.87442 17.7325 6.19721 17.6891C6.5527 17.6413 6.92842 17.5289 7.23744 17.2199C7.54647 16.9108 7.65891 16.5351 7.70671 16.1796Z" fill="white"/>
+<path d="M1.75 5.98242C1.75 4.46364 2.98122 3.23242 4.5 3.23242C6.01878 3.23242 7.25 4.46364 7.25 5.98242C7.25 7.50121 6.01878 8.73242 4.5 8.73242C2.98122 8.73242 1.75 7.50121 1.75 5.98242Z" fill="white"/>
+</svg>
+`,
     features: [
       "Access to core AI tools",
       "Unlimited meeting duration",
@@ -35,7 +43,15 @@ const plans = [
     title: "Organization Plan",
     price: "$20.0",
     billingInfo: "Per user/month, billed annually",
-    icon: `<svg width="33" height="32" ... /></svg>`,
+    icon: `<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M15.7801 13.0663C15.914 12.5305 16.457 12.2047 16.9928 12.3387C17.1283 12.3726 17.2624 12.4057 17.3944 12.4384C17.9094 12.5658 18.3935 12.6856 18.8163 12.8111C19.3484 12.9692 19.8684 13.1597 20.315 13.444C20.7841 13.7426 21.168 14.1417 21.4194 14.6893C21.6615 15.2164 21.7502 15.815 21.7502 16.4711V21.3088C21.7502 21.8611 21.3025 22.3088 20.7502 22.3088C20.198 22.3088 19.7502 21.8611 19.7502 21.3088V16.4711C19.7502 15.9814 19.6816 15.6975 19.6019 15.5239C19.5316 15.3707 19.4294 15.251 19.2411 15.1312C19.0303 14.997 18.7216 14.8694 18.2468 14.7284C17.8726 14.6172 17.4481 14.5121 16.9404 14.3865C16.8025 14.3523 16.6585 14.3167 16.5077 14.279C15.9719 14.145 15.6461 13.6021 15.7801 13.0663Z" fill="black"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8.22014 13.0663C8.35409 13.6021 8.02833 14.145 7.49254 14.279C7.34173 14.3167 7.19772 14.3523 7.05983 14.3865C6.55214 14.5121 6.1276 14.6172 5.75345 14.7284C5.27864 14.8694 4.96995 14.997 4.75918 15.1312C4.57085 15.251 4.46867 15.3707 4.39835 15.5239C4.31863 15.6975 4.25 15.9814 4.25 16.4711L4.25 21.3088C4.25 21.8611 3.80228 22.3088 3.25 22.3088C2.69772 22.3088 2.25 21.8611 2.25 21.3088L2.25 16.4711C2.25 15.815 2.33877 15.2164 2.58079 14.6893C2.83222 14.1417 3.21613 13.7426 3.6852 13.444C4.13182 13.1597 4.65183 12.9692 5.18397 12.8111C5.60676 12.6856 6.09085 12.5658 6.60581 12.4384C6.73784 12.4057 6.87189 12.3726 7.00746 12.3387C7.54326 12.2047 8.08619 12.5305 8.22014 13.0663Z" fill="black"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1 22.0586C1 21.5063 1.44772 21.0586 2 21.0586L22 21.0586C22.5523 21.0586 23 21.5063 23 22.0586C23 22.6109 22.5523 23.0586 22 23.0586L2 23.0586C1.44772 23.0586 1 22.6109 1 22.0586Z" fill="black"/>
+<path d="M12 6.74609C12.305 6.74617 12.5625 6.83784 12.79 6.95215C12.9941 7.05467 13.2207 7.19969 13.46 7.35352L15.5967 8.72754C16.0218 9.00081 16.3838 9.23372 16.667 9.45605C16.9689 9.69314 17.2252 9.9518 17.4131 10.2959C17.6009 10.6399 17.6797 10.9949 17.7158 11.377C17.7497 11.7355 17.75 12.1662 17.75 12.6719L17.75 22.3066C17.75 22.7207 17.414 23.0564 17 23.0566H14.5V18.3066C14.4997 16.9263 13.3804 15.8068 12 15.8066C10.6194 15.8066 9.50026 16.9261 9.5 18.3066V23.0566H7C6.58579 23.0566 6.25 22.7209 6.25 22.3066L6.25 12.6719C6.24999 12.1663 6.24929 11.7355 6.2832 11.377C6.31936 10.9949 6.39821 10.6399 6.58594 10.2959C6.7738 9.9518 7.03012 9.69314 7.33203 9.45605C7.61531 9.23363 7.97798 9.00095 8.40332 8.72754L10.54 7.35352C10.7791 7.19981 11.0051 7.0546 11.209 6.95215C11.4367 6.83775 11.6948 6.74609 12 6.74609ZM11.999 11.8086C11.4469 11.8087 10.999 12.2564 10.999 12.8086C10.999 13.3608 11.4468 13.8085 11.999 13.8086H12.0078C12.5601 13.8086 13.0078 13.3609 13.0078 12.8086C13.0078 12.2563 12.5601 11.8086 12.0078 11.8086H11.999Z" fill="black"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12 17.3086C12.5523 17.3086 13 17.7563 13 18.3086L13 21.8784C13 22.4307 12.5523 22.8784 12 22.8784C11.4477 22.8784 11 22.4307 11 21.8784L11 18.3086C11 17.7563 11.4477 17.3086 12 17.3086Z" fill="black"/>
+<path d="M16 6.04068L12.75 6.04068V7.30847C12.75 7.72269 12.4142 8.05847 12 8.05847C11.5858 8.05847 11.25 7.72269 11.25 7.30847L11.25 3.27882L11.25 3.24438C11.2499 3.03784 11.2498 2.81529 11.2749 2.62757C11.3042 2.40825 11.3796 2.12785 11.6146 1.89145C12.0147 1.48893 12.572 1.54344 12.8489 1.592C13.1892 1.65166 13.5552 1.78627 13.8857 1.93054C14.5559 2.2231 15.2453 2.62962 15.6135 2.85637C16.5707 3.44577 16.75 4.55372 16.75 5.29068C16.75 5.7049 16.4142 6.04068 16 6.04068Z" fill="black"/>
+</svg>
+`,
     features: [
       "Access to core AI tools",
       "All Premium features",
@@ -55,7 +71,7 @@ const plans = [
     <div class="text-center max-w-4xl mx-auto">
       <p class="text-lg font-semibold text-orange-600 mb-2">Pricing</p>
       <h2 class="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-8">
-        Make magic with your passionate service with Sonacove Meets
+        Plans deisgned for educators
       </h2>
 
       <!-- Billing Toggle -->
@@ -69,81 +85,107 @@ const plans = [
       </div>
     </div>
 
-    <!-- Cards -->
-    <div class="grid lg:grid-cols-3 gap-8 mt-16 max-w-7xl mx-auto">
-      {plans.map((plan) => (
-        <div
-          class:list={[
-            "rounded-2xl p-8 border transition-transform duration-300",
-            plan.highlighted
-              ? "bg-orange-600 text-white shadow-2xl scale-105"
-              : "bg-white text-black border-gray-200 hover:scale-105 hover:shadow-lg",
-          ]}
-          data-plan={plan.title}
-        >
-          <!-- Header -->
-          <div class="flex items-center gap-4 mb-6">
-            <div class="w-10 h-10 flex items-center justify-center rounded-full">
+<!-- Cards Container -->
+<div class="mt-16 w-full mx-auto lg:max-w-7xl lg:grid lg:grid-cols-3 lg:gap-8">
+  {plans.map((plan) => (
+    <div>
+      {/* --- Mobile Accordion View --- */}
+      <details
+        class:list={[
+          "lg:hidden rounded-2xl transition-shadow mb-4 group",
+          plan.highlighted ? "bg-orange-600 shadow-xl" : "bg-white shadow-md border"
+        ]}
+        open={plan.highlighted}
+      >
+        {/* Clickable Header */}
+        <summary class="list-none cursor-pointer p-6 flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <div class:list={["w-8 h-8", { 'text-white': plan.highlighted, 'text-black': !plan.highlighted }]}>
               <Fragment set:html={plan.icon} />
             </div>
-            <h3 class="text-2xl font-semibold">{plan.title}</h3>
+            <h3 class:list={["text-xl font-semibold pb-1", { 'text-white': plan.highlighted, 'text-black': !plan.highlighted }]}>
+              {plan.title}
+            </h3>
           </div>
+          <div class:list={["text-right", { 'text-white': plan.highlighted, 'text-black': !plan.highlighted }]}>
+            <span class="text-2xl font-bold plan-price">{plan.price}</span>
+            <span class="opacity-80">/m</span>
+          </div>
+        </summary>
 
-          <!-- Price -->
-          <div class="mb-8">
+        {/* Expanded Content */}
+        <div class="px-6 pb-6">
+          <div class="border-t pt-6" class:list={[plan.highlighted ? "border-white/20" : "border-gray-200"]}>
+            <p class="text-lg font-semibold mb-4" class:list={[plan.highlighted ? "text-white" : "text-black"]}>Benefits</p>
+            <ul class="space-y-3">
+              {plan.features.map((feature) => (
+                <li class="flex items-start gap-3">
+                  <span class:list={["flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center", plan.highlighted ? "bg-white/20 text-white" : "bg-red-50 text-orange-600"]}>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                  </span>
+                  <span class:list={[plan.highlighted ? "text-white/80" : "text-gray-600"]}>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <a href={plan.button.link} class:list={["group mt-8 flex items-center justify-between w-full p-2 rounded-full text-lg font-semibold text-left transition-colors", plan.highlighted ? "bg-white text-orange-600 hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"]}>
+            <span class="pl-4">{plan.button.text}</span>
+            <span class:list={["w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1", "bg-orange-600 text-white"]}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </span>
+          </a>
+        </div>
+      </details>
+
+      {/* --- Desktop View --- */}
+      <div
+        class:list={[
+          "hidden lg:flex lg:flex-col rounded-2xl p-8 border transition-transform duration-300",
+          plan.highlighted
+            ? "bg-orange-600 text-white shadow-2xl scale-105"
+            : "bg-white text-black border-gray-200 hover:scale-105 hover:shadow-lg",
+        ]}
+        data-plan={plan.title}
+      >
+        {/* Header */}
+        <div class="flex items-center text-center gap-2 mb-6">
+            <div class:list={["w-10 h-10", { 'text-white': plan.highlighted, 'text-black': !plan.highlighted }]}>
+                <Fragment set:html={plan.icon} />
+            </div>
+            <h3 class="text-2xl pb-1 font-semibold">{plan.title}</h3>
+        </div>
+        {/* Price */}
+        <div class="mb-8">
             <span class="text-5xl font-bold plan-price">{plan.price}</span>
             <span class="text-lg opacity-80">/month</span>
             <p class="opacity-70 mt-2">{plan.billingInfo}</p>
-          </div>
-
-          <!-- CTA -->
-          <a
-            href={plan.button.link}
-            class:list={[
-              "group flex items-center justify-between w-full p-2 rounded-full text-lg font-semibold text-left transition-colors",
-              plan.highlighted
-                ? "bg-white text-orange-600 hover:bg-gray-200"
-                : "bg-black text-white hover:bg-gray-800",
-            ]}
-          >
+        </div>
+        {/* CTA */}
+        <a href={plan.button.link} class:list={["group flex items-center justify-between w-full p-2 rounded-full text-lg font-semibold text-left transition-colors will-change-transform", plan.highlighted ? "bg-white text-orange-600 hover:bg-gray-200" : "bg-black text-white hover:bg-gray-800"]}>
             <span class="pl-4">{plan.button.text}</span>
-            <span
-              class:list={[
-                "w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1",
-                "bg-orange-600 text-white",
-              ]}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
+            <span class:list={["w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1", "bg-orange-600 text-white"]}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </span>
-          </a>
-
-          <!-- Features -->
-          <hr class:list={["my-8", plan.highlighted ? "border-white/20" : "border-gray-200"]} />
-          <div>
+        </a>
+        {/* Features */}
+        <hr class:list={["my-8", plan.highlighted ? "border-white/20" : "border-gray-200"]} />
+        <div class="flex-grow">
             <p class="text-lg font-semibold mb-4">Benefits</p>
             <ul class="space-y-3">
               {plan.features.map((feature) => (
                 <li class="flex items-start gap-3">
-                  <span
-                    class:list={[
-                      "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center",
-                      plan.highlighted ? "bg-white/20 text-white" : "bg-red-50 text-orange-600",
-                    ]}
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                    </svg>
+                  <span class:list={["flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center", plan.highlighted ? "bg-white/20 text-white" : "bg-red-50 text-orange-600"]}>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
                   </span>
                   <span class="opacity-80">{feature}</span>
                 </li>
               ))}
             </ul>
-          </div>
         </div>
-      ))}
+      </div>
     </div>
+  ))}
+</div>
   </div>
   <PricingDynamic client:load />
 </section>

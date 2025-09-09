@@ -3,7 +3,7 @@ import { Image } from "astro:assets";
 import cta_illustration from "../assets/metrics-image.png";
 ---
 
-<section class="py-16 md:py-24">
+<section class="py-16 md:py-24 bg-[#F9FAFB]">
   <div class="w-[90%] mx-auto px-2">
     <!-- Orange container -->
     <div class="rounded-3xl bg-[#F05023] p-8 md:p-16 lg:p-20">
@@ -43,7 +43,7 @@ import cta_illustration from "../assets/metrics-image.png";
         </div>
 
         <!-- Right Column: Illustration -->
-        <div class="hidden md:block">
+        <div>
           <Image 
             src={cta_illustration} 
             alt="Illustration of a person at a desk using a laptop for an online meeting with analytics"
