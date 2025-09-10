@@ -1,37 +1,34 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import HeroSection from "../components/HeroSection.astro";
-import FeatureSection from "../components/FeatureSection.astro";
-import AdvancedFeaturesSection from "../components/AdvancedFeaturesSection.astro";
-import PricingSection from "../components/PricingSection.astro";
-import FAQSection from "../components/FAQSection.astro";
-import WaitlistCTA from "../components/WaitlistCTA.astro";
+import HeroSection from "../components/HeroSection";
+import FeatureSection from "../components/FeatureSection";
+import PricingSection from "../components/PricingSection";
 
-import MetricsSection from "../components/MetricsSection.astro"
-import CTASection from "../components/CTASection.astro"
-import CertificationsSection from "../components/CertificationsSection.astro"
-import CustomizationSection from "../components/CustomizationSection.astro" 
+import MetricsSection from "../components/MetricsSection"
+import CTASection from "../components/CTASection"
+import CertificationsSection from "../components/CertificationsSection"
+import CustomizationSection from "../components/CustomizationSection" 
 ---
 
 <Layout title="Sonacove Meets - Fast, Simple, Secure Online Meetings">
   <main>
-    <HeroSection />
+    <HeroSection client:only='react' />
 
     <div id="features">
-      <FeatureSection />
+      <FeatureSection client:only='react' />
     </div>
 
-    <MetricsSection />
+    <MetricsSection client:only='react' />
 
-    <CertificationsSection />
+    <CertificationsSection client:only='react' />
 
-    <CustomizationSection />
+    <CustomizationSection client:only='react' />
 
     <div id="pricing">
-      <PricingSection />
+      <PricingSection client:only='react' />
     </div>
 
-    <CTASection />
+    <CTASection client:only='react' />
   </main>
   
   <!-- Custom Styles -->

@@ -1,5 +1,5 @@
 import React from 'react';
-import TabbedContent from './DashboardTabs';
+import TabbedContent from './Tabs';
 
 interface Props {
   user: {
@@ -13,7 +13,7 @@ interface Props {
   notes: any[];
 }
 
-const UserDashboardCard: React.FC<Props> = ({
+const UserCard: React.FC<Props> = ({
   user,
   meetingsList,
   recordings,
@@ -59,4 +59,4 @@ const UserDashboardCard: React.FC<Props> = ({
   );
 };
 
-export default UserDashboardCard;
+export default UserCard;

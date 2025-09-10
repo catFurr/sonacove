@@ -6,7 +6,7 @@ interface Props {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-const WelcomeContent: React.FC<Props> = ({ onSubmit }) => {
+const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const placeholderWords = generatePlaceholderWords(10); // generate random room names
 
@@ -71,4 +71,4 @@ const WelcomeContent: React.FC<Props> = ({ onSubmit }) => {
   );
 };
 
-export default WelcomeContent;
+export default StartMeeting;

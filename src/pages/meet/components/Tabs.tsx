@@ -25,7 +25,7 @@ interface Props {
   notes: Note[];
 }
 
-const DashboardTabs: React.FC<Props> = ({
+const Tabs: React.FC<Props> = ({
   meetingsList,
   recordings,
   notes,
@@ -327,4 +327,4 @@ const DashboardTabs: React.FC<Props> = ({
   );
 };
 
-export default DashboardTabs;
+export default Tabs;

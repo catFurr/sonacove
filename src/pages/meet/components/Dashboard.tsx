@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import WelcomeContent from './WelcomeContent';
-import UserDashboardCard from './UserDashboardCard';
+import StartMeeting from './StartMeeting';
+import UserCard from './UserCard';
 import meet_background from '../../../assets/meet-background.png';
-import { getUserManager, login, logout, signup } from './utils';
+import { getUserManager } from './utils';
 import { getGravatarUrl } from '../../../utils/gravatar';
 import Header from '../../../components/Header';
-import { userManager } from '../../../utils/oidc-client';
 
 const meetingsList = [
 {
@@ -60,7 +59,7 @@ const notes = [
   },
 ];
 
-export default function MeetDashboard() {
+export default function Dashboard() {
 const [user, setUser] = useState<any>(null);
 
 useEffect(() => {
@@ -109,13 +108,11 @@ useEffect(() => {
   return (
     <div className='bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4 overflow-x-hidden'>
       <div className='w-full max-w-[1700px] mx-auto px-8'>
-        {/* HEADER */}
         <Header pageType='welcome' user={user}/>
-
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
-            <WelcomeContent
+            <StartMeeting
               onSubmit={(e) => {
                 e.preventDefault();
                 const input = document.getElementById(
@@ -129,7 +126,7 @@ useEffect(() => {
           </div>
 
           {user && (
-            <UserDashboardCard
+            <UserCard
               user={user}
               meetingsList={meetingsList}
               recordings={recordings}

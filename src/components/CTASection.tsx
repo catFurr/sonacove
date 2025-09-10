@@ -1,47 +1,44 @@
----
-import { Image } from "astro:assets";
+import React from 'react';
+import bgImage from '../assets/CTA-background.png';
+import ctaDesktopIcons from '../assets/CTA-desktop-icons.png';
+import ctaMobileIcons from '../assets/CTA-mobile-icons.png';
+import { signup } from '../pages/meet/components/utils';
 
-import bgImage from "../assets/CTA-background.png";
-import ctaDesktopIcons from "../assets/CTA-desktop-icons.png"; 
-import ctaMobileIcons from "../assets/CTA-mobile-icons.png"; 
----
+const CallToAction: React.FC = () => {
+  return (
+    <section className='relative flex items-center justify-center min-h-screen bg-white bg-repeat py-20'>
+      {/* Background layer */}
+      <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
+        <div className='relative w-full h-full'>
+          <img
+            src={bgImage.src}
+            alt='Decorative background grid'
+            className='absolute inset-0 w-full h-full object-contain'
+          />
+          <img
+            src={ctaDesktopIcons.src}
+            alt='Decorative illustration of user avatars floating on the screen'
+            className='absolute inset-0 w-full h-full object-contain hidden md:block'
+          />
+          <img
+            src={ctaMobileIcons.src}
+            alt='Decorative illustration of user avatars floating on the screen'
+            className='absolute inset-0 w-full h-full object-contain block md:hidden'
+          />
+        </div>
+      </div>
 
-<section
-  class="relative flex items-center justify-center min-h-screen bg-white bg-repeat py-20"
->
-<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-  <div class="relative w-full h-full"> <!-- give it height -->
-    <Image
-      src={bgImage}
-      alt="Decorative background grid"
-      class="absolute inset-0 w-full h-full object-contain"
-    />
-    <Image
-      src={ctaDesktopIcons}
-      alt="Decorative illustration of user avatars floating on the screen"
-      class="absolute inset-0 w-full h-full object-contain hidden md:block"
-    />
-    <Image
-      src={ctaMobileIcons}
-      alt="Decorative illustration of user avatars floating on the screen"
-      class="absolute inset-0 w-full h-full object-contain block md:hidden"
-    />
-  </div>
-</div>
-
-  <!-- Foreground layer for the main content -->
-  <div class="relative flex flex-col items-center text-center px-4">
+<div className="relative flex flex-col items-center text-center px-4">
     
-    <!-- Central Blurred Logo -->
-    <div class="w-24 h-24 mb-8 rounded-full flex items-center justify-center backdrop-blur-sm shadow-lg">
+    <div className="w-24 h-24 mb-8 rounded-full flex items-center justify-center backdrop-blur-sm shadow-lg">
       <svg width="92" height="93" viewBox="0 0 92 93" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g filter="url(#filter0_i_263_6852)">
         <g clip-path="url(#clip0_263_6852)">
         <rect y="0.253906" width="92" height="92" rx="46" fill="white"/>
-        <g style="mix-blend-mode:darken" filter="url(#filter1_f_263_6852)">
+        <g style={{ mixBlendMode: "darken" }} filter="url(#filter1_f_263_6852)">
         <path d="M27.4976 26.3872L92.6976 6.70328L63.1705 66.9813L19.0643 98.9643L27.4976 26.3872Z" fill="#F05023"/>
         </g>
-        <g style="mix-blend-mode:darken" filter="url(#filter2_f_263_6852)">
+        <g style={{ mixBlendMode: "darken" }} filter="url(#filter2_f_263_6852)">
         <path d="M66.885 21.617L94.5192 91.293L25.6763 64.5032L-13.4892 19.1006L66.885 21.617Z" fill="#F05023"/>
         </g>
         <g filter="url(#filter3_ddddii_263_6852)">
@@ -119,31 +116,32 @@ import ctaMobileIcons from "../assets/CTA-mobile-icons.png";
       </svg>
     </div>
 
-    <!-- Headline -->
-    <h2 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
-      Ready to transform <br class="hidden sm:block" /> your teaching?
+    <h2 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+      Ready to transform <br className="hidden sm:block" /> your teaching?
     </h2>
 
-    <!-- Sub-headline -->
-    <p class="text-lg text-gray-600 mb-10 max-w-xl mx-auto">
+    <p className="text-lg text-gray-600 mb-10 max-w-xl mx-auto">
       Join the educators who are redefining virtual learning. 
-      <strong class="text-gray-800 font-semibold">'Sign up now'</strong> it's free, fast, and fuss-free.
+      <strong className="text-gray-800 font-semibold">'Sign up now'</strong> it's free, fast, and fuss-free.
     </p>
 
-    <!-- CTA Buttons (Updated for mobile) -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xs sm:max-w-none">
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xs sm:max-w-none">
       <a
         href="/onboarding"
-        class="w-full sm:w-auto text-center px-8 py-4 bg-orange-600 text-white font-semibold rounded-full hover:bg-orange-500 transition-transform hover:scale-105 will-change-transform"
+        className="w-full sm:w-auto text-center px-8 py-4 bg-orange-600 text-white font-semibold rounded-full hover:bg-orange-500 transition-transform hover:scale-105 will-change-transform"
       >
         Start Teaching for Free
       </a>
       <a
-        href="/onboarding"
-        class="w-full sm:w-auto text-center px-8 py-4 bg-gray-100 text-black font-semibold rounded-full hover:bg-gray-200 transition-transform hover:scale-105 border border-gray-200 will-change-transform"
+        onClick={signup}
+        className="w-full sm:w-auto text-center px-8 py-4 bg-gray-100 text-black font-semibold rounded-full hover:bg-gray-200 transition-transform hover:scale-105 border border-gray-200 will-change-transform"
       >
         Sign up Now
       </a>
     </div>
   </div>
-</section>
+    </section>
+  );
+};
+
+export default CallToAction;
