@@ -4,7 +4,7 @@ import feature_simple from '../assets/feature-simple.png';
 import feature_privacy from '../assets/feature-privacy.png';
 import feature_control from '../assets/feature-control.png';
 import FeatureCard from './FeatureCard';
-import SectionHeader from './SectionHeader';
+import SectionHeader from '../../../components/SectionHeader';
 
 const featureSections = [
   {
@@ -66,7 +66,7 @@ const featureSections = [
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section className='py-20 px-14 md:py-28 bg-[#F9FAFB]'>
+    <section className='py-20 md:py-28 bg-[#F9FAFB]'>
       <div className='container mx-auto px-4'>
         <SectionHeader tagline='Features' className='mb-8'>
           Make magic with your passionate service with Sonacove Meets

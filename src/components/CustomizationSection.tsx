@@ -1,7 +1,7 @@
 import React from 'react';
 
 // 1. Import your reusable component and the specific image for this feature
-import FeatureCard from './FeatureCard';
+import FeatureCard from '../pages/features/components/FeatureCard';
 import featureImage from '../assets/feature-customization.png';
 
 // 2. Define the data for this specific feature as a single object

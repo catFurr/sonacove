@@ -1,42 +1,59 @@
 import React, { useState } from 'react';
 import Button from './Button';
 import { login, logout, signup } from '../pages/meet/components/utils';
-import { TextAlignJustify } from 'lucide-react'; 
+import { TextAlignJustify } from 'lucide-react';
 
+// Define the types for the component's props
 type PageType = 'welcome' | 'landing';
+type ActivePage = 'Features' | 'Comparison' | 'Pricing' | 'FAQ'; // Possible active pages
 
 interface HeaderProps {
   pageType?: PageType;
-  user?: any; // user comes in as a prop now
+  user?: any;
+  activePage?: ActivePage; // The new prop to track the current page
 }
 
-const Header: React.FC<HeaderProps> = ({ pageType = 'landing', user }) => {
+// Define nav items in an array for easier mapping and management
+const navItems = [
+  { name: 'Features', href: '/features' },
+  { name: 'Comparison', href: '/comparison' },
+  { name: 'Pricing', href: '#pricing' },
+  { name: 'FAQ', href: '/faq' },
+];
+
+const Header: React.FC<HeaderProps> = ({
+  pageType = 'landing',
+  user,
+  activePage,
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Center nav links
+  // Center nav links - now data-driven
   const renderNavLinks = () => {
     if (pageType === 'landing') {
       return (
         <nav className='hidden md:flex gap-8'>
-          <a href='/features' className='text-gray-600 hover:text-black'>
-            Features
-          </a>
-          <a href='/comparison' className='text-gray-600 hover:text-black'>
-            Comparison
-          </a>
-          <a href='#pricing' className='text-gray-600 hover:text-black'>
-            Pricing
-          </a>
-          <a href='/faq' className='text-gray-600 hover:text-black'>
-            FAQ
-          </a>
+          {navItems.map((item) => (
+            <a
+              key={item.name}
+              href={item.href}
+              // Conditionally apply active styles
+              className={
+                activePage === item.name
+                  ? 'text-orange-500 font-semibold' // Style for the active page
+                  : 'text-gray-600 hover:text-black' // Default style
+              }
+            >
+              {item.name}
+            </a>
+          ))}
         </nav>
       );
     }
     return null;
   };
 
-  // Desktop right section (auth buttons + CTA)
+  // Desktop right section (auth buttons + CTA) 
   const renderDesktopRight = () => {
     if (pageType === 'welcome') {
       return (
@@ -89,18 +106,19 @@ const Header: React.FC<HeaderProps> = ({ pageType = 'landing', user }) => {
       <div className='absolute top-full right-4 bg-white rounded-xl shadow-md p-4 flex flex-col gap-3 w-48 z-50'>
         {pageType === 'landing' ? (
           <>
-            <a href='/features' className='text-gray-600 hover:text-black'>
-              Features
-            </a>
-            <a href='/comparison' className='text-gray-600 hover:text-black'>
-              Comparison
-            </a>
-            <a href='#pricing' className='text-gray-600 hover:text-black'>
-              Pricing
-            </a>
-            <a href='/faq' className='text-gray-600 hover:text-black'>
-              FAQ
-            </a>
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className={
+                  activePage === item.name
+                    ? 'text-black font-semibold'
+                    : 'text-gray-600 hover:text-black'
+                }
+              >
+                {item.name}
+              </a>
+            ))}
             <Button
               variant='primary'
               onClick={() => {
@@ -150,8 +168,6 @@ const Header: React.FC<HeaderProps> = ({ pageType = 'landing', user }) => {
       {/* Right: Auth Buttons / CTA */}
       <div className='flex items-center gap-2 md:gap-4'>
         {renderDesktopRight()}
-
-        {/* Mobile Hamburger */}
         <div className='md:hidden flex items-center'>
           <button
             className='p-2'
@@ -159,7 +175,6 @@ const Header: React.FC<HeaderProps> = ({ pageType = 'landing', user }) => {
           >
             <TextAlignJustify strokeWidth={3} size={26} />
           </button>
-
           {renderMobileMenu()}
         </div>
       </div>

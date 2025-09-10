@@ -2,7 +2,7 @@ import { CircleCheck } from 'lucide-react';
 import React from 'react';
 
 // Define the type for the props this component will accept
-interface Feature {
+export interface Feature {
   title: string;
   description: string;
   bulletTitle?: string ;
@@ -14,17 +14,17 @@ interface Feature {
   extraText?: string; 
 }
 
-interface FeatureSpotlightProps {
+interface FeatureCardProps {
   feature: Feature;
   index: number;
 }
 
-const FeatureCard: React.FC<FeatureSpotlightProps> = ({
+const FeatureCard: React.FC<FeatureCardProps> = ({
   feature,
   index,
 }) => {
   return (
-    <div className='grid md:grid-cols-2 gap-12 md:gap-16 items-center'>
+    <div className='grid px-20 md:grid-cols-2 gap-12 md:gap-16 items-center'>
       {/* Text Column */}
       <div className={index % 2 !== 0 ? 'md:order-last' : ''}>
         <h3 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6'>

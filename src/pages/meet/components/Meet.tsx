@@ -59,7 +59,7 @@ const notes = [
   },
 ];
 
-export default function Dashboard() {
+export default function Meet() {
 const [user, setUser] = useState<any>(null);
 
 useEffect(() => {
