@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 
 import vue from '@astrojs/vue';
@@ -13,4 +13,18 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: "hover",
   },
+  experimental: {
+    fonts: [
+      {
+        name: "Crimson Pro",
+        cssVariable: "--font-crimson-pro",
+        provider: fontProviders.google()
+      },
+      {
+        name: "Lora",
+        cssVariable: "--font-lora",
+        provider: fontProviders.google()
+      }
+    ]
+  }
 });
