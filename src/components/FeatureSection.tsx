@@ -3,12 +3,15 @@ import feature_natural from '../assets/feature-natural.png';
 import feature_simple from '../assets/feature-simple.png';
 import feature_privacy from '../assets/feature-privacy.png';
 import feature_control from '../assets/feature-control.png';
+import FeatureCard from './FeatureCard';
+import SectionHeader from './SectionHeader';
 
 const featureSections = [
   {
     title: 'Teach as naturally as you would in person',
     description:
       'Imagine a virtual classroom where every word, gesture, and interaction feels as natural as being in the same room. With Sonacove’s **lightningfast latency (<100ms)**, your lessons flow effortlessly—no awkward pauses, no frozen screens. Just you and your students, fully engaged in the moment.',
+    bulletTitle: 'Why It Matters:',
     bullets: [
       'Students stay focused when interactions are instant.',
       'You teach with confidence, knowing the technology won’t let you down.',
@@ -20,13 +23,14 @@ const featureSections = [
     },
   },
   {
-    title: 'Fast & Simple for everyone',
+    title: 'One click. No hassle.',
     description:
-      'Start meetings instantly with no downloads or complicated setup. Our intuitive interface makes it easy for both teachers and students to join, so you can focus on teaching from the very first second.',
+      'Forget complicated setups. With Sonacove, your students join with a single click—no downloads, no installs, no confusion. Whether they’re on a laptop, tablet, or phone, the experience is flawless.',
+    bulletTitle: 'Perfect for:',
     bullets: [
-      'No-hassle setup gets your class started on time, every time.',
-      'An intuitive design means less time troubleshooting technology.',
-      'Works directly in the browser on desktop and mobile.',
+      'Busy teachers who need simplicity.',
+      'Students with varying tech access.',
+      'Anyone who values “ease” as much as excellence.',
     ],
     image: {
       img: feature_simple,
@@ -34,18 +38,14 @@ const featureSections = [
     },
   },
   {
-    title: 'A privacy-focused teaching environment',
+    title: 'Privacy you can trust',
     description:
-      'We believe your classroom is a private space. We never share or store your meeting data, audio, or video. Your conversations and lessons stay private, so you can teach with the peace of mind that your classroom is secure.',
-    bullets: [
-      'End-to-end encryption protects your classroom from unauthorized access.',
-      "We don't store your meeting content, ever.",
-      'Teach sensitive subjects with confidence in a secure environment.',
-    ],
+      'In a world where data is currency, we promise something rare: **your privacy matters**. Sonacove uses **military-grade encryption** to keep your meetings safe. We don’t collect unnecessary data, and we never sell what we don’t need.',
     image: {
       img: feature_privacy,
       alt: 'A grid of user avatars with a large lock icon, symbolizing privacy.',
     },
+    extraText: 'Your classroom. Your rules. Always private.',
   },
   {
     title: 'Full control & moderation',
@@ -60,82 +60,23 @@ const featureSections = [
       img: feature_control,
       alt: 'An illustration showing meeting UI elements like a settings panel and a waiting room approval modal.',
     },
+    extraText: 'Teach with confidence, not chaos.',
   },
 ];
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section className='py-20 md:py-28 bg-[#F9FAFB]'>
+    <section className='py-20 px-14 md:py-28 bg-[#F9FAFB]'>
       <div className='container mx-auto px-4'>
-        {/* Headlines */}
-        <div className='text-center max-w-4xl mx-auto mb-8'>
-          <p className='text-xl font-semibold text-orange-500 mb-2'>Features</p>
-          <h2 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight'>
-            Make magic with your passionate service with Sonacove Meets
-          </h2>
-        </div>
+        <SectionHeader tagline='Features' className='mb-8'>
+          Make magic with your passionate service with Sonacove Meets
+        </SectionHeader>
 
         {/* Features */}
         <div className='mt-20 md:mt-28 space-y-24'>
           {featureSections.map((feature, index) => (
-            <div
-              key={index}
-              className='grid md:grid-cols-2 gap-12 md:gap-16 items-center'
-            >
-              {/* Text Column */}
-              <div className={index % 2 !== 0 ? 'md:order-last' : ''}>
-                <h3 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6'>
-                  {feature.title}
-                </h3>
-
-                <p
-                  className='text-lg text-gray-600 leading-relaxed mb-8'
-                  dangerouslySetInnerHTML={{
-                    __html: feature.description.replace(
-                      /\*\*(.*?)\*\*/g,
-                      '<strong class="text-gray-800 font-semibold">$1</strong>',
-                    ),
-                  }}
-                />
-
-                <h4 className='text-xl font-semibold text-gray-800 mb-4'>
-                  Why It Matters:
-                </h4>
-
-                <ul className='space-y-3'>
-                  {feature.bullets.map((bullet, bIndex) => (
-                    <li key={bIndex} className='flex items-start'>
-                      <span className='flex-shrink-0 w-6 h-6 text-orange-600 rounded-full flex items-center justify-center mr-2 mt-1'>
-                        <svg
-                          width='17'
-                          height='17'
-                          viewBox='0 0 17 17'
-                          fill='none'
-                          xmlns='http://www.w3.org/2000/svg'
-                        >
-                          <path
-                            d='M8.49902 1.33301C12.4571 1.33301 15.666 4.54196 15.666 8.5C15.666 12.458 12.4571 15.667 8.49902 15.667C4.54098 15.667 1.33203 12.458 1.33203 8.5C1.33203 4.54196 4.54098 1.33301 8.49902 1.33301ZM8.49902 2.33301C5.09327 2.33301 2.33203 5.09424 2.33203 8.5C2.33203 11.9058 5.09327 14.667 8.49902 14.667C11.9048 14.667 14.666 11.9058 14.666 8.5C14.666 5.09424 11.9048 2.33301 8.49902 2.33301ZM10.7969 6.16211C10.9835 5.95855 11.3003 5.94524 11.5039 6.13184C11.7071 6.31848 11.7207 6.63446 11.5342 6.83789L7.86719 10.8379C7.77505 10.9383 7.64601 10.997 7.50977 11C7.37347 11.0029 7.24191 10.9499 7.14551 10.8535L5.47852 9.18652C5.28358 8.99123 5.28336 8.67465 5.47852 8.47949C5.67367 8.28434 5.99026 8.28456 6.18555 8.47949L7.4834 9.77734L10.7969 6.16211Z'
-                            fill='#F05023'
-                          />
-                        </svg>
-                      </span>
-                      <span className='text-lg text-orange-600 font-semibold'>
-                        {bullet}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Image Column */}
-              <div className='flex justify-center items-center'>
-                <img
-                  src={feature.image.img.src}
-                  alt={feature.image.alt}
-                  className='rounded-xl w-full max-w-lg'
-                />
-              </div>
-            </div>
+            // Replace the large block of JSX with a single component call
+            <FeatureCard key={index} feature={feature} index={index} />
           ))}
         </div>
       </div>

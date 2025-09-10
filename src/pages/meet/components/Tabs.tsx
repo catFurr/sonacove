@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Calendar, CirclePlay, FilePenLine, CircleCheck } from 'lucide-react';
 
 interface Meeting {
   date: string;
@@ -65,20 +66,7 @@ const Tabs: React.FC<Props> = ({
           }`}
         >
           {/* Mobile Icon */}
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth='1.5'
-            stroke='currentColor'
-            className='w-6 h-6 sm:hidden'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18'
-            />
-          </svg>
+          <Calendar className="w-6 h-6 sm:hidden" />
           <span className='hidden sm:inline'>My Meetings</span>
         </button>
 
@@ -90,25 +78,7 @@ const Tabs: React.FC<Props> = ({
               : 'text-gray-400 hover:text-orange-500'
           }`}
         >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth='1.5'
-            stroke='currentColor'
-            className='w-6 h-6 sm:hidden'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-            />
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z'
-            />
-          </svg>
+          <CirclePlay className="w-6 h-6 sm:hidden" />
           <span className='hidden sm:inline'>Recordings</span>
         </button>
 
@@ -120,20 +90,7 @@ const Tabs: React.FC<Props> = ({
               : 'text-gray-400 hover:text-orange-500'
           }`}
         >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-            strokeWidth='1.5'
-            stroke='currentColor'
-            className='w-6 h-6 sm:hidden'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              d='M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10'
-            />
-          </svg>
+          <FilePenLine className="w-6 h-6 sm:hidden" />
           <span className='hidden sm:inline'>Notes</span>
         </button>
       </div>
@@ -180,17 +137,7 @@ const Tabs: React.FC<Props> = ({
                           {meeting.title}
                         </p>
                         <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
-                          <svg
-                            className='w-4 h-4'
-                            viewBox='0 0 20 20'
-                            fill='currentColor'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              clipRule='evenodd'
-                              d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                            />
-                          </svg>
+                          <CircleCheck strokeWidth={3} className="w-4 h-4" />
                           {meeting.status}
                         </span>
                       </div>

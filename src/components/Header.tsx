@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Button from './Button';
 import { login, logout, signup } from '../pages/meet/components/utils';
+import { TextAlignJustify } from 'lucide-react'; 
 
 type PageType = 'welcome' | 'landing';
 
@@ -70,12 +71,13 @@ const Header: React.FC<HeaderProps> = ({ pageType = 'landing', user }) => {
     // Landing page
     return (
       <div className='hidden md:flex gap-4 items-center'>
-        <a
-          href='/meet'
-          className='hidden md:block rounded-full bg-orange-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-orange-500'
+        <Button
+          variant='primary'
+          onClick={() => (window.location.href = '/meet')}
+          className='hidden md:block'
         >
           Visit Platform
-        </a>
+        </Button>
       </div>
     );
   };
@@ -155,18 +157,7 @@ const Header: React.FC<HeaderProps> = ({ pageType = 'landing', user }) => {
             className='p-2'
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <svg
-              width='25'
-              height='25'
-              viewBox='0 0 25 25'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
-              <path
-                d='M14.0693 17.8027C14.8956 17.8029 15.5653 18.4725 15.5654 19.2988C15.5654 20.1253 14.8957 20.7957 14.0693 20.7959H4.0918C3.26554 20.7956 2.5957 20.1252 2.5957 19.2988C2.59585 18.4726 3.26563 17.803 4.0918 17.8027H14.0693ZM20.0557 10.8193C20.8819 10.8196 21.5516 11.4892 21.5518 12.3154C21.5515 13.1416 20.8818 13.8123 20.0557 13.8125H4.0918C3.26569 13.8122 2.59596 13.1415 2.5957 12.3154C2.59583 11.4892 3.26561 10.8196 4.0918 10.8193H20.0557ZM20.0557 3.83496C20.882 3.83512 21.5516 4.50474 21.5518 5.33105C21.5518 6.15748 20.882 6.82796 20.0557 6.82812H10.0781C9.25181 6.82788 8.58203 6.15743 8.58203 5.33105C8.58216 4.50479 9.25189 3.8352 10.0781 3.83496H20.0557Z'
-                fill='black'
-              />
-            </svg>
+            <TextAlignJustify strokeWidth={3} size={26} />
           </button>
 
           {renderMobileMenu()}

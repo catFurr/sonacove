@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { initializePaddle } from '@paddle/paddle-js';
+import SectionHeader from './SectionHeader';
 
 interface Plan {
   title: string;
@@ -167,16 +168,15 @@ export default function PricingSection() {
   }, []);
 
     return (
-      <section className='py-20 md:py-28 bg-white' id='pricing'>
+      <section className='py-20 md:py-28 bg-[#F9FAFB]' id='pricing'>
         <div className='container mx-auto px-4'>
+          {/* Section Header */}
           <div className='text-center max-w-4xl mx-auto'>
-            <p className='text-lg font-semibold text-orange-600 mb-2'>
-              Pricing
-            </p>
-            <h2 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-8'>
+            <SectionHeader tagline='Pricing' className='mb-8'>
               Plans designed for educators
-            </h2>
+            </SectionHeader>
 
+            {/* Billing Toggle (remains separate) */}
             <div className='inline-flex bg-gray-100 rounded-lg p-1 space-x-1'>
               <button className='px-6 py-2 bg-white text-black font-semibold rounded-md shadow-sm text-sm'>
                 Monthly billing

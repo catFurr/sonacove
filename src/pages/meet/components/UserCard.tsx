@@ -1,5 +1,5 @@
 import React from 'react';
-import TabbedContent from './Tabs';
+import Tabs from './Tabs';
 
 interface Props {
   user: {
@@ -50,7 +50,7 @@ const UserCard: React.FC<Props> = ({
       </div>
 
       {/* Tabs */}
-      <TabbedContent
+      <Tabs
         meetingsList={meetingsList}
         recordings={recordings}
         notes={notes}

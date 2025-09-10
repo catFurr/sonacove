@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "./Header";
 import hero_image from "../assets/hero-image.png"; // Assuming your bundler supports image imports
+import Button from "./Button";
 
 const HeroSection: React.FC = () => {
   return (
@@ -25,18 +26,12 @@ const HeroSection: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="mb-20 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href="/onboarding"
-              className="w-full rounded-full bg-black px-8 py-4 text-center font-semibold text-white transition-transform hover:scale-105 hover:bg-gray-800 sm:w-auto"
-            >
+            <Button variant="secondary" onClick={() => window.location.href = '/onboarding'}>
               Start Teaching for Free
-            </a>
-            <a
-              href="#how-it-works"
-              className="w-full rounded-full bg-gray-100 px-8 py-4 text-center font-semibold text-black transition-transform hover:scale-105 hover:bg-gray-200 sm:w-auto border border-gray-200"
-            >
+            </Button>
+            <Button variant="tertiary">
               See How It Works
-            </a>
+            </Button>
           </div>
 
           {/* Hero Image */}

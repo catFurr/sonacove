@@ -3,10 +3,11 @@ import bgImage from '../assets/CTA-background.png';
 import ctaDesktopIcons from '../assets/CTA-desktop-icons.png';
 import ctaMobileIcons from '../assets/CTA-mobile-icons.png';
 import { signup } from '../pages/meet/components/utils';
+import Button from './Button';
 
 const CallToAction: React.FC = () => {
   return (
-    <section className='relative flex items-center justify-center min-h-screen bg-white bg-repeat py-20'>
+    <section className='relative flex items-center justify-center min-h-screen bg-[#F9FAFB] bg-repeat py-20'>
       {/* Background layer */}
       <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
         <div className='relative w-full h-full'>
@@ -126,18 +127,12 @@ const CallToAction: React.FC = () => {
     </p>
 
     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xs sm:max-w-none">
-      <a
-        href="/onboarding"
-        className="w-full sm:w-auto text-center px-8 py-4 bg-orange-600 text-white font-semibold rounded-full hover:bg-orange-500 transition-transform hover:scale-105 will-change-transform"
-      >
+      <Button variant='primary' onClick={() => window.location.href = '/onboarding'}>
         Start Teaching for Free
-      </a>
-      <a
-        onClick={signup}
-        className="w-full sm:w-auto text-center px-8 py-4 bg-gray-100 text-black font-semibold rounded-full hover:bg-gray-200 transition-transform hover:scale-105 border border-gray-200 will-change-transform"
-      >
+      </Button>
+      <Button variant='tertiary' onClick={signup}>
         Sign up Now
-      </a>
+      </Button>
     </div>
   </div>
     </section>
