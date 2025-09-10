@@ -1,8 +1,8 @@
 import React from 'react';
-import feature_natural from '../assets/feature-natural.png';
-import feature_simple from '../assets/feature-simple.png';
-import feature_privacy from '../assets/feature-privacy.png';
-import feature_control from '../assets/feature-control.png';
+import feature_natural from '../../../assets/feature-natural.png';
+import feature_simple from '../../../assets/feature-simple.png';
+import feature_privacy from '../../../assets/feature-privacy.png';
+import feature_control from '../../../assets/feature-control.png';
 import FeatureCard from './FeatureCard';
 import SectionHeader from '../../../components/SectionHeader';
 

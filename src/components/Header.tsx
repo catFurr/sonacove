@@ -17,7 +17,7 @@ interface HeaderProps {
 const navItems = [
   { name: 'Features', href: '/features' },
   { name: 'Comparison', href: '/comparison' },
-  { name: 'Pricing', href: '#pricing' },
+  { name: 'Pricing', href: '/#pricing' },
   { name: 'FAQ', href: '/faq' },
 ];
 
