@@ -1,10 +1,11 @@
-import { PaddleClient, type PaddleCustomer } from "../components/paddle.ts";
-import {
-  BrevoClient,
-  type BrevoContactAttributes,
-} from "../components/brevo.ts";
-import { getLogger, logWrapper } from "../components/pino-logger.ts";
-import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+import { PaddleClient, type PaddleCustomer } from "../../lib/modules/paddle";
+import { BrevoClient } from "../../lib/modules/brevo";
+import { getLogger, logWrapper } from "../../lib/modules/pino-logger";
+import type { APIRoute } from "astro";
+import { KC_WEBHOOK_SECRET } from "astro:env/server";
+
+
+export const prerender = false;
 const logger = getLogger();
 
 // Define the expected request body interface
@@ -15,22 +16,17 @@ interface RegistrationFlowRequest {
   email_verified: boolean;
 }
 
-export const onRequest: WorkerFunction = async (context) => {
-  return await logWrapper(context, WorkerHandler)
+export const POST: APIRoute = async (c) => {
+  return await logWrapper(c, WorkerHandler)
 }
 
-async function WorkerHandler(context: WorkerContext) {
+const WorkerHandler: APIRoute = async ({ request }) => {
   try {
-    // Only accept POST requests
-    if (context.request.method !== "POST") {
-      return new Response("Method not allowed", { status: 405 });
-    }
-
     // Verify secret token
-    const authHeader = context.request.headers.get("Authorization");
+    const authHeader = request.headers.get("Authorization");
     const secretToken = authHeader?.replace("Bearer ", "");
 
-    if (!secretToken || secretToken !== context.env.KC_WEBHOOK_SECRET) {
+    if (!secretToken || secretToken !== KC_WEBHOOK_SECRET) {
       logger.error("Invalid or missing authentication token");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -40,7 +36,7 @@ async function WorkerHandler(context: WorkerContext) {
 
     // Parse the request body
     const requestBody =
-      (await context.request.json()) as RegistrationFlowRequest;
+      (await request.json()) as RegistrationFlowRequest;
 
     // Validate required fields
     if (!requestBody.email || !requestBody.firstname || !requestBody.lastname) {
@@ -53,8 +49,7 @@ async function WorkerHandler(context: WorkerContext) {
     // 1. Fetch or Create Paddle customer
     let paddleCustomer: PaddleCustomer | null =
       await PaddleClient.fetchCustomer(
-        { email: requestBody.email },
-        context.env
+        { email: requestBody.email }
       );
 
     const expectedName = `${requestBody.firstname} ${requestBody.lastname}`;
@@ -67,8 +62,7 @@ async function WorkerHandler(context: WorkerContext) {
       if (paddleCustomer.name !== expectedName) {
         const updatedCustomer = await PaddleClient.updateCustomer(
           paddleCustomer.id, // Use ID for direct update
-          { name: expectedName },
-          context.env
+          { name: expectedName }
         );
         if (updatedCustomer) {
           paddleCustomer = updatedCustomer; // Use the updated customer object
@@ -94,8 +88,7 @@ async function WorkerHandler(context: WorkerContext) {
         {
           email: requestBody.email,
           name: expectedName,
-        },
-        context.env
+        }
       );
       if (paddleCustomer) {
         logger.info(
@@ -115,87 +108,34 @@ async function WorkerHandler(context: WorkerContext) {
 
     const customerId = paddleCustomer.id;
 
-    // 2 & 3. Check if Brevo contact exists and update it if needed
-    let brevoContact;
-    let contactFound = false;
-
-    // First try to find by email
+    // 2. Set Brevo contact (update if exists, create if doesn't)
     try {
-      brevoContact = await BrevoClient.getContact(
+      await BrevoClient.setContact(
         requestBody.email,
-        context.env.BREVO_API_KEY
-      );
-      contactFound = true;
-      logger.info(`Found Brevo contact by email: ${requestBody.email}`);
-    } catch (emailError) {
-      // If not found by email, try by customer ID (EXT_ID)
-      try {
-        brevoContact = await BrevoClient.getContact(
-          customerId,
-          context.env.BREVO_API_KEY,
-          true // useExtId = true
-        );
-        contactFound = true;
-        logger.info(`Found Brevo contact by CID: ${customerId}`);
-      } catch (cidError) {
-        // Contact not found by either method
-        contactFound = false;
-        logger.info(`Brevo contact not found by email or CID`);
-      }
-    }
-
-    if (contactFound) {
-      // If contact exists, update if needed
-      const brevoAttributes: BrevoContactAttributes = {
-        FIRSTNAME: requestBody.firstname,
-        LASTNAME: requestBody.lastname,
-        EXT_ID: customerId,
-        "DOUBLE_OPT-IN": requestBody.email_verified,
-      };
-
-      await BrevoClient.updateContact(
-        requestBody.email,
-        { attributes: brevoAttributes },
-        context.env.BREVO_API_KEY
+        {
+          FIRSTNAME: requestBody.firstname,
+          LASTNAME: requestBody.lastname,
+          "DOUBLE_OPT-IN": requestBody.email_verified,
+        },
+        [2], // List #2 as specified
+        customerId
       );
 
       logger.info(
-        `Updated existing Brevo contact for email: ${requestBody.email}`
+        `Set Brevo contact for email: ${requestBody.email}`
       );
-    } else {
-      // 4. If contact doesn't exist, create a new one
-      try {
-        const brevoAttributes: BrevoContactAttributes = {
-          FIRSTNAME: requestBody.firstname,
-          LASTNAME: requestBody.lastname,
-          EXT_ID: customerId,
-          "DOUBLE_OPT-IN": requestBody.email_verified,
-          OPT_IN: true,
-        };
-
-        await BrevoClient.createContact(
-          requestBody.email,
-          brevoAttributes,
-          2, // List #2 as specified
-          context.env.BREVO_API_KEY
-        );
-
-        logger.info(
-          `Created new Brevo contact for email: ${requestBody.email}`
-        );
-      } catch (createError) {
-        logger.error("Failed to create Brevo contact:", createError);
-        // Continue with the flow even if Brevo contact creation fails
-      }
+    } catch (e) {
+      logger.error(e, "Failed to set Brevo contact:");
+      // Continue with the flow even if Brevo contact setting fails
     }
 
-    // 5. Return the Paddle customer ID
+    // 3. Return the Paddle customer ID
     return new Response(JSON.stringify({ paddle_customer_id: customerId }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error) {
-    logger.error("Error in registration flow:", error);
+  } catch (e) {
+    logger.error(e, "Error in registration flow:");
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

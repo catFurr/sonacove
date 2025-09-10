@@ -1,11 +1,8 @@
 {
   "name": "sonacove",
   "compatibility_date": "2025-05-07",
-  "main": "dist/worker/index.js",
-  "build": {
-    "command": "npm run build:worker",
-    "watch_dir": "functions"
-  },
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "dist/_worker.js",
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page",
@@ -18,11 +15,8 @@
     }
   ],
   "vars": {
-    "KC_HOSTNAME": "staj.sonacove.com/auth",
-    "KC_CLIENT_ID": "paddle-update-user",
     "PUBLIC_KC_HOSTNAME": "staj.sonacove.com/auth",
     "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
-    "PUBLIC_PADDLE_ENVIRONMENT": "sandbox",
     "PUBLIC_PADDLE_CLIENT_TOKEN": "test_aa747e41e1866be40d09da6d0f6",
     "PUBLIC_PADDLE_PRICE_ID": "pri_01jp00qykqy6wyd54gxv369hdr",
     "PUBLIC_PADDLE_PREMIUM_PRICE_ID": "pri_01jwr9d18v2mwh8v1a6zj248mq",
@@ -37,11 +31,8 @@
         }
       ],
       "vars": {
-        "KC_HOSTNAME": "meet.sonacove.com/auth",
-        "KC_CLIENT_ID": "paddle-update-user",
         "PUBLIC_KC_HOSTNAME": "meet.sonacove.com/auth",
         "PUBLIC_BREVO_WEBHOOK_URL": "https://hook.eu2.make.com/6k7t9b9177xiyedxe2vl3gsdjgeq4q7t",
-        "PUBLIC_PADDLE_ENVIRONMENT": "production",
         "PUBLIC_PADDLE_CLIENT_TOKEN": "live_a9e8dccd4f0a60784e864042cdd",
         "PUBLIC_PADDLE_PRICE_ID": "pri_01jxg3w25hshk3za8exew95x8v",
         "PUBLIC_PADDLE_PREMIUM_PRICE_ID": "pri_01jxg3w25hshk3za8exew95x8v",

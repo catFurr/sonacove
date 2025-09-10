@@ -5,8 +5,7 @@
     "**/*"
   ],
   "exclude": [
-    "dist",
-    "functions/**/*"
+    "dist"
   ],
   "compilerOptions": {
     "jsx": "preserve"

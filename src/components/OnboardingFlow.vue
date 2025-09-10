@@ -1,10 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import ErrorIcon from "./ErrorIcon.vue";
 import SuccessIcon from "./SuccessIcon.vue";
 
 import { ref, computed, onMounted } from "vue";
-import { initializePaddle } from "@paddle/paddle-js";
+import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { validateKeycloakToken, parseUserFromToken } from "../utils/auth";
+import { PUBLIC_KC_HOSTNAME, PUBLIC_PADDLE_CLIENT_TOKEN, PUBLIC_PADDLE_PRICE_ID } from "astro:env/client";
 
 // Storage key constants
 const STORAGE_KEYS = {
@@ -13,23 +14,35 @@ const STORAGE_KEYS = {
   SUBSCRIPTION_STATUS: "sonacove_subscription_status",
 };
 
+type UserInfo = {
+    sub: string,
+    email: string,
+    name: string,
+    emailVerified: boolean,
+    context: {
+      user: {
+        subscription_status: string;
+        name: string;
+        email: string;
+      }
+    },
+}
+
 // State
 const currentView = ref("initial");
-const userInfo = ref(null);
-const accessToken = ref(null);
-const paddle = ref(null);
-const discountCode = ref("");
+const userInfo = ref<UserInfo | null>(null);
+const accessToken = ref<string | null>(null);
+const paddle = ref<Paddle | null>(null);
+const discountCode = ref<string>("");
 const userFriendlyError = ref("We encountered an unexpected issue.");
-const detailedErrorMessage = ref(null);
-const showDetailedError = ref(false);
-
-const env = import.meta.env;
+const detailedErrorMessage = ref<string | null>(null);
+const showDetailedError = ref<boolean>(false);
 
 // Initialize Paddle checkout
 async function initializePaddleInstance() {
   try {
-    const environment = env.PUBLIC_PADDLE_ENVIRONMENT || "sandbox";
-    const clientToken = env.PUBLIC_PADDLE_CLIENT_TOKEN;
+    const environment = import.meta.env.PROD ? 'production' : 'sandbox';
+    const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN;
 
     if (!clientToken) {
       throw new Error("Paddle client token is not configured");
@@ -59,9 +72,6 @@ async function initializePaddleInstance() {
           case "checkout.loaded":
             console.log("Checkout loaded:", data);
             break;
-          case "checkout.location.changed":
-            console.log("Checkout location changed:", data);
-            break;
         }
       },
     });
@@ -78,7 +88,7 @@ async function initializePaddleInstance() {
 async function setupPaddleCheckout() {
   try {
     if (!paddle.value) {
-      paddle.value = await initializePaddleInstance();
+      paddle.value = (await initializePaddleInstance()) ?? null;
     }
 
     if (!paddle.value) {
@@ -118,13 +128,13 @@ async function openPaddleCheckout() {
     const checkoutConfig = {
       items: [
         {
-          priceId: env.PUBLIC_PADDLE_PRICE_ID,
+          priceId: PUBLIC_PADDLE_PRICE_ID,
           quantity: 1,
         },
       ],
       ...(discountCode.value ? { discountCode: discountCode.value } : {}),
       settings: {
-        displayMode: "overlay",
+        displayMode: 'overlay' as const,
         // frameTarget: "paddle-checkout-container", // For overlay, this might not be strictly needed but good to have if Paddle uses it
         // frameStyle:
         //   "width: 100%; min-height: 400px; background-color: transparent; border: none;",
@@ -174,7 +184,7 @@ function updateRegistrationUrl() {
 
   const keycloakBaseUrl =
     "https://" +
-    env.PUBLIC_KC_HOSTNAME +
+    PUBLIC_KC_HOSTNAME +
     "/realms/jitsi/protocol/openid-connect";
   const clientId = "jitsi-web";
   const responseType = "token";
@@ -214,7 +224,7 @@ async function init() {
       // Token from Keycloak redirect
       const isAuthenticated = await validateKeycloakToken(
         accessToken.value,
-        env.PUBLIC_KC_HOSTNAME
+        PUBLIC_KC_HOSTNAME
       );
       if (isAuthenticated) {
         userInfo.value = parseUserFromToken(accessToken.value);
@@ -267,7 +277,7 @@ async function init() {
       if (storedToken && storedUserInfoString) {
         const isValid = await validateKeycloakToken(
           storedToken,
-          env.PUBLIC_KC_HOSTNAME
+          PUBLIC_KC_HOSTNAME
         );
         if (isValid) {
           accessToken.value = storedToken;
@@ -322,7 +332,7 @@ function handleReopenPayment() {
 }
 
 // Updated error handling function
-function handleError(userMessage, errorObj = null) {
+function handleError(userMessage: string, errorObj: any = null) {
   console.error("User-facing error triggered:", userMessage, errorObj || "");
   userFriendlyError.value =
     userMessage ||

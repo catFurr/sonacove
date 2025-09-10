@@ -2,13 +2,12 @@
   <div style="display: none;"></div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue'
 import { initializePaddle } from '@paddle/paddle-js'
+import { PUBLIC_PADDLE_CLIENT_TOKEN, PUBLIC_PADDLE_ORGANIZATION_PRICE_ID, PUBLIC_PADDLE_PREMIUM_PRICE_ID } from "astro:env/client";
 
-const env = import.meta.env
-
-function floorPrice(formattedPrice) {
+function floorPrice(formattedPrice: string) {
   const numeric = parseFloat(formattedPrice.replace(/[^0-9.]/g, ""))
   const currencySymbol = formattedPrice.trim().charAt(0)
   const truncated = Math.floor(numeric * 100) / 100;
@@ -19,14 +18,14 @@ function floorPrice(formattedPrice) {
   }
 }
 
-function applyDiscount(price, discountPercent) {
+function applyDiscount(price: number, discountPercent: number) {
   return price - (price * discountPercent)
 }
 
 onMounted(async () => {
   try {
-    const environment = env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox'
-    const clientToken = env.PUBLIC_PADDLE_CLIENT_TOKEN
+    const environment = import.meta.env.PROD ? 'production' : 'sandbox';
+    const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN
 
     if (!clientToken) {
       console.error('Missing Paddle client token')
@@ -37,11 +36,12 @@ onMounted(async () => {
       environment,
       token: clientToken
     })
+    if (!paddle) return;
 
     const result = await paddle.PricePreview({
       items: [
-        { priceId: env.PUBLIC_PADDLE_PREMIUM_PRICE_ID, quantity: 1 },
-        { priceId: env.PUBLIC_PADDLE_ORGANIZATION_PRICE_ID, quantity: 1 }
+        { priceId: PUBLIC_PADDLE_PREMIUM_PRICE_ID, quantity: 1 },
+        { priceId: PUBLIC_PADDLE_ORGANIZATION_PRICE_ID, quantity: 1 }
       ]
     })
 
@@ -55,8 +55,8 @@ onMounted(async () => {
       formatted: `${premiumData.currencySymbol}0`
     }
 
-    const premiumDiscount = Number(prices[0].price.customData?.discount) || 0
-    const orgDiscount = Number(prices[1].price.customData?.discount) || 0
+    const premiumDiscount = Number(prices?.[0].price.customData?.discount) || 0
+    const orgDiscount = Number(prices?.[1].price.customData?.discount) || 0
 
     const premiumDiscounted = applyDiscount(premiumData.numeric, premiumDiscount)
     const orgDiscounted = applyDiscount(orgData.numeric, orgDiscount)
@@ -65,6 +65,7 @@ onMounted(async () => {
     const orgDiscountedFormatted = `${orgData.currencySymbol}${orgDiscounted.toFixed(2)}`
 
     window.plans = {
+      // @ts-ignore
       "Free Plan": {
         price: freeData.formatted,
         priceWithDiscount: null
@@ -85,12 +86,12 @@ onMounted(async () => {
       const data = window.plans[planTitle]
 
       document.querySelectorAll(`[data-plan="${planTitle}"] .plan-price`)
-        .forEach(el => el.textContent = data.priceWithDiscount ?? data.price)
+        .forEach(el => el.textContent = data.priceWithDiscount ?? data.price ?? "-")
 
       document.querySelectorAll(`[data-plan="${planTitle}"] .discount-badge`)
         .forEach(el => {
-          if (data.discount > 0) {
-            el.style.display = 'block'
+          if (data.discount && data.discount > 0) {
+            (el as any).style.display = 'block'
             el.textContent = `${data.discount * 100}% OFF`
           }
         })

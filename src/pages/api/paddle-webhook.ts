@@ -1,19 +1,41 @@
-import { KeycloakClient } from "../components/keycloak.ts";
-import { PaddleClient, PaddleWebhookEvent } from "../components/paddle.ts";
-import { getLogger, logWrapper } from "../components/pino-logger.ts";
-import type { Env, WorkerContext, WorkerFunction } from "../components/types.ts";
-import { capturePosthogEvent } from "../components/posthog.ts";
+import { KeycloakClient } from "../../lib/modules/keycloak";
+import { PaddleClient, type PaddleWebhookData, type PaddleWebhookEvent } from "../../lib/modules/paddle";
+import { getLogger, logWrapper } from "../../lib/modules/pino-logger";
+
+import { capturePosthogEvent } from "../../lib/modules/posthog";
+import type { APIRoute } from "astro";
+
+
+export const prerender = false;
 const logger = getLogger();
 
-// dsfdf
-
-export const onRequest: WorkerFunction = async (context) => {
-  return await logWrapper(context, WorkerHandler)
+export const POST: APIRoute = async (c) => {
+  return await logWrapper(c, WorkerHandler)
 }
 
-async function WorkerHandler(context: WorkerContext) {
+const WorkerHandler: APIRoute = async ({ request, locals }) => {
+  try {
+    // Get the raw body as text for verification
+    const rawBody = await request.text();
 
-  const next = async (event: PaddleWebhookEvent) => {
+    // Get the Paddle-Signature header
+    const signatureHeader = request.headers.get("Paddle-Signature");
+
+    if (!signatureHeader) {
+      logger.error("Missing Paddle-Signature header");
+      return new Response("Missing signature header", { status: 401 });
+    }
+
+    // Verify the webhook signature
+    const isVerified = await PaddleClient.validateWebhook(rawBody, signatureHeader);
+    if (!isVerified) {
+      logger.error("Invalid Paddle webhook signature");
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    // Parse the body as JSON
+    const event = JSON.parse(rawBody) as PaddleWebhookEvent;
+
     // Check if this is one of the events we want to handle
     const validEventTypes = [
       "transaction.created",
@@ -24,32 +46,49 @@ async function WorkerHandler(context: WorkerContext) {
 
     if (!validEventTypes.includes(event.event_type)) {
       logger.info(`Ignoring event type: ${event.event_type}`);
-      return;
+    } else {
+      // Process the webhook asynchronously using waitUntil
+      locals.runtime.ctx.waitUntil(processWebhookEvent(event, locals.runtime));
     }
 
+    // Return immediately - processing happens in background
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    logger.error("Error handling Paddle webhook:");
+    return new Response("Internal server error", { status: 500 });
+  }
+};
+
+/**
+ * Process webhook event asynchronously
+ */
+async function processWebhookEvent(event: PaddleWebhookEvent, runtime: Runtime["runtime"]) {
+  try {
     // Extract the relevant information
     const extractedData = PaddleClient.extractWebhookData(event);
 
     // Log the extracted data for debugging
-    logger.info("Extracted Paddle data:", JSON.stringify(extractedData));
+    logger.info(extractedData, "Extracted Paddle data:");
 
     // Process the subscription data and update Keycloak
     let user = undefined;
     if (extractedData.subscription) {
-      user = await processSubscriptionUpdate(extractedData, context.env);
+      user = await processSubscriptionUpdate(extractedData, runtime);
       // Subscription activation event
       if (event.event_type === "subscription.created" && user) {
         await capturePosthogEvent({
           distinctId: user.id,
-          event: "subscription_activated",
-          env: context.env,
+          event: "subscription_activated"
         });
       }
     }
     // Handle transaction events for subscription payment
     if (extractedData.transaction) {
       // Try to find the user by subscription_id or customer_id
-      const keycloak = new KeycloakClient(context.env);
+      const keycloak = new KeycloakClient(runtime);
       const tx = extractedData.transaction;
       // Try by subscription_id first
       if (tx.subscription_id) {
@@ -57,7 +96,7 @@ async function WorkerHandler(context: WorkerContext) {
       }
       // Fallback to customer_id if not found
       if (!user && tx.customer_id) {
-        const customerDetails = await PaddleClient.fetchCustomer(tx.customer_id, context.env);
+        const customerDetails = await PaddleClient.fetchCustomer(tx.customer_id);
         if (customerDetails && customerDetails.email) {
           user = await keycloak.getUser(customerDetails.email, undefined);
         }
@@ -66,36 +105,33 @@ async function WorkerHandler(context: WorkerContext) {
       if (event.event_type === "transaction.updated" && user && tx.status === "paid") {
         await capturePosthogEvent({
           distinctId: user.id,
-          event: "subscription_payment",
-          env: context.env,
+          event: "subscription_payment"
         });
       }
     }
-    // For now, we're only handling subscription events
-    // We could add transaction handling later if needed
 
     logger.info(`Successfully processed ${event.event_type} event`);
-  };
-
-  return PaddleClient.processWebhook(context, next);
-};
+  } catch (e) {
+    logger.error(e, "Error processing webhook event:");
+  }
+}
 
 /**
  * Process subscription update and update user data in Keycloak
  */
-async function processSubscriptionUpdate(extractedData: any, env: Env) {
+async function processSubscriptionUpdate(extractedData: PaddleWebhookData, runtime: Runtime["runtime"]) {
   try {
     // Get the subscription ID to identify the user
-    const subscriptionData = extractedData.subscription || {};
-    const subscriptionId = subscriptionData.id;
+    const subscriptionData = extractedData.subscription;
+    const subscriptionId = subscriptionData?.id;
     const occurredAt = extractedData.occurred_at;
-    const customerId = subscriptionData.customer_id;
+    const customerId = subscriptionData?.customer_id;
 
     if (!subscriptionId || !occurredAt) {
       throw new Error("Missing subscription ID or timestamp");
     }
 
-    const keycloak = new KeycloakClient(env);
+    const keycloak = new KeycloakClient(runtime);
     // Find the user with this subscription ID
     let user = await keycloak.getUser(undefined, subscriptionId);
 
@@ -106,8 +142,7 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
       );
       try {
         const customerDetails = await PaddleClient.fetchCustomer(
-          customerId,
-          env
+          customerId
         );
         if (customerDetails && customerDetails.email) {
           // Find user by email
@@ -118,8 +153,8 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
             }`
           );
         }
-      } catch (error) {
-        logger.error(`Error fetching customer details: ${error}`);
+      } catch (e) {
+        logger.error(e, 'Error fetching customer details:');
       }
     }
 
@@ -175,8 +210,8 @@ async function processSubscriptionUpdate(extractedData: any, env: Env) {
       `Successfully updated user ${user.id} with subscription data`
     );
     return user;
-  } catch (error) {
-    logger.error("Error processing subscription update:", error);
-    throw error;
+  } catch (e) {
+    logger.error(e, "Error processing subscription update:");
+    throw e;
   }
 }
