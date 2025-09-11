@@ -3,7 +3,7 @@ import { KeycloakClient } from "../src/lib/modules/keycloak";
 import { testEnv } from "./models.js";
 
 // Define the test email as a constant for reuse
-const TEST_EMAIL = "mohammedbinahsan@gmail.com";
+const TEST_EMAIL = "test-1@sonacove.com";
 
 describe("Keycloak Flows", () => {
   let keycloakClient: KeycloakClient;

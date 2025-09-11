@@ -148,8 +148,9 @@ const highlightedPlan = plans.find((p) => p.highlighted);
           : "scale-100 opacity-100";
 
         // get price info from window.plans object if available (set by script)
+        const plans = window?.plans ?? null;
         // @ts-ignore
-        const priceData = window.plans?.[plan.title] || { price: "–", priceWithDiscount: null };
+        const priceData = plans?.[plan.title] || { price: "–", priceWithDiscount: null };
         const hasDiscount = priceData.priceWithDiscount && priceData.priceWithDiscount !== priceData.price;
 
         return (
@@ -251,5 +252,5 @@ const highlightedPlan = plans.find((p) => p.highlighted);
       })}
     </div>
   </div>
-  <PricingDynamic client:load />
+  <PricingDynamic client:only />
 </section>

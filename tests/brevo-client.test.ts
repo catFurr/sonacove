@@ -5,7 +5,7 @@ import {
 } from "../src/lib/modules/brevo";
 
 // Test email constant - easy to update in one place
-const TEST_EMAIL = "mohammedbinahsan@gmail.com";
+const TEST_EMAIL = "test-1@sonacove.com";
 
 describe("BrevoClient", () => {
   const apiKey = process.env.BREVO_API_KEY || "";
