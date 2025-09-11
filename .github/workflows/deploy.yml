@@ -50,32 +50,36 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Set dynamic environment variables
-        run: |
-          echo "🔧 Setting up environment variables for build..."
-          
-          # Set all GitHub variables as environment variables (filter out null/empty)
-          echo "Setting GitHub variables..."
-          for var in $(echo "${{ toJSON(vars) }}" | jq -r 'keys[]'); do
-            value=$(echo "${{ toJSON(vars) }}" | jq -r --arg key "$var" '.[$key]')
-            if [[ "$value" != "null" && "$value" != "" ]]; then
-              echo "$var=$value" >> $GITHUB_ENV
-            fi
-          done
-          
-          # Set all GitHub secrets as environment variables (filter out null/empty)
-          echo "Setting GitHub secrets..."
-          for secret in $(echo "${{ toJSON(secrets) }}" | jq -r 'keys[]'); do
-            value=$(echo "${{ toJSON(secrets) }}" | jq -r --arg key "$secret" '.[$key]')
-            if [[ "$value" != "null" && "$value" != "" ]]; then
-              echo "$secret=$value" >> $GITHUB_ENV
-            fi
-          done
-          
-          echo "✅ Environment variables set dynamically"
-
       - name: Build Astro site
         run: bun run build
+        env:
+          # GitHub Variables
+          PUBLIC_BREVO_WEBHOOK_URL: ${{ vars.PUBLIC_BREVO_WEBHOOK_URL }}
+          PUBLIC_CF_ENV: ${{ vars.PUBLIC_CF_ENV }}
+          PUBLIC_KC_HOSTNAME: ${{ vars.PUBLIC_KC_HOSTNAME }}
+          PUBLIC_PADDLE_CLIENT_TOKEN: ${{ vars.PUBLIC_PADDLE_CLIENT_TOKEN }}
+          PUBLIC_PADDLE_ORGANIZATION_PRICE_ID: ${{ vars.PUBLIC_PADDLE_ORGANIZATION_PRICE_ID }}
+          PUBLIC_PADDLE_PREMIUM_PRICE_ID: ${{ vars.PUBLIC_PADDLE_PREMIUM_PRICE_ID }}
+          PUBLIC_PADDLE_PRICE_ID: ${{ vars.PUBLIC_PADDLE_PRICE_ID }}
+          
+          # GitHub Secrets
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          CF_WEBHOOK_SECRET: ${{ secrets.CF_WEBHOOK_SECRET }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+          GRAFANA_USERNAME: ${{ secrets.GRAFANA_USERNAME }}
+          KC_CLIENT_ID: ${{ secrets.KC_CLIENT_ID }}
+          KC_CLIENT_SECRET: ${{ secrets.KC_CLIENT_SECRET }}
+          KC_WEBHOOK_SECRET: ${{ secrets.KC_WEBHOOK_SECRET }}
+          PADDLE_API_KEY: ${{ secrets.PADDLE_API_KEY }}
+          PADDLE_WEBHOOK_SECRET: ${{ secrets.PADDLE_WEBHOOK_SECRET }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
 
       - name: Wrangler Upload
         if: github.event_name == 'pull_request'
@@ -107,26 +111,6 @@ jobs:
           workingDirectory: "."
           wranglerVersion: "3"
 
-      # - name: Add deployment summary
-      #   if: always()
-      #   run: |
-      #     if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
-      #       echo "**Preview URL:** [https://sonacove.com](https://sonacove.com)" >> $GITHUB_STEP_SUMMARY
-      #       echo "**Deployment Type:** Production Deploy" >> $GITHUB_STEP_SUMMARY
-      #       echo "::notice title=Production Deployment::🚀 Deployed to production: https://sonacove.com"
-      #     elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-      #       # For PRs, we upload a version (gets unique preview URL) then deploy it
-      #       PREVIEW_URL="${{ steps.upload.outputs.deployment-url }}"
-      #       if [[ -n "$PREVIEW_URL" ]]; then
-      #         echo "**Preview URL:** [$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
-      #         echo "::notice title=Preview Deployment::🚀 Preview deployed: $PREVIEW_URL"
-      #       else
-      #         echo "**Preview URL:** Preview deployment created" >> $GITHUB_STEP_SUMMARY
-      #         echo "::notice title=Preview Deployment::🚀 Preview deployment created successfully"
-      #       fi
-      #       echo "**Deployment Type:** Version Upload + Deploy" >> $GITHUB_STEP_SUMMARY
-      #     fi
-
       - name: Update PR comment with preview
         if: github.event_name == 'pull_request' && job.status == 'success'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -142,18 +126,3 @@ jobs:
 
             ---
             *This comment will be automatically updated when new commits are pushed.*
-
-      - name: Deployment Summary
-        if: always()
-        run: |
-          if [[ "${{ job.status }}" == "success" ]]; then
-            echo "✅ Deployment completed successfully!"
-            if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
-              echo "🚀 Production deployment: https://sonacove.com"
-            elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              echo "🔍 Preview deployment created for PR #${{ github.event.number }}"
-            fi
-          else
-            echo "❌ Deployment failed!"
-            echo "Check the logs above for details."
-          fi
