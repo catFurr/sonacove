@@ -6,6 +6,7 @@
 import { onMounted } from 'vue'
 import { initializePaddle } from '@paddle/paddle-js'
 import { PUBLIC_PADDLE_CLIENT_TOKEN, PUBLIC_PADDLE_ORGANIZATION_PRICE_ID, PUBLIC_PADDLE_PREMIUM_PRICE_ID } from "astro:env/client";
+import { PUBLIC_CF_ENV } from 'astro:env/client';
 
 function floorPrice(formattedPrice: string) {
   const numeric = parseFloat(formattedPrice.replace(/[^0-9.]/g, ""))
@@ -24,7 +25,7 @@ function applyDiscount(price: number, discountPercent: number) {
 
 onMounted(async () => {
   try {
-    const environment = import.meta.env.PROD ? 'production' : 'sandbox';
+    const environment = PUBLIC_CF_ENV === 'staging' ? 'sandbox' : 'production';
     const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN
 
     if (!clientToken) {

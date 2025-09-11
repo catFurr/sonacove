@@ -26,6 +26,11 @@ const schema: EnvSchema = {
     PUBLIC_PADDLE_PREMIUM_PRICE_ID: publicString,
     PUBLIC_PADDLE_ORGANIZATION_PRICE_ID: publicString,
     PUBLIC_KC_HOSTNAME: publicString,
+    PUBLIC_CF_ENV: envField.enum({
+        context: 'client',
+        access: "public",
+        values: ['staging', 'production']
+    }),
 
     // Server-side secret environment variables
     KC_CLIENT_ID: privateString,

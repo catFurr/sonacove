@@ -1,4 +1,5 @@
 import type { APIContext, APIRoute } from "astro";
+import { PUBLIC_CF_ENV } from "astro:env/client";
 import { GRAFANA_API_KEY, GRAFANA_USERNAME } from "astro:env/server";
 import pino from "pino";
 
@@ -137,7 +138,7 @@ async function flushLogs(): Promise<void> {
         severity: logEntry.level.toUpperCase(), // Use the stored level, converted to uppercase
         body: message,
         attributes: {
-          "service.name": "cloudflare-worker",
+          "service.name": "cf-worker" + PUBLIC_CF_ENV === 'staging' ? "-staj" : "",
           ...(logEntry.bindings?.[0] || {}), // Include child logger context from stored bindings
         },
       };

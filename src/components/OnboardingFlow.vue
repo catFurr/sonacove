@@ -6,6 +6,7 @@ import { ref, computed, onMounted } from "vue";
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { validateKeycloakToken, parseUserFromToken } from "../utils/auth";
 import { PUBLIC_KC_HOSTNAME, PUBLIC_PADDLE_CLIENT_TOKEN, PUBLIC_PADDLE_PRICE_ID } from "astro:env/client";
+import { PUBLIC_CF_ENV } from "astro:env/client";
 
 // Storage key constants
 const STORAGE_KEYS = {
@@ -41,7 +42,7 @@ const showDetailedError = ref<boolean>(false);
 // Initialize Paddle checkout
 async function initializePaddleInstance() {
   try {
-    const environment = import.meta.env.PROD ? 'production' : 'sandbox';
+    const environment = PUBLIC_CF_ENV === 'staging' ? 'sandbox' : 'production';
     const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN;
 
     if (!clientToken) {

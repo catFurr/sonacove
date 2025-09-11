@@ -1,6 +1,7 @@
 import { PADDLE_WEBHOOK_SECRET, PADDLE_API_KEY } from "astro:env/server";
 
 import { getLogger } from "./pino-logger";
+import { PUBLIC_CF_ENV } from "astro:env/client";
 
 
 const logger = getLogger();
@@ -97,7 +98,7 @@ export interface PaddleCustomerInput {
 }
 
 const getPaddleBaseUrl = () => {
-  return import.meta.env.DEV
+  return PUBLIC_CF_ENV === 'staging'
     ? "https://sandbox-api.paddle.com"
     : "https://api.paddle.com";
 };
