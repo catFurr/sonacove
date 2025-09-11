@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from "bun:test";
-import { KeycloakClient } from "../functions/components/keycloak.js";
+import { KeycloakClient } from "../src/lib/modules/keycloak";
 import { testEnv } from "./models.js";
 
 // Define the test email as a constant for reuse
