@@ -58,30 +58,30 @@ jobs:
       #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       #     ALL_SECRETS: ${{ toJSON(secrets) }}
 
-      - name: Extract and set environment variables
-        run: |
-          # Determine environment
-          if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
-            ENV_NAME="prod"
-            echo "🏗️ Extracting variables for production environment"
-            # Extract prod environment variables
-            VARS=$(cat wrangler.jsonc | jq -r '.env.prod.vars // {} | to_entries[] | "\(.key)=\(.value)"')
-          else
-            ENV_NAME="preview"
-            echo "🏗️ Extracting variables for preview environment"
-            # Extract default/preview environment variables
-            VARS=$(cat wrangler.jsonc | jq -r '.vars // {} | to_entries[] | "\(.key)=\(.value)"')
-          fi
+      # - name: Extract and set environment variables
+      #   run: |
+      #     # Determine environment
+      #     if [[ "${{ github.ref }}" == "refs/heads/main" && "${{ github.event_name }}" == "push" ]]; then
+      #       ENV_NAME="prod"
+      #       echo "🏗️ Extracting variables for production environment"
+      #       # Extract prod environment variables
+      #       VARS=$(cat wrangler.jsonc | jq -r '.env.prod.vars // {} | to_entries[] | "\(.key)=\(.value)"')
+      #     else
+      #       ENV_NAME="preview"
+      #       echo "🏗️ Extracting variables for preview environment"
+      #       # Extract default/preview environment variables
+      #       VARS=$(cat wrangler.jsonc | jq -r '.vars // {} | to_entries[] | "\(.key)=\(.value)"')
+      #     fi
 
-          # Set variables as environment variables for subsequent steps
-          echo "$VARS" | while IFS='=' read -r key value; do
-            if [[ -n "$key" && -n "$value" ]]; then
-              echo "  Setting $key"
-              echo "$key=$value" >> $GITHUB_ENV
-            fi
-          done
+      #     # Set variables as environment variables for subsequent steps
+      #     echo "$VARS" | while IFS='=' read -r key value; do
+      #       if [[ -n "$key" && -n "$value" ]]; then
+      #         echo "  Setting $key"
+      #         echo "$key=$value" >> $GITHUB_ENV
+      #       fi
+      #     done
 
-          echo "✅ Environment variables extracted and set for $ENV_NAME"
+      #     echo "✅ Environment variables extracted and set for $ENV_NAME"
 
       - name: Build Astro site
         run: npm run build

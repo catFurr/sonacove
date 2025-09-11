@@ -18,42 +18,43 @@ const privateString = envField.string({
     access: "secret",
 });
 
+// Maintain client and server separately in alphabetical order
 const schema: EnvSchema = {
     // Client-side environment variables (PUBLIC_*)
     PUBLIC_BREVO_WEBHOOK_URL: publicString,
-    PUBLIC_PADDLE_CLIENT_TOKEN: publicString,
-    PUBLIC_PADDLE_PRICE_ID: publicString,
-    PUBLIC_PADDLE_PREMIUM_PRICE_ID: publicString,
-    PUBLIC_PADDLE_ORGANIZATION_PRICE_ID: publicString,
-    PUBLIC_KC_HOSTNAME: publicString,
     PUBLIC_CF_ENV: envField.enum({
         context: 'client',
         access: "public",
         values: ['staging', 'production']
     }),
+    PUBLIC_KC_HOSTNAME: publicString,
+    PUBLIC_PADDLE_CLIENT_TOKEN: publicString,
+    PUBLIC_PADDLE_ORGANIZATION_PRICE_ID: publicString,
+    PUBLIC_PADDLE_PREMIUM_PRICE_ID: publicString,
+    PUBLIC_PADDLE_PRICE_ID: publicString,
 
     // Server-side secret environment variables
-    KC_CLIENT_ID: privateString,
-    KC_CLIENT_SECRET: privateString,
-    KC_WEBHOOK_SECRET: privateString,
     BREVO_API_KEY: privateString,
-    DISCORD_PUBLIC_KEY: privateString,
-    DISCORD_BOT_TOKEN: privateString,
-    PADDLE_WEBHOOK_SECRET: privateString,
-    PADDLE_API_KEY: privateString,
-    GRAFANA_USERNAME: privateString,
-    GRAFANA_API_KEY: privateString,
-    POSTHOG_API_KEY: privateString,
     CF_WEBHOOK_SECRET: privateString,
     DB_HOST: privateString,
+    DB_NAME: privateString,
+    DB_PASSWORD: privateString,
     DB_PORT: envField.number({
         context: "server",
         access: "secret",
         default: 5432,
     }),
     DB_USER: privateString,
-    DB_PASSWORD: privateString,
-    DB_NAME: privateString,
+    DISCORD_BOT_TOKEN: privateString,
+    DISCORD_PUBLIC_KEY: privateString,
+    GRAFANA_API_KEY: privateString,
+    GRAFANA_USERNAME: privateString,
+    KC_CLIENT_ID: privateString,
+    KC_CLIENT_SECRET: privateString,
+    KC_WEBHOOK_SECRET: privateString,
+    PADDLE_API_KEY: privateString,
+    PADDLE_WEBHOOK_SECRET: privateString,
+    POSTHOG_API_KEY: privateString,
 }
 
 export default schema;
