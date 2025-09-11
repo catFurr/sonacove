@@ -76,7 +76,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: "versions upload"
           workingDirectory: "."
-          wranglerVersion: "4"
+          wranglerVersion: "4.35.0"
           packageManager: bun
         id: upload
 
@@ -97,7 +97,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod' || format('versions deploy {0}@100 -y', steps.extract-version.outputs.VERSION_ID) }}
           workingDirectory: "."
-          wranglerVersion: "4"
+          wranglerVersion: "4.35.0"
           packageManager: bun
 
       - name: Update PR comment with preview
