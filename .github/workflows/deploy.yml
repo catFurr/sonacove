@@ -52,23 +52,43 @@ jobs:
 
       - name: Set environment values
         run: |
-          # Filter out null and empty values
-          FILTERED_SECRETS=$(echo "$ALL_SECRETS" | jq 'with_entries(select(.value != null and .value != ""))')
-          FILTERED_VARS=$(echo "$ALL_VARIABLES" | jq 'with_entries(select(.value != null and .value != ""))')
-
-          # Set secrets
-          echo "$FILTERED_SECRETS" | while IFS='=' read -r key value; do
-            if [[ -n "$key" && -n "$value" ]]; then
-              echo "$key=$value" >> $GITHUB_ENV
-            fi
-          done
-
-          # Set variables
-          echo "$FILTERED_VARS" | while IFS='=' read -r key value; do
-            if [[ -n "$key" && -n "$value" ]]; then
-              echo "$key=$value" >> $GITHUB_ENV
-            fi
-          done
+          echo "🔍 Debug: Starting environment variable setup..."
+          
+          # Debug: Show raw JSON input
+          echo "📥 Raw secrets JSON:"
+          echo "$ALL_SECRETS" | jq '.'
+          echo ""
+          echo "📥 Raw variables JSON:"
+          echo "$ALL_VARIABLES" | jq '.'
+          echo ""
+          
+          # Debug: Show filtered and formatted output
+          echo "🔧 Processing secrets..."
+          SECRETS_OUTPUT=$(echo "$ALL_SECRETS" | jq -r 'to_entries[] | select(.value != null and .value != "") | "\(.key)=\(.value)"')
+          echo "📤 Secrets to be set:"
+          echo "$SECRETS_OUTPUT"
+          echo ""
+          
+          echo "🔧 Processing variables..."
+          VARIABLES_OUTPUT=$(echo "$ALL_VARIABLES" | jq -r 'to_entries[] | select(.value != null and .value != "") | "\(.key)=\(.value)"')
+          echo "📤 Variables to be set:"
+          echo "$VARIABLES_OUTPUT"
+          echo ""
+          
+          # Actually set the environment variables
+          echo "⚙️ Setting secrets in GITHUB_ENV..."
+          echo "$SECRETS_OUTPUT" >> $GITHUB_ENV
+          
+          echo "⚙️ Setting variables in GITHUB_ENV..."
+          echo "$VARIABLES_OUTPUT" >> $GITHUB_ENV
+          
+          # Debug: Show what was actually written to GITHUB_ENV
+          echo "✅ Final GITHUB_ENV contents:"
+          cat $GITHUB_ENV | grep -E "^[A-Z_]+=" | head -20
+          echo "... (showing first 20 environment variables)"
+          echo ""
+          
+          echo "🎉 Environment variable setup completed!"
         env:
           ALL_SECRETS: ${{ toJSON(secrets) }}
           ALL_VARIABLES: ${{ toJSON(vars) }}
