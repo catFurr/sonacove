@@ -77,6 +77,7 @@ jobs:
           command: "versions upload"
           workingDirectory: "."
           wranglerVersion: "4"
+          packageManager: bun
         id: upload
 
       - name: Extract Version ID
@@ -97,6 +98,7 @@ jobs:
           command: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && 'deploy --env prod' || format('versions deploy {0}@100 -y', steps.extract-version.outputs.VERSION_ID) }}
           workingDirectory: "."
           wranglerVersion: "4"
+          packageManager: bun
 
       - name: Update PR comment with preview
         if: github.event_name == 'pull_request' && job.status == 'success'
