@@ -66,7 +66,6 @@ onMounted(async () => {
     const orgDiscountedFormatted = `${orgData.currencySymbol}${orgDiscounted.toFixed(2)}`
 
     window.plans = {
-      // @ts-ignore
       "Free Plan": {
         price: freeData.formatted,
         priceWithDiscount: null
@@ -87,11 +86,11 @@ onMounted(async () => {
       const data = window.plans[planTitle]
 
       document.querySelectorAll(`[data-plan="${planTitle}"] .plan-price`)
-        .forEach(el => el.textContent = data.priceWithDiscount ?? data.price ?? "-")
+        .forEach(el => el.textContent = data.priceWithDiscount ?? data.price)
 
       document.querySelectorAll(`[data-plan="${planTitle}"] .discount-badge`)
         .forEach(el => {
-          if (data.discount && data.discount > 0) {
+          if (data.discount > 0) {
             (el as any).style.display = 'block'
             el.textContent = `${data.discount * 100}% OFF`
           }

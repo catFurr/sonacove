@@ -10,17 +10,5 @@ declare namespace App {
 }
 
 interface Window {
-  plans: Array<{
-    title: string;
-    features: string[];
-    highlighted: boolean;
-    footer: {
-      message: string;
-      buttonText: string;
-      buttonLink: string;
-    };
-    priceWithDiscount?: string | null;
-    price?: string;
-    discount?: number;
-  }>;
+  plans: any;
 }

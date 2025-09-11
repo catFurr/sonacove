@@ -43,43 +43,38 @@ jobs:
           path: |
             dist/
             .astro/
-          key: ${{ runner.os }}-astro-${{ hashFiles('src/**', 'astro.config.ts', 'tailwind.config.ts', 'tsconfig.json') }}
+          key: ${{ runner.os }}-astro-${{ hashFiles('src/**', 'astro.config.ts', 'tailwind.config.ts') }}
           restore-keys: |
             ${{ runner.os }}-astro-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Set environment values
+        run: |
+          # Filter out null and empty values
+          FILTERED_SECRETS=$(echo "$ALL_SECRETS" | jq 'with_entries(select(.value != null and .value != ""))')
+          FILTERED_VARS=$(echo "$ALL_VARIABLES" | jq 'with_entries(select(.value != null and .value != ""))')
+
+          # Set secrets
+          echo "$FILTERED_SECRETS" | while IFS='=' read -r key value; do
+            if [[ -n "$key" && -n "$value" ]]; then
+              echo "$key=$value" >> $GITHUB_ENV
+            fi
+          done
+
+          # Set variables
+          echo "$FILTERED_VARS" | while IFS='=' read -r key value; do
+            if [[ -n "$key" && -n "$value" ]]; then
+              echo "$key=$value" >> $GITHUB_ENV
+            fi
+          done
+        env:
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+          ALL_VARIABLES: ${{ toJSON(vars) }}
+
       - name: Build Astro site
         run: bun run build
-        env:
-          # GitHub Variables
-          PUBLIC_BREVO_WEBHOOK_URL: ${{ vars.PUBLIC_BREVO_WEBHOOK_URL }}
-          PUBLIC_CF_ENV: ${{ vars.PUBLIC_CF_ENV }}
-          PUBLIC_KC_HOSTNAME: ${{ vars.PUBLIC_KC_HOSTNAME }}
-          PUBLIC_PADDLE_CLIENT_TOKEN: ${{ vars.PUBLIC_PADDLE_CLIENT_TOKEN }}
-          PUBLIC_PADDLE_ORGANIZATION_PRICE_ID: ${{ vars.PUBLIC_PADDLE_ORGANIZATION_PRICE_ID }}
-          PUBLIC_PADDLE_PREMIUM_PRICE_ID: ${{ vars.PUBLIC_PADDLE_PREMIUM_PRICE_ID }}
-          PUBLIC_PADDLE_PRICE_ID: ${{ vars.PUBLIC_PADDLE_PRICE_ID }}
-          
-          # GitHub Secrets
-          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          CF_WEBHOOK_SECRET: ${{ secrets.CF_WEBHOOK_SECRET }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_PUBLIC_KEY: ${{ secrets.DISCORD_PUBLIC_KEY }}
-          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
-          GRAFANA_USERNAME: ${{ secrets.GRAFANA_USERNAME }}
-          KC_CLIENT_ID: ${{ secrets.KC_CLIENT_ID }}
-          KC_CLIENT_SECRET: ${{ secrets.KC_CLIENT_SECRET }}
-          KC_WEBHOOK_SECRET: ${{ secrets.KC_WEBHOOK_SECRET }}
-          PADDLE_API_KEY: ${{ secrets.PADDLE_API_KEY }}
-          PADDLE_WEBHOOK_SECRET: ${{ secrets.PADDLE_WEBHOOK_SECRET }}
-          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
 
       - name: Wrangler Upload
         if: github.event_name == 'pull_request'
