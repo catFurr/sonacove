@@ -63,52 +63,54 @@ export default function Meet() {
 const [user, setUser] = useState<any>(null);
 
 useEffect(() => {
-  const userManager = getUserManager();
+    const userManager = getUserManager();
 
-  const handleAuth = async () => {
-    // This will process the redirect if the URL has a `code` query param
-    if (window.location.search.includes('code=')) {
+    const processUser = (u: any) => {
+      if (!u || !u.profile) return null;
+
+      const { name, email, context, picture } = u.profile;
+      // Extract the minutes_used from the context, defaulting to 0
+      const minutesUsed = context?.user?.minutes_used ?? 0;
+
+      return {
+        name: name ?? 'User',
+        email: email ?? '',
+        plan: context?.user?.subscription_status ?? 'Free',
+        avatarUrl: picture ?? getGravatarUrl(email || '', 200),
+        // minutesUsed: minutesUsed,
+      };
+    };
+
+    const handleAuth = async () => {
       try {
-        const u = await userManager.signinRedirectCallback();
-        const { name, email, context, picture } = u.profile ?? {};
-        setUser({
-          name: name ?? 'User',
-          email: email ?? '',
-          plan: context?.user?.subscription_status ?? 'Free',
-          avatarUrl: picture ?? getGravatarUrl(email || '', 200),
-        });
+        let u = null;
+        if (window.location.search.includes('code=')) {
+          u = await userManager.signinRedirectCallback();
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+        } else {
+          u = await userManager.getUser();
+        }
 
-        // Remove the query params from URL
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
+        if (u) {
+          const processedUser = processUser(u);
+          setUser(processedUser);
+        }
       } catch (err) {
-        console.error('Error processing login redirect:', err);
+        console.error('Error handling authentication:', err);
       }
-    } else {
-      // If no redirect, just try to get an existing session
-      const u = await userManager.getUser();
-      if (u) {
-        const { name, email, context, picture } = u.profile ?? {};
-        setUser({
-          name: name ?? 'User',
-          email: email ?? '',
-          plan: context?.user?.subscription_status ?? 'Free',
-          avatarUrl: picture ?? getGravatarUrl(email || '', 200),
-        });
-      }
-    }
-  };
+    };
 
-  handleAuth();
+    handleAuth();
 }, []);
 
   return (
     <div className='bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4 overflow-x-hidden'>
       <div className='w-full max-w-[1700px] mx-auto px-8'>
-        <Header pageType='welcome' user={user}/>
+        <Header pageType='welcome' user={user} />
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
@@ -131,6 +133,7 @@ useEffect(() => {
               meetingsList={meetingsList}
               recordings={recordings}
               notes={notes}
+              minutesUsed={500} // Pass the new prop here
             />
           )}
 

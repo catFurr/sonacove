@@ -2,7 +2,7 @@ export interface User {
   user: {
     name: string;
     email: string;
-    plan: string;
+    plan: 'pending' | 'trialing' | 'active';
     avatarUrl?: string;
   };
   meetingsList: any[];
