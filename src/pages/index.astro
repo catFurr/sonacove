@@ -1,67 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import HeroSection from "../components/HeroSection";
-import FeatureSection from "./features/components/FeatureSection";
-import PricingSection from "../components/PricingSection";
-
-import MetricsSection from "../components/MetricsSection"
-import CTASection from "../components/CTASection"
-import CertificationsSection from "../components/CertificationsSection"
-import CustomizationSection from "../components/CustomizationSection" 
+import Landing from "./landing/components/Landing";
 ---
 
 <Layout title="Sonacove Meets - Fast, Simple, Secure Online Meetings">
   <main>
-    <HeroSection client:only='react' />
-
-    <div id="features">
-      <FeatureSection client:only='react' />
-    </div>
-
-    <MetricsSection client:only='react' />
-
-    <CertificationsSection client:only='react' />
-
-    <CustomizationSection client:only='react' />
-
-    <div id="pricing">
-      <PricingSection client:only='react' />
-    </div>
-
-    <CTASection client:only='react' />
+    <Landing client:load />
   </main>
-  
-  <!-- Custom Styles -->
-  <style>
-    .bg-orange-500 {
-      background-color: #f05023;
-    }
-    .hover\:bg-orange-600:hover {
-      background-color: #d8431c;
-    }
-    .text-orange-500 {
-      color: #f05023;
-    }
-    .text-orange-600 {
-      color: #d9480f;
-    }
-    .border-orange-500 {
-      border-color: #f05023;
-    }
-    .bg-orange-100 {
-      background-color: #fff4e6;
-    }
-    .hover\:bg-orange-50:hover {
-      background-color: #fff9f2;
-    }
-    .focus\:ring-orange-400:focus {
-      --tw-ring-color: #f05023;
-    }
-    .text-green-600 {
-      color: #16a34a;
-    }
-    .bg-gray-50 {
-      background-color: #f9fafb;
-    }
-  </style>
 </Layout>

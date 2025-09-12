@@ -1,18 +1,6 @@
 import { CircleCheck } from 'lucide-react';
 import React from 'react';
-
-// Define the type for the props this component will accept
-export interface Feature {
-  title: string;
-  description: string;
-  bulletTitle?: string ;
-  bullets?: string[];
-  image: {
-    img: { src: string }; // Assuming the image object from Astro has a src property
-    alt: string;
-  };
-  extraText?: string; 
-}
+import type { Feature } from '../types';
 
 interface FeatureCardProps {
   feature: Feature;
@@ -51,10 +39,10 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           {feature.bullets &&
             feature.bullets.map((bullet, bIndex) => (
               <li key={bIndex} className='flex items-start'>
-                <span className='flex-shrink-0 w-6 h-6 text-orange-600 rounded-full flex items-center justify-center mr-2 mt-1'>
+                <span className='flex-shrink-0 w-6 h-6 text-primary-600 rounded-full flex items-center justify-center mr-2 mt-1'>
                   <CircleCheck strokeWidth={3} className='w-4 h-4' />
                 </span>
-                <span className='text-lg text-orange-600 font-semibold'>
+                <span className='text-lg text-primary-600 font-semibold'>
                   {bullet}
                 </span>
               </li>

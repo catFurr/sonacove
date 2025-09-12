@@ -1,5 +1,5 @@
 import React from 'react';
-import cta_illustration from '../assets/metrics-image.png';
+import cta_illustration from '../../../assets/metrics-image.png';
 
 const CTASection: React.FC = () => {
   return (
@@ -38,7 +38,7 @@ const CTASection: React.FC = () => {
               {/* CTA Button */}
               <a
                 href='/onboarding'
-                className='inline-block rounded-full bg-white px-8 py-4 font-semibold text-orange-600 transition-transform hover:scale-105 will-change-transform'
+                className='inline-block rounded-full bg-white px-8 py-4 font-semibold text-primary-600 transition-transform hover:scale-105 will-change-transform'
               >
                 Start Teaching for Free
               </a>

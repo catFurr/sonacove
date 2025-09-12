@@ -1,24 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, CirclePlay, FilePenLine, CircleCheck } from 'lucide-react';
-
-interface Meeting {
-  date: string;
-  time: string;
-  title: string;
-  status: string;
-}
-
-interface Recording {
-  date: string;
-  duration: string;
-  title: string;
-}
-
-interface Note {
-  date: string;
-  title: string;
-  content: string;
-}
+import ToggleSwitch from '../../../components/ToggleSwitch';
+import type { Meeting, Note, Recording } from './types';
 
 interface Props {
   meetingsList: Meeting[];
@@ -26,21 +9,17 @@ interface Props {
   notes: Note[];
 }
 
-const Tabs: React.FC<Props> = ({
-  meetingsList,
-  recordings,
-  notes,
-}: Props) => {
+const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
   const [activeTab, setActiveTab] = useState<
     'meetings' | 'recordings' | 'notes'
   >('meetings');
 
+  const [meetingsFilter, setMeetingsFilter] = useState('All');
   const [recordingsSort, setRecordingsSort] = useState<'newest' | 'oldest'>(
     'newest',
   );
   const [notesSort, setNotesSort] = useState<'newest' | 'oldest'>('newest');
 
-  // Sort helpers
   const sortedRecordings = [...recordings].sort((a, b) => {
     const timeA = new Date(a.date).getTime();
     const timeB = new Date(b.date).getTime();
@@ -61,12 +40,12 @@ const Tabs: React.FC<Props> = ({
           onClick={() => setActiveTab('meetings')}
           className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
             activeTab === 'meetings'
-              ? 'text-orange-500 border-b-2 border-orange-500'
-              : 'text-gray-400 hover:text-orange-500'
+              ? 'text-primary-500 border-b-2 border-primary-500'
+              : 'text-gray-400 hover:text-primary-500'
           }`}
         >
           {/* Mobile Icon */}
-          <Calendar className="w-6 h-6 sm:hidden" />
+          <Calendar className='w-6 h-6 sm:hidden' />
           <span className='hidden sm:inline'>My Meetings</span>
         </button>
 
@@ -74,11 +53,11 @@ const Tabs: React.FC<Props> = ({
           onClick={() => setActiveTab('recordings')}
           className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
             activeTab === 'recordings'
-              ? 'text-orange-500 border-b-2 border-orange-500'
-              : 'text-gray-400 hover:text-orange-500'
+              ? 'text-primary-500 border-b-2 border-primary-500'
+              : 'text-gray-400 hover:text-primary-500'
           }`}
         >
-          <CirclePlay className="w-6 h-6 sm:hidden" />
+          <CirclePlay className='w-6 h-6 sm:hidden' />
           <span className='hidden sm:inline'>Recordings</span>
         </button>
 
@@ -86,11 +65,11 @@ const Tabs: React.FC<Props> = ({
           onClick={() => setActiveTab('notes')}
           className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
             activeTab === 'notes'
-              ? 'text-orange-500 border-b-2 border-orange-500'
-              : 'text-gray-400 hover:text-orange-500'
+              ? 'text-primary-500 border-b-2 border-primary-500'
+              : 'text-gray-400 hover:text-primary-500'
           }`}
         >
-          <FilePenLine className="w-6 h-6 sm:hidden" />
+          <FilePenLine className='w-6 h-6 sm:hidden' />
           <span className='hidden sm:inline'>Notes</span>
         </button>
       </div>
@@ -105,23 +84,18 @@ const Tabs: React.FC<Props> = ({
                 <p className='text-xl text-gray-500'>
                   You have no scheduled meetings.
                 </p>
-                <button className='mt-4 px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600'>
+                <button className='mt-4 px-6 py-3 bg-primary-500 text-white font-semibold rounded-full hover:bg-primary-600'>
                   Book a Meeting
                 </button>
               </div>
             ) : (
               <>
-                <div className='inline-flex bg-gray-100 rounded-full p-1 space-x-1 mb-8'>
-                  <button className='px-6 py-2 bg-white text-black font-semibold rounded-full shadow-sm text-sm transition-colors'>
-                    All
-                  </button>
-                  <button className='px-6 py-2 text-gray-500 font-semibold hover:text-black rounded-full text-sm transition-colors'>
-                    Upcoming
-                  </button>
-                  <button className='px-6 py-2 text-gray-500 font-semibold hover:text-black rounded-full text-sm transition-colors'>
-                    Past
-                  </button>
-                </div>
+                <ToggleSwitch
+                  options={['All', 'Upcoming', 'Past']}
+                  activeOption={meetingsFilter}
+                  onOptionChange={(option) => setMeetingsFilter(option)}
+                  className='rounded-full mb-8'
+                />
                 <div className='space-y-6'>
                   {meetingsList.map((meeting, i) => (
                     <div
@@ -137,7 +111,7 @@ const Tabs: React.FC<Props> = ({
                           {meeting.title}
                         </p>
                         <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
-                          <CircleCheck strokeWidth={3} className="w-4 h-4" />
+                          <CircleCheck strokeWidth={3} className='w-4 h-4' />
                           {meeting.status}
                         </span>
                       </div>
@@ -160,28 +134,18 @@ const Tabs: React.FC<Props> = ({
               </div>
             ) : (
               <div>
-                <div className='inline-flex bg-gray-100 rounded-full p-1 space-x-1 mb-8'>
-                  <button
-                    onClick={() => setRecordingsSort('newest')}
-                    className={`sort-button px-6 py-2 text-sm font-semibold rounded-full transition-colors ${
-                      recordingsSort === 'newest'
-                        ? 'bg-white text-black shadow-sm'
-                        : 'text-gray-500 hover:text-black'
-                    }`}
-                  >
-                    Newest
-                  </button>
-                  <button
-                    onClick={() => setRecordingsSort('oldest')}
-                    className={`sort-button px-6 py-2 text-sm font-semibold rounded-full transition-colors ${
-                      recordingsSort === 'oldest'
-                        ? 'bg-white text-black shadow-sm'
-                        : 'text-gray-500 hover:text-black'
-                    }`}
-                  >
-                    Oldest
-                  </button>
-                </div>
+                <ToggleSwitch
+                  options={['Newest', 'Oldest']}
+                  activeOption={
+                    recordingsSort === 'newest' ? 'Newest' : 'Oldest'
+                  }
+                  onOptionChange={(option) =>
+                    setRecordingsSort(
+                      option.toLowerCase() as 'newest' | 'oldest',
+                    )
+                  }
+                  className='rounded-full mb-8'
+                />
                 <div className='sortable-list space-y-6'>
                   {sortedRecordings.map((rec, i) => (
                     <div
@@ -211,34 +175,20 @@ const Tabs: React.FC<Props> = ({
                 <p className='text-xl text-gray-500'>
                   You don't have any notes yet.
                 </p>
-                <button className='mt-4 px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600'>
+                <button className='mt-4 px-6 py-3 bg-primary-500 text-white font-semibold rounded-full hover:bg-primary-600'>
                   Create a Note
                 </button>
               </div>
             ) : (
               <div>
-                <div className='inline-flex bg-gray-100 rounded-full p-1 space-x-1 mb-8'>
-                  <button
-                    onClick={() => setNotesSort('newest')}
-                    className={`sort-button px-6 py-2 text-sm font-semibold rounded-full transition-colors ${
-                      notesSort === 'newest'
-                        ? 'bg-white text-black shadow-sm'
-                        : 'text-gray-500 hover:text-black'
-                    }`}
-                  >
-                    Newest
-                  </button>
-                  <button
-                    onClick={() => setNotesSort('oldest')}
-                    className={`sort-button px-6 py-2 text-sm font-semibold rounded-full transition-colors ${
-                      notesSort === 'oldest'
-                        ? 'bg-white text-black shadow-sm'
-                        : 'text-gray-500 hover:text-black'
-                    }`}
-                  >
-                    Oldest
-                  </button>
-                </div>
+                <ToggleSwitch
+                  options={['Newest', 'Oldest']}
+                  activeOption={notesSort === 'newest' ? 'Newest' : 'Oldest'}
+                  onOptionChange={(option) =>
+                    setNotesSort(option.toLowerCase() as 'newest' | 'oldest')
+                  }
+                  className='rounded-full mb-8'
+                />
                 <div className='sortable-list space-y-4'>
                   {sortedNotes.map((note, i) => (
                     <div

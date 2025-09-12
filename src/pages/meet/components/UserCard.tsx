@@ -1,19 +1,9 @@
 import React from 'react';
 import Tabs from './Tabs';
+import type { User } from './types';
 
-interface Props {
-  user: {
-    name: string;
-    email: string;
-    plan: string;
-    avatarUrl?: string;
-  };
-  meetingsList: any[];
-  recordings: any[];
-  notes: any[];
-}
 
-const UserCard: React.FC<Props> = ({
+const UserCard: React.FC<User> = ({
   user,
   meetingsList,
   recordings,
@@ -40,7 +30,7 @@ const UserCard: React.FC<Props> = ({
 
         {/* Buttons */}
         <div className='flex flex-col gap-2 mt-4 sm:mt-0 sm:ml-4 items-center sm:items-end'>
-          <button className='px-7 py-3 border border-orange-500 text-orange-500 text-sm font-semibold rounded-full hover:bg-orange-50 w-full'>
+          <button className='px-7 py-3 border border-primary-500 text-primary-500 text-sm font-semibold rounded-full hover:bg-primary-50 w-full'>
             Manage Account
           </button>
           <button className='px-7 py-3 border border-black text-black text-sm font-semibold rounded-full hover:bg-gray-100 w-full'>

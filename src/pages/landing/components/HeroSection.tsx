@@ -1,8 +1,8 @@
 import React from "react";
-import Header from "./Header";
-import hero_image from "../assets/hero-image.png"; // Assuming your bundler supports image imports
-import Button from "./Button";
-import PageHeader from "./PageHeader";
+import Header from "../../../components/Header";
+import hero_image from '../../../assets/hero-image.png'; // Assuming your bundler supports image imports
+import Button from "../../../components/Button";
+import PageHeader from "../../../components/PageHeader";
 
 const HeroSection: React.FC = () => {
   return (

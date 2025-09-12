@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { animatePlaceholder, generatePlaceholderWords } from './utils';
 import Button from '../../../components/Button';
+import PageHeader from '../../../components/PageHeader';
 
 interface Props {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -26,13 +27,14 @@ const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
 
   return (
     <div>
-      <h1 className='text-4xl sm:text-5xl lg:text-6xl font-semibold text-black mb-6 leading-tight'>
-        Secure and high quality meetings
-      </h1>
-      <p className='text-lg sm:text-xl text-gray-600 mb-12 lg:mb-20'>
+      <PageHeader
+        title={<h1 className='text-left'>Secure and high quality meetings</h1>}
+      >
+        <p className='text-left'>
         The only online meeting platform that adapts to your teaching style, not
         the other way around.
-      </p>
+        </p>
+      </PageHeader>
 
       <form id='room-form' className='max-w-lg' onSubmit={onSubmit}>
         <div className='relative w-full'>
@@ -41,7 +43,7 @@ const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
             id='room-input'
             type='text'
             placeholder='Enter meeting name'
-            className='w-full bg-transparent border-0 border-b border-gray-300 py-3 pl-3 text-2xl sm:text-3xl font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-colors'
+            className='w-full bg-transparent border-0 border-b border-gray-300 py-3 pl-3 text-2xl sm:text-3xl font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-primary-500 transition-colors'
           />
         </div>
 

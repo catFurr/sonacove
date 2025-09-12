@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from './Button';
 import { login, logout, signup } from '../pages/meet/components/utils';
 import { TextAlignJustify } from 'lucide-react';
+import Logo from './icons/Logo';
 
 // Define the types for the component's props
 type PageType = 'welcome' | 'landing';
@@ -40,8 +41,8 @@ const Header: React.FC<HeaderProps> = ({
               // Conditionally apply active styles
               className={
                 activePage === item.name
-                  ? 'text-orange-500 font-semibold' // Style for the active page
-                  : 'text-gray-600 hover:text-black' // Default style
+                  ? 'text-primary-500 font-semibold' // Style for the active page
+                  : 'text-gray-600 hover:text-accent' // Default style
               }
             >
               {item.name}
@@ -151,12 +152,7 @@ const Header: React.FC<HeaderProps> = ({
       {/* Left: Logo */}
       <div className='flex items-center gap-2 pl-4'>
         <a href='/' className='flex items-center gap-2'>
-          <img
-            src='/sonacove-orange.svg'
-            alt='Sonacove Logo'
-            className='h-8 w-8'
-          />
-          <span className='text-xl font-semibold text-black'>Sonacove</span>
+          <Logo />
         </a>
       </div>
 

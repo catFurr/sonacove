@@ -1,9 +1,9 @@
 import React from 'react';
-import bgImage from '../assets/CTA-background.png';
-import ctaDesktopIcons from '../assets/CTA-desktop-icons.png';
-import ctaMobileIcons from '../assets/CTA-mobile-icons.png';
-import { signup } from '../pages/meet/components/utils';
-import Button from './Button';
+import bgImage from '../../../assets/CTA-background.png';
+import ctaDesktopIcons from '../../../assets/CTA-desktop-icons.png';
+import ctaMobileIcons from '../../../assets/CTA-mobile-icons.png';
+import { signup } from '../../meet/components/utils';
+import Button from '../../../components/Button';
 
 const CallToAction: React.FC = () => {
   return (

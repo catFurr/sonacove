@@ -2,7 +2,8 @@ import React from 'react';
 
 import Header from '../../../components/Header';
 import PageHeader from '../../../components/PageHeader';
-import FeatureCard, { type Feature } from './FeatureCard';
+import FeatureCard from './FeatureCard';
+import type { Feature } from '../types';
 
 import basic_image from '../../../assets/feature-basic.png';
 import chat_image from '../../../assets/feature-chat.png';

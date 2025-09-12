@@ -1,9 +1,9 @@
 import React from "react";
-import gdprBadge from "../assets/gdpr-compliant.png";
-import soc2Badge from "../assets/soc2-type2-certified.png";
-import uptimeBadge from "../assets/uptime-guarantee.png";
-import isoBadge from "../assets/iso-certified.png";
-import SectionHeader from "./SectionHeader";
+import gdprBadge from "../../../assets/gdpr-compliant.png";
+import soc2Badge from "../../../assets/soc2-type2-certified.png";
+import uptimeBadge from "../../../assets/uptime-guarantee.png";
+import isoBadge from "../../../assets/iso-certified.png";
+import SectionHeader from "../../../components/SectionHeader";
 
 const badges = [
   {

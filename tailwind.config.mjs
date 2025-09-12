@@ -34,9 +34,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
-      // cursor: {
-      //   custom: 'url(./src/assets/cursor.png), auto',
-      // },
+      cursor: {
+        custom: 'url(./src/assets/cursor.png), auto',
+      },
     },
   },
   plugins: [],
