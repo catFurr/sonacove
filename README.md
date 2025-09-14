@@ -18,7 +18,7 @@ bun run dev
 # Adding Env Variables
 1. Add them to [astro env schema](./astro-env-schema.ts)
 2. Update [.env](./.env) file
-3. Build Astro types: `bun run build` (automatic if dev server is running)
+3. Build types: `bun run gen:types`
 4. Use them in source code like:
 ```ts
 import { GRAFANA_API_KEY } from "astro:env/server"; // only on server side

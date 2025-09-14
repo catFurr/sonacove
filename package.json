@@ -7,10 +7,11 @@
     "check": "astro check",
     "dev": "astro dev",
     "build": "astro build",
+    "preview": "astro preview",
     "test": "bun test tests/api/*.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "gen:types": "wrangler types -c wrangler.jsonc --env-interface CloudflareEnv src/workerd-conf.d.ts"
+    "gen:types": "astro sync && wrangler types -c wrangler.jsonc --env-interface CloudflareEnv src/workerd-conf.d.ts"
   },
   "dependencies": {
     "@paddle/paddle-js": "^1.4.2",
