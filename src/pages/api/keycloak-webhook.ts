@@ -66,7 +66,18 @@ const WorkerHandler: APIRoute = async ({ request, locals }) => {
   try {
     // Get the raw body for signature verification
     const rawBody = await request.text();
-    const webhookEvent = JSON.parse(rawBody) as KeycloakWebhookEvent;
+    
+    // Parse JSON with error handling - body validation happens first
+    let webhookEvent: KeycloakWebhookEvent;
+    try {
+      webhookEvent = JSON.parse(rawBody) as KeycloakWebhookEvent;
+    } catch (jsonError) {
+      logger.error("Invalid JSON in request body");
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Verify HMAC-SHA256 signature
     const signature = request.headers.get("x-keycloak-signature");

@@ -20,15 +20,19 @@ export const POST: APIRoute = async (c) => {
   return await logWrapper(c, PostWorkerHandler)
 }
 
+export const DELETE: APIRoute = async (c) => {
+  return await logWrapper(c, DeleteWorkerHandler)
+}
+
 
 /**
  * Check if the user can be a host for the specified room
  *
- * This API requires a valid Bearer access token and POST request
- * with JSON body containing { room: string, email: string }
+ * This API requires a valid Bearer access token and GET request
+ * with URL parameters: ?room=string&email=string
  * and returns meeting options if valid host.
  */
-const WorkerHandler: APIRoute = async ({ request }) => {
+const WorkerHandler: APIRoute = async ({ request, url }) => {
   try {
 
     // Verify secret token
@@ -43,30 +47,10 @@ const WorkerHandler: APIRoute = async ({ request }) => {
       });
     }
 
-    // Parse the request body
-    interface BookingRequestBody {
-      room?: string;
-      email?: string;
-    }
-
-    let requestBody: BookingRequestBody;
-    try {
-      requestBody = (await request.json()) as BookingRequestBody;
-    } catch (e) {
-      logger.error(e, "Invalid JSON in request body:");
-      return new Response(
-        JSON.stringify({
-          error: "Invalid JSON in request body",
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const roomName = requestBody.room;
-    const email = requestBody.email;
+    // Parse URL parameters
+    const urlParams = new URL(url).searchParams;
+    const roomName = urlParams.get('room');
+    const email = urlParams.get('email');
 
     if (!roomName || !email) {
       logger.error("Missing required parameters: room and email");
@@ -435,6 +419,180 @@ const PostWorkerHandler: APIRoute = async ({ request, locals }) => {
 
   } catch (e) {
     logger.error(e, "Error handling booking creation:");
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
+/**
+ * DELETE handler to remove an existing booking
+ * Validates the bearer token using KeycloakClient.validateToken
+ * Gets the user data using drizzle and checks if they own the booking
+ * Deletes the booking if the user is the owner
+ * 
+ * Request body should contain:
+ * - roomName: string
+ * 
+ * Note: Email is extracted from the JWT token, not from request body
+ */
+const DeleteWorkerHandler: APIRoute = async ({ request, locals }) => {
+  try {
+    // Extract Bearer token from Authorization header
+    const authHeader = request.headers.get("Authorization");
+    const bearerToken = authHeader?.replace("Bearer ", "");
+
+    if (!bearerToken) {
+      logger.error("Missing Authorization header");
+      return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate token using KeycloakClient
+    const keycloakClient = new KeycloakClient(locals.runtime);
+    const isValidToken = await keycloakClient.validateToken(bearerToken);
+
+    if (!isValidToken) {
+      logger.error("Invalid bearer token");
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Extract email from JWT token
+    const email = getEmailFromJWT(bearerToken);
+
+    if (!email) {
+      logger.error("Could not extract email from JWT token");
+      return new Response(JSON.stringify({ error: "Invalid token - no email found" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Parse the request body
+    interface DeleteBookingRequestBody {
+      roomName: string;
+    }
+
+    let requestBody: DeleteBookingRequestBody;
+    try {
+      requestBody = (await request.json()) as DeleteBookingRequestBody;
+    } catch (e) {
+      logger.error(e, "Invalid JSON in request body:");
+      return new Response(
+        JSON.stringify({
+          error: "Invalid JSON in request body",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const { roomName } = requestBody;
+
+    // Validate required fields
+    if (!roomName) {
+      logger.error("Missing required parameter: roomName");
+      return new Response(
+        JSON.stringify({
+          error: "Missing required parameter: roomName",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    logger.info(
+      `Deleting booking for room: ${roomName}, email: ${email}`
+    );
+
+    // Create database connection
+    const db = createDb();
+
+    try {
+      // Get user and check if they own the booking
+      const userAndBooking = await db
+        .select({
+          userId: users.id,
+          userEmail: users.email,
+          bookingId: bookedRooms.id,
+          bookingRoomName: bookedRooms.roomName,
+          bookingUserId: bookedRooms.userId,
+        })
+        .from(users)
+        .leftJoin(bookedRooms, eq(bookedRooms.roomName, roomName))
+        .where(eq(users.email, email))
+        .limit(1);
+
+      if (userAndBooking.length === 0) {
+        logger.error(`User not found: ${email}`);
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      const row = userAndBooking[0];
+
+      // Check if the booking exists
+      if (!row.bookingId) {
+        logger.error(`Booking not found for room: ${roomName}`);
+        return new Response(JSON.stringify({ error: "Booking not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if the user owns the booking
+      if (row.bookingUserId !== row.userId) {
+        logger.error(`User ${email} does not own booking for room: ${roomName}`);
+        return new Response(JSON.stringify({ error: "You don't have permission to delete this booking" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Delete the booking
+      await db
+        .delete(bookedRooms)
+        .where(eq(bookedRooms.id, row.bookingId));
+
+      logger.info(`Successfully deleted booking for room: ${roomName}, user: ${email}`);
+
+      // Return success response
+      return new Response(
+        JSON.stringify({
+          message: "Booking deleted successfully",
+          roomName: roomName,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+    } catch (dbError: any) {
+      logger.error(dbError, "Database error deleting booking:");
+      return new Response(
+        JSON.stringify({ error: "Failed to delete booking" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+  } catch (e) {
+    logger.error(e, "Error handling booking deletion:");
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

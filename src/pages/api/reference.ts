@@ -13,7 +13,7 @@ import { getLogger, logWrapper } from "../../lib/modules/pino-logger";
 export const prerender = false;
 const logger = getLogger();
 
-export const GET: APIRoute = async (c) => {
+export const POST: APIRoute = async (c) => {
   return await logWrapper(c, WorkerHandler)
 }
 

@@ -46,20 +46,32 @@ const WorkerHandler: APIRoute = async ({ request, locals }) => {
     // Get the raw body as text
     const body = await request.text();
 
-    // Verify the signature
-    const isVerified = nacl.sign.detached.verify(
-      new TextEncoder().encode(timestamp + body),
-      hexToUint8Array(signature),
-      hexToUint8Array(publicKey)
-    );
+    // Verify the signature with error handling
+    let isVerified = false;
+    try {
+      isVerified = nacl.sign.detached.verify(
+        new TextEncoder().encode(timestamp + body),
+        hexToUint8Array(signature),
+        hexToUint8Array(publicKey)
+      );
+    } catch (verifyError) {
+      logger.error(verifyError, "Error verifying signature:");
+      return new Response("Invalid request signature", { status: 401 });
+    }
 
     // If the signature is invalid, return a 401
     if (!isVerified) {
       return new Response("Invalid request signature", { status: 401 });
     }
 
-    // Parse the body as JSON
-    const interaction = JSON.parse(body) as DiscordInteraction;
+    // Parse the body as JSON with error handling
+    let interaction: DiscordInteraction;
+    try {
+      interaction = JSON.parse(body) as DiscordInteraction;
+    } catch (jsonError) {
+      logger.error("Invalid JSON in request body");
+      return new Response("Invalid JSON", { status: 400 });
+    }
 
     // Always respond with PONG (type: 1) for all interactions
     // This acknowledges the interaction to Discord

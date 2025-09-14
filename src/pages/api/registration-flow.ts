@@ -1,6 +1,9 @@
 import { PaddleClient, type PaddleCustomer } from "../../lib/modules/paddle";
 import { BrevoClient } from "../../lib/modules/brevo";
 import { getLogger, logWrapper } from "../../lib/modules/pino-logger";
+import { createDb } from "../../lib/db/drizzle";
+import { users } from "../../lib/db/schema";
+import { eq } from "drizzle-orm";
 import type { APIRoute } from "astro";
 import { KC_WEBHOOK_SECRET } from "astro:env/server";
 
@@ -34,9 +37,17 @@ const WorkerHandler: APIRoute = async ({ request }) => {
       });
     }
 
-    // Parse the request body
-    const requestBody =
-      (await request.json()) as RegistrationFlowRequest;
+    // Parse the request body with error handling for invalid JSON
+    let requestBody: RegistrationFlowRequest;
+    try {
+      requestBody = (await request.json()) as RegistrationFlowRequest;
+    } catch (jsonError) {
+      logger.error("Invalid JSON in request body");
+      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Validate required fields
     if (!requestBody.email || !requestBody.firstname || !requestBody.lastname) {
@@ -108,7 +119,39 @@ const WorkerHandler: APIRoute = async ({ request }) => {
 
     const customerId = paddleCustomer.id;
 
-    // 2. Set Brevo contact (update if exists, create if doesn't)
+    // 2. Create or update user in database
+    try {
+      const db = createDb();
+      
+      // Check if user already exists
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, requestBody.email))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        logger.info(`User already exists in database for email: ${requestBody.email}`);
+      } else {
+        // Create new user
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            email: requestBody.email,
+            isActiveHost: false,
+            maxBookings: 1, // Default to 1 booking
+            totalHostMinutes: 0,
+          })
+          .returning();
+
+        logger.info(`Created new user in database with ID: ${newUser.id} for email: ${requestBody.email}`);
+      }
+    } catch (e) {
+      logger.error(e, "Failed to create/update user in database:");
+      // Continue with the flow even if user creation fails
+    }
+
+    // 3. Set Brevo contact (update if exists, create if doesn't)
     try {
       await BrevoClient.setContact(
         requestBody.email,
@@ -129,7 +172,7 @@ const WorkerHandler: APIRoute = async ({ request }) => {
       // Continue with the flow even if Brevo contact setting fails
     }
 
-    // 3. Return the Paddle customer ID
+    // 4. Return the Paddle customer ID
     return new Response(JSON.stringify({ paddle_customer_id: customerId }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

@@ -216,4 +216,31 @@ export class KeycloakClient {
       return false;
     }
   }
+
+  // Potentially expensive operation. Avoid using until pagination is added.
+  async getAllUsers(this: KeycloakClient): Promise<KeycloakUser[]> {
+    try {
+      if (!this.token) await this.fetchToken();
+      if (!this.token) throw new Error("Failed to get Keycloak token");
+
+      const url = "https://" + PUBLIC_KC_HOSTNAME + userEndpoint;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Failed to get all Keycloak users: ${error}`);
+      }
+
+      const users = (await response.json()) as KeycloakUser[];
+      logger.info(`Retrieved ${users.length} users from Keycloak`);
+      return users;
+    } catch (e) {
+      logger.error(e, "Error getting all Keycloak users:");
+      return [];
+    }
+  }
 }
