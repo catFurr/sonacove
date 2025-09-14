@@ -8,11 +8,14 @@ import CTASection from './CTASection';
 import CertificationsSection from './CertificationsSection';
 import CustomizationSection from './CustomizationSection';
 import TestimonialsSection from './TestimonialsSection';
+import SocialProof from './SocialProof';
 
 const Landing: React.FC = () => {
   return (
       <main>
         <HeroSection />
+
+        <SocialProof />
 
         <div id='features'>
           <FeatureSection />
