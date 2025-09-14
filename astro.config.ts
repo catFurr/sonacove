@@ -8,7 +8,7 @@ import customSchema from './astro-env-schema';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), vue()],
-  output: "static",
+  output: "server",
 
   env: {
     schema: customSchema,
