@@ -4,11 +4,7 @@ import Header from '../../../components/Header';
 import PageHeader from '../../../components/PageHeader';
 import FaqItem from './FaqItem';
 import SupportCta from './SupportCta';
-
-interface FAQ {
-  question: string;
-  answer: string;
-}
+import type { FAQ } from '../types';
 
 const faqCategories: { category: string; items: FAQ[] }[] = [
   {

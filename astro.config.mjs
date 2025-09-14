@@ -26,5 +26,8 @@ export default defineConfig({
         provider: fontProviders.google()
       }
     ]
+  },
+  server: {
+    allowedHosts: ["martina-unmounted-weakheartedly.ngrok-free.app"]
   }
 });

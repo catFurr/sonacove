@@ -7,6 +7,7 @@ import MetricsSection from './MetricsSection';
 import CTASection from './CTASection';
 import CertificationsSection from './CertificationsSection';
 import CustomizationSection from './CustomizationSection';
+import TestimonialsSection from './TestimonialsSection';
 
 const Landing: React.FC = () => {
   return (
@@ -22,6 +23,8 @@ const Landing: React.FC = () => {
         <CertificationsSection />
 
         <CustomizationSection />
+
+        <TestimonialsSection />
 
         <div id='pricing'>
           <PricingSection />
