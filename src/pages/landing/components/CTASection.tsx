@@ -6,6 +6,11 @@ import { signup } from '../../meet/components/utils';
 import Button from '../../../components/Button';
 
 const CallToAction: React.FC = () => {
+
+  const handleClick = () => {
+    window.location.href = '/onboarding'
+  }
+
   return (
     <section className='relative flex items-center justify-center min-h-screen bg-[#F9FAFB] bg-repeat py-20'>
       {/* Background layer */}
@@ -127,7 +132,7 @@ const CallToAction: React.FC = () => {
     </p>
 
     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xs sm:max-w-none">
-      <Button variant='primary' onClick={() => window.location.href = '/onboarding'}>
+      <Button variant='primary' onClick={handleClick}>
         Start Teaching for Free
       </Button>
       <Button variant='tertiary' onClick={signup}>

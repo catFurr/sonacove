@@ -4,7 +4,7 @@ export interface Feature {
   bulletTitle?: string;
   bullets?: string[];
   image: {
-    img: { src: string }; // Assuming the image object from Astro has a src property
+    img: { src: string };
     alt: string;
   };
   extraText?: string;

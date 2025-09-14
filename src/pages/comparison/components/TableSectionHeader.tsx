@@ -1,7 +1,7 @@
 import React from 'react';
 
 const TableSectionHeader: React.FC<{ title: string }> = ({ title }) => {
-  const columnSpan = 4; // This remains the same
+  const columnSpan = 4;
 
   return (
     <tr>

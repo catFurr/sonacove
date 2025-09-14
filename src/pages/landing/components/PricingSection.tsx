@@ -5,6 +5,7 @@ import SectionHeader from '../../../components/SectionHeader';
 import ToggleSwitch from '../../../components/ToggleSwitch';
 import PricingCard from './PricingCard';
 import type { Plan } from './types';
+import { applyDiscount, floorPrice } from '../utils';
 
 
 // initial static plan data
@@ -55,30 +56,6 @@ const initialPlans: Plan[] = [
     button: { text: 'Contact Us', link: 'mailto:support@sonacove.com' },
   },
 ];
-
-function floorPrice(formattedPrice: string) {
-  const numeric = parseFloat(formattedPrice.replace(/[^0-9.]/g, ''));
-  const currencySymbol = formattedPrice.trim().charAt(0);
-  const truncated = Math.floor(numeric * 100) / 100;
-  return {
-    numeric,
-    currencySymbol,
-    formatted: `${currencySymbol}${truncated.toFixed(2)}`,
-  };
-}
-
-function applyDiscount(price: number, discountPercent: number) {
-  return price - price * discountPercent;
-}
-
-const PlanIcon: React.FC<{ icon: React.ReactNode | string; className?: string }> = ({ icon, className = '' }) => {
-  // Check if the icon is a string of HTML
-  if (typeof icon === 'string') {
-    return <div className={className} dangerouslySetInnerHTML={{ __html: icon }} />;
-  }
-  // Otherwise, render it as a React component
-  return <div className={className}>{icon}</div>;
-};
 
 export default function PricingSection() {
   const env = import.meta.env;

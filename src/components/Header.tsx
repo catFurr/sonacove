@@ -11,7 +11,7 @@ type ActivePage = 'Features' | 'Comparison' | 'Pricing' | 'FAQ'; // Possible act
 interface HeaderProps {
   pageType?: PageType;
   user?: any;
-  activePage?: ActivePage; // The new prop to track the current page
+  activePage?: ActivePage; 
 }
 
 // Define nav items in an array for easier mapping and management
@@ -29,6 +29,11 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    const handleClick = () => {
+      window.location.href = '/meet'
+    }
+
+
   // Center nav links - now data-driven
   const renderNavLinks = () => {
     if (pageType === 'landing') {
@@ -42,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({
               className={
                 activePage === item.name
                   ? 'text-primary-500 font-semibold' // Style for the active page
-                  : 'text-gray-600 hover:text-accent' // Default style
+                  : 'text-gray-600 hover:text-primary-500' // Default style
               }
             >
               {item.name}
@@ -54,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
     return null;
   };
 
-  // Desktop right section (auth buttons + CTA) 
+  // Desktop right section (auth buttons + CTA)
   const renderDesktopRight = () => {
     if (pageType === 'welcome') {
       return (
@@ -91,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className='hidden md:flex gap-4 items-center'>
         <Button
           variant='primary'
-          onClick={() => (window.location.href = '/meet')}
+          onClick={handleClick}
           className='hidden md:block'
         >
           Visit Platform
@@ -104,7 +109,7 @@ const Header: React.FC<HeaderProps> = ({
     if (!mobileMenuOpen) return null;
 
     return (
-      <div className='absolute top-full right-4 bg-white rounded-xl shadow-md p-4 flex flex-col gap-3 w-48 z-50'>
+      <div className='absolute top-full left-0 right-0 bg-white rounded-xl shadow-md p-4 flex flex-col gap-3 w-full z-50 md:w-64'>
         {pageType === 'landing' ? (
           <>
             {navItems.map((item) => (
@@ -122,9 +127,7 @@ const Header: React.FC<HeaderProps> = ({
             ))}
             <Button
               variant='primary'
-              onClick={() => {
-                window.location.href = '/meet';
-              }}
+              onClick={handleClick}
             >
               Visit Platform
             </Button>
@@ -169,6 +172,7 @@ const Header: React.FC<HeaderProps> = ({
             className='p-2'
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
+            {/* Hamburger Icon */}
             <TextAlignJustify strokeWidth={3} size={26} />
           </button>
           {renderMobileMenu()}

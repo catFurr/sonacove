@@ -3,7 +3,6 @@ import React from 'react';
 import FeatureCard from '../../features/components/FeatureCard';
 import featureImage from '../../../assets/feature-customization.png';
 
-// 2. Define the data for this specific feature as a single object
 const customizationFeatureData = {
   title: 'Make it uniquely yours',
   bulletTitle: 'Why It Matters:',
@@ -21,14 +20,13 @@ const customizationFeatureData = {
   extraText: 'Because teaching is personal—your platform should be too.',
 };
 
-// 3. The component now just renders the FeatureCard with the data
 const CustomizationFeature: React.FC = () => {
   return (
     <section className='py-20 md:py-28 bg-[#F9FAFB]'>
       <div className='container mx-auto px-4'>
         <FeatureCard
           feature={customizationFeatureData}
-          index={0} // We can set index to 0 to get the "Text | Image" layout
+          index={0}
         />
       </div>
     </section>
