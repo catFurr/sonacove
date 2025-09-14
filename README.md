@@ -17,14 +17,14 @@ bun run dev
 
 # Adding Env Variables
 1. Add them to [astro env schema](./astro-env-schema.ts)
-2. Update [.env](./.env) file
-3. Build types: `bun run gen:types`
-4. Use them in source code like:
+2. Update [example.env](./example.env) file
+3. Update [.env](./.env) file
+4. update in [Github Environments](https://github.com/catFurr/sonacove/settings/environments).
+5. Build types: `bun run gen:types`
+6. Use them in source code like:
 ```ts
 import { GRAFANA_API_KEY } from "astro:env/server"; // only on server side
 import { PUBLIC_CF_ENV } from "astro:env/client"; // both client or server side
 ```
-5. Update [example.env](./example.env) file
-6. update in [Github Environments](https://github.com/catFurr/sonacove/settings/environments).
 
 Make sure to update for both preview and production. Prefix PUBLIC_* for client side values.
