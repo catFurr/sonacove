@@ -20,6 +20,10 @@ export default defineConfig({
     defaultStrategy: "hover",
   },
 
+  security: {
+    checkOrigin: false
+  },
+
 
   adapter: cloudflare({
     imageService: 'compile'

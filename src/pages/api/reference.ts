@@ -9,12 +9,23 @@ import { getLogger, logWrapper } from "../../lib/modules/pino-logger";
 
 // import { CF_WEBHOOK_SECRET } from "astro:env/server";
 
+console.log("loaded function file")
 
 export const prerender = false;
 const logger = getLogger();
 
 export const POST: APIRoute = async (c) => {
-  return await logWrapper(c, WorkerHandler)
+  console.log("Entered POST function")
+
+  try {
+
+    return await logWrapper(c, WorkerHandler)
+  } catch (e) {
+    console.log("Some error happened")
+    console.log(e)
+  }
+
+  return new Response();
 }
 
 /**
