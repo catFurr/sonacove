@@ -20,8 +20,8 @@ const companyLinks = [
 const supportLinks = [
   { name: 'Contact us', href: '/contact' },
   { name: 'Terms of Service', href: '/terms' },
+  { name: 'Refund Policy', href: '/refund'},
   { name: 'Privacy Policy', href: '/privacy' },
-  { name: 'Manage Cookies', href: '#' }, 
 ];
 
 const socialLinks = [

@@ -1,6 +1,6 @@
 import TableCell from "./TableCell";
 import TableSectionHeader from "./TableSectionHeader";
-import type { Column, TableRow } from "./types";
+import type { Column, TableRow } from "../types";
 
 const ComparisonTable: React.FC<{
   rows: TableRow[];

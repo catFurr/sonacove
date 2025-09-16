@@ -1,5 +1,5 @@
 import { Check, CircleCheck, CircleX } from "lucide-react";
-import type { IconType } from "./types";
+import type { IconType } from "../types";
 
 const TableCell: React.FC<{
   content?: string;
