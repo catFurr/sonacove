@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { userManager } from '../../../utils/oidc-client';
+import { getUserManager } from '../../../utils/oidc-client';
 
 const SilentRenew: React.FC = () => {
   useEffect(() => {
-    userManager
+    getUserManager()
       .signinSilentCallback()
       .catch((err) => {
         console.error('Silent renew error:', err);

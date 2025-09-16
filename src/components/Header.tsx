@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Button from './Button';
-import { login, logout, signup } from '../pages/meet/components/utils.ts';
 import { TextAlignJustify } from 'lucide-react';
 import Logo from './icons/Logo';
 import type { AppUser } from '../pages/meet/components/Meet';
 import Avatar from './Avatar';
+import { getAuthService } from '../utils/AuthService';
 
 // Define the types for the component's props
 type PageType = 'welcome' | 'landing';
@@ -30,9 +30,16 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const handleAuthAction = (action: 'login' | 'logout' | 'signup') => {
+    const authService = getAuthService();
+    if (authService) {
+      authService[action]();
+    }
+  };
+
   const handleClick = () => {
-    window.location.href = '/meet'
-  }
+    window.location.href = '/meet';
+  };
 
   const renderNavLinks = () => {
     if (pageType === 'landing') {
@@ -42,11 +49,10 @@ const Header: React.FC<HeaderProps> = ({
             <a
               key={item.name}
               href={item.href}
-              // Conditionally apply active styles
               className={
                 activePage === item.name
-                  ? 'text-primary-500 font-semibold' // Style for the active page
-                  : 'text-gray-600 hover:text-primary-500' // Default style
+                  ? 'text-primary-500 font-semibold'
+                  : 'text-gray-600 hover:text-primary-500'
               }
             >
               {item.name}
@@ -58,14 +64,14 @@ const Header: React.FC<HeaderProps> = ({
     return null;
   };
 
-  // Desktop right section (auth buttons + CTA) 
+  // Desktop right section (auth buttons + CTA)
   const renderDesktopRight = () => {
     if (pageType === 'welcome') {
       return (
         <div className='hidden md:flex gap-4 items-center'>
           {user ? (
             <>
-              <Button variant='secondary' onClick={() => logout()}>
+              <Button variant='secondary' onClick={() => handleAuthAction('logout')}>
                 Log Out
               </Button>
               {user.avatarUrl && (
@@ -78,10 +84,10 @@ const Header: React.FC<HeaderProps> = ({
             </>
           ) : (
             <>
-              <Button variant='secondary' onClick={() => login()}>
+              <Button variant='secondary' onClick={() => handleAuthAction('login')}>
                 Login
               </Button>
-              <Button variant='primary' onClick={() => signup()}>
+              <Button variant='primary' onClick={() => handleAuthAction('signup')}>
                 Signup
               </Button>
             </>
@@ -124,23 +130,29 @@ const Header: React.FC<HeaderProps> = ({
                 {item.name}
               </a>
             ))}
-            <Button
-              variant='primary'
-              onClick={handleClick}
-            >
+            <Button variant='primary' onClick={handleClick}>
               Visit Platform
             </Button>
           </>
         ) : user ? (
-          <Button variant='secondary' onClick={() => logout()}>
+          <Button
+            variant='secondary'
+            onClick={() => handleAuthAction('logout')}
+          >
             Log Out
           </Button>
         ) : (
           <>
-            <Button variant='secondary' onClick={() => login()}>
+            <Button
+              variant='secondary'
+              onClick={() => handleAuthAction('login')}
+            >
               Login
             </Button>
-            <Button variant='primary' onClick={() => signup()}>
+            <Button
+              variant='primary'
+              onClick={() => handleAuthAction('signup')}
+            >
               Signup
             </Button>
           </>
@@ -151,19 +163,14 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className='ml-[2vw] mr-[2vw] flex flex-1 items-center justify-between rounded-full md:border md:border-gray-200 p-3 mt-4 md:shadow-sm md:backdrop-blur-sm relative'>
-      {/* Left: Logo */}
       <div className='flex items-center gap-2 pl-4'>
         <a href='/' className='flex items-center gap-2'>
           <Logo />
         </a>
       </div>
-
-      {/* Center: Nav Links */}
       <div className='absolute left-1/2 transform -translate-x-1/2'>
         {renderNavLinks()}
       </div>
-
-      {/* Right: Auth Buttons / CTA */}
       <div className='flex items-center gap-2 md:gap-4'>
         {renderDesktopRight()}
         <div className='md:hidden flex items-center'>
@@ -171,7 +178,6 @@ const Header: React.FC<HeaderProps> = ({
             className='p-2'
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {/* Hamburger Icon */}
             <TextAlignJustify strokeWidth={3} size={26} />
           </button>
           {renderMobileMenu()}
