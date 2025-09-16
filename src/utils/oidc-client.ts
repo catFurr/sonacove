@@ -8,7 +8,7 @@ export const oidcConfig = {
   response_type: 'code',
   scope: 'openid profile email',
   automaticSilentRenew: true,
-  silent_redirect_uri: window.location.origin + '/silent-renew.html',
+  silent_redirect_uri: window.location.origin + '/silent-renew',
   userStore: new WebStorageStateStore({ store: window.localStorage }),
   clockSkew: 300,
 };
