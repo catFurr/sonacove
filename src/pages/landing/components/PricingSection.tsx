@@ -156,11 +156,11 @@ export default function PricingSection() {
               Plans designed for educators
             </SectionHeader>
 
-            <ToggleSwitch
+            {/* <ToggleSwitch
               options={['Monthly billing', 'Annual billing']}
               activeOption={billingCycle}
               onOptionChange={setBillingCycle}
-            />
+            /> */}
           </div>
 
           <div className='mt-16 w-full mx-auto lg:max-w-7xl lg:grid lg:grid-cols-3 lg:gap-8'>
