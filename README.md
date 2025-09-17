@@ -1,21 +1,30 @@
-
 # Quick Guide
+
+Dependencies:
+- [Git](https://git-scm.com/downloads)
+- [Bun](https://bun.sh/)
+
 ```bash
-cp example.env .dev.vars
-# Replace with correct values
+git clone https://github.com/catFurr/sonacove.git
+cd sonacove
 
-npm i
+# Copy example.env to .env and
+# Update with correct values
 
-# For frontend
-npm run dev
-
-# For functions
-npm run dev:wrangler
+bun install
+bun run dev
 ```
 
 # Adding Env Variables
-1. Add them to [example.env](example.env)
-2. For public values add to [wrangler.jsonc](wrangler.jsonc)
-3. For secrets, update in [Github Environments](https://github.com/catFurr/sonacove/settings/environments).
+1. Add them to [astro env schema](./astro-env-schema.ts)
+2. Update [example.env](./example.env) file
+3. Update [.env](./.env) file
+4. update in [Github Environments](https://github.com/catFurr/sonacove/settings/environments).
+5. Build types: `bun run gen:types`
+6. Use them in source code like:
+```ts
+import { GRAFANA_API_KEY } from "astro:env/server"; // only on server side
+import { PUBLIC_CF_ENV } from "astro:env/client"; // both client or server side
+```
 
-Make sure to update for both preview and production.
+Make sure to update for both preview and production. Prefix PUBLIC_* for client side values.

@@ -1,5 +1,9 @@
-import { getLogger } from "./pino-logger.ts";
-import type { Env } from "./types.ts";
+import { PADDLE_WEBHOOK_SECRET, PADDLE_API_KEY } from "astro:env/server";
+
+import { getLogger } from "./pino-logger";
+import { PUBLIC_CF_ENV } from "astro:env/client";
+
+
 const logger = getLogger();
 
 
@@ -93,68 +97,16 @@ export interface PaddleCustomerInput {
   marketing_consent?: boolean;
 }
 
-const getPaddleBaseUrl = (env: Env) => {
-  return env.PUBLIC_PADDLE_ENVIRONMENT === "sandbox"
+const getPaddleBaseUrl = () => {
+  return PUBLIC_CF_ENV === 'staging'
     ? "https://sandbox-api.paddle.com"
     : "https://api.paddle.com";
 };
 
-async function processWebhook(
-  context: EventContext<Env, string, Record<string, unknown>>,
-  next: (event: PaddleWebhookEvent) => Promise<void>
-): Promise<Response> {
-  const { request, env } = context;
-
-  // Only handle POST requests
-  if (request.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
-  }
-
-  try {
-    // Get the raw body as text for verification
-    const rawBody = await request.text();
-
-    // Get the Paddle-Signature header
-    const signatureHeader = request.headers.get("Paddle-Signature");
-
-    if (!signatureHeader) {
-      logger.error("Missing Paddle-Signature header");
-      return new Response("Missing signature header", { status: 401 });
-    }
-
-    // Respond with 200 immediately to acknowledge receipt
-    // This follows Paddle's best practice to respond within 5 seconds
-    // We'll process the webhook asynchronously
-    const responsePromise = new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-
-    // Process the webhook asynchronously
-    const callbackFn = async () => {
-      const isVerified = await validateWebhook(rawBody, signatureHeader, env);
-      if (!isVerified) {
-        logger.error("Invalid Paddle webhook signature");
-        return;
-      }
-
-      // Parse the body as JSON
-      const event = JSON.parse(rawBody) as PaddleWebhookEvent;
-      await next(event);
-    };
-    context.waitUntil(callbackFn());
-
-    return responsePromise;
-  } catch (error) {
-    logger.error("Error handling Paddle webhook:", error);
-    return new Response("Internal server error", { status: 500 });
-  }
-}
 
 async function validateWebhook(
   rawBody: string,
-  signatureHeader: string,
-  env: Env
+  signatureHeader: string
 ): Promise<boolean> {
   try {
     // 1. Parse the signature header
@@ -177,7 +129,7 @@ async function validateWebhook(
     // 3. Hash the signed payload with HMAC-SHA256
     const encoder = new TextEncoder();
     const data = encoder.encode(signedPayload);
-    const keyData = encoder.encode(env.PADDLE_WEBHOOK_SECRET);
+    const keyData = encoder.encode(PADDLE_WEBHOOK_SECRET);
 
     // Import the secret key for HMAC
     const cryptoKey = await crypto.subtle.importKey(
@@ -198,8 +150,8 @@ async function validateWebhook(
 
     // 5. Compare signatures
     return signature === generatedSignature;
-  } catch (error) {
-    logger.error("Error verifying Paddle webhook:", error);
+  } catch (e) {
+    logger.error(e, "Error verifying Paddle webhook:");
     return false;
   }
 }
@@ -214,7 +166,7 @@ function extractWebhookData(event: PaddleWebhookEvent): PaddleWebhookData {
   };
 
   // Extract subscription or transaction data
-  if (data) {
+  if (data && data.status && data.customer_id) {
     // For subscription events
     if (event_type.startsWith("subscription.")) {
       extractedData.subscription = {
@@ -267,8 +219,7 @@ function extractWebhookData(event: PaddleWebhookEvent): PaddleWebhookData {
  * @returns The PaddleCustomer object if found, or null otherwise.
  */
 async function fetchCustomer(
-  identifier: string | { customerId?: string; email?: string },
-  env: Env
+  identifier: string | { customerId?: string; email?: string }
 ): Promise<PaddleCustomer | null> {
   let customerId: string | undefined;
   let email: string | undefined;
@@ -286,7 +237,7 @@ async function fetchCustomer(
     return null;
   }
 
-  const baseUrl = getPaddleBaseUrl(env);
+  const baseUrl = getPaddleBaseUrl();
 
   // Attempt to fetch by customerId if provided
   if (customerId) {
@@ -296,7 +247,7 @@ async function fetchCustomer(
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+          Authorization: `Bearer ${PADDLE_API_KEY}`,
         },
       });
 
@@ -340,7 +291,7 @@ async function fetchCustomer(
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+          Authorization: `Bearer ${PADDLE_API_KEY}`,
         },
       });
 
@@ -382,18 +333,17 @@ async function fetchCustomer(
  * @returns The created customer or null if creation failed
  */
 async function createCustomer(
-  customerData: PaddleCustomerInput,
-  env: Env
+  customerData: PaddleCustomerInput
 ): Promise<PaddleCustomer | null> {
   try {
-    const baseUrl = getPaddleBaseUrl(env);
+    const baseUrl = getPaddleBaseUrl();
     const customerEndpoint = `${baseUrl}/customers`;
 
     const response = await fetch(customerEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+        Authorization: `Bearer ${PADDLE_API_KEY}`,
       },
       body: JSON.stringify(customerData),
     });
@@ -422,11 +372,10 @@ async function createCustomer(
  */
 async function updateCustomer(
   customerIdentifier: string,
-  customerData: Partial<PaddleCustomerInput>,
-  env: Env
+  customerData: Partial<PaddleCustomerInput>
 ): Promise<PaddleCustomer | null> {
   try {
-    const baseUrl = getPaddleBaseUrl(env);
+    const baseUrl = getPaddleBaseUrl();
 
     // Determine if identifier is an email or a Paddle customer ID
     // Paddle IDs typically start with "ctm_" prefix
@@ -444,7 +393,7 @@ async function updateCustomer(
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+          Authorization: `Bearer ${PADDLE_API_KEY}`,
         },
       });
 
@@ -470,7 +419,7 @@ async function updateCustomer(
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.PADDLE_API_KEY}`,
+        Authorization: `Bearer ${PADDLE_API_KEY}`,
       },
       body: JSON.stringify(customerData),
     });
@@ -491,15 +440,82 @@ async function updateCustomer(
 }
 
 /**
+ * Creates a customer portal session for a Paddle customer
+ * @param customerId The ID of the customer
+ * @returns The portal URL or null if creation failed
+ */
+async function createCustomerPortalSession(customerId: string): Promise<string | null> {
+  try {
+    const baseUrl = getPaddleBaseUrl();
+    const portalSessionEndpoint = `${baseUrl}/customers/${customerId}/portal-sessions`;
+
+    const response = await fetch(portalSessionEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${PADDLE_API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to create customer portal session: ${response.status} ${errorText}`
+      );
+    }
+
+    const portalSession = await response.json() as any;
+    return portalSession.data.urls.general.overview;
+  } catch (error) {
+    logger.error(`Error creating customer portal session: ${error}`);
+    return null;
+  }
+}
+
+/**
+ * Sets a Paddle customer - updates if exists, creates if doesn't exist
+ * @param customerData Partial customer data to set
+ * @returns Promise<PaddleCustomer | null>
+ */
+async function setCustomer(customerData: Partial<PaddleCustomerInput>): Promise<PaddleCustomer | null> {
+  try {
+    if (!customerData.email) {
+      throw new Error("Email is required to set customer");
+    }
+
+    // Try to update customer by email first
+    try {
+      const updatedCustomer = await updateCustomer(customerData.email, customerData);
+      logger.info(`Updated Paddle customer with email ${customerData.email}`);
+      return updatedCustomer;
+    } catch (error: any) {
+      // If customer doesn't exist, create a new one
+      const errorMsg = error?.message || "";
+      if (errorMsg.includes("not found")) {
+        const createdCustomer = await createCustomer(customerData as PaddleCustomerInput);
+        logger.info(`Created new Paddle customer for ${customerData.email}`);
+        return createdCustomer;
+      } else {
+        // Re-throw if it's some other error
+        throw error;
+      }
+    }
+  } catch (e) {
+    logger.error(e, `Error setting Paddle customer for ${customerData.email}:`);
+    throw e;
+  }
+}
+
+/**
  * Deletes a Paddle customer by ID
  * @param customerId The ID of the customer to delete
  * @param env Environment variables containing API keys
  * @returns Whether the deletion was successful
  *
- * TODO: Will be implemented in the future when Paddle API supports customer deletion
+ * FIXME: Will be implemented in the future when Paddle API supports customer deletion
  * or when we decide to implement a soft-delete strategy
  */
-async function deleteCustomer(customerId: string, env: Env): Promise<boolean> {
+async function deleteCustomer(customerId: string): Promise<boolean> {
   logger.info(
     `[NOT IMPLEMENTED] Would delete customer with ID: ${customerId}`
   );
@@ -510,9 +526,11 @@ async function deleteCustomer(customerId: string, env: Env): Promise<boolean> {
 
 export const PaddleClient = {
   fetchCustomer,
-  processWebhook,
+  validateWebhook,
   extractWebhookData,
   createCustomer,
   updateCustomer,
+  setCustomer,
+  createCustomerPortalSession,
   deleteCustomer,
 };

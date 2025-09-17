@@ -1,4 +1,3 @@
-import type { Env } from "../functions/api/paddle-webhook.js";
 
 // Simple mock of KV for testing
 const mockKV = {
@@ -44,12 +43,12 @@ const mockKV = {
 };
 
 // Use Bun.env first, then fallback to process.env if not set
-export const testEnv: Env = {
+export const testEnv: any = {
   PADDLE_WEBHOOK_SECRET:
     Bun.env.PADDLE_WEBHOOK_SECRET || process.env.PADDLE_WEBHOOK_SECRET || "",
-  KEYCLOAK_CLIENT_ID:
+  KC_CLIENT_ID:
     Bun.env.KEYCLOAK_CLIENT_ID || process.env.KEYCLOAK_CLIENT_ID || "",
-  KEYCLOAK_CLIENT_SECRET:
+  KC_CLIENT_SECRET:
     Bun.env.KEYCLOAK_CLIENT_SECRET || process.env.KEYCLOAK_CLIENT_SECRET || "",
   PADDLE_API_KEY: Bun.env.PADDLE_API_KEY || process.env.PADDLE_API_KEY || "",
   // Use type assertion to satisfy the interface

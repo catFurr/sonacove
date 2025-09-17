@@ -1,9 +1,9 @@
 import { describe, test, expect, beforeEach, afterEach, mock } from "bun:test";
-import { KeycloakClient } from "../functions/components/keycloak.js";
+import { KeycloakClient } from "../src/lib/modules/keycloak";
 import {
   type KeycloakUser,
   type KeycloakUserUpdate,
-} from "../functions/components/keycloak-types.js";
+} from "../src/lib/modules/keycloak-types";
 import { testEnv } from "./models.js";
 
 describe("KeycloakClient", () => {
@@ -283,7 +283,7 @@ describe("KeycloakClient", () => {
       },
     };
 
-    await expect(keycloakClient.updateUser(user, updates)).rejects.toThrow(
+    expect(keycloakClient.updateUser(user, updates)).rejects.toThrow(
       "Failed to update user"
     );
   });
