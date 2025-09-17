@@ -6,7 +6,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export default function Button({
