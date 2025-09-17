@@ -89,7 +89,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
                 </button>
               </div>
             ) : (
-              <>
+              <div className='text-center sm:text-left'>
                 <ToggleSwitch
                   options={['All', 'Upcoming', 'Past']}
                   activeOption={meetingsFilter}
@@ -118,7 +118,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
                     </div>
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
