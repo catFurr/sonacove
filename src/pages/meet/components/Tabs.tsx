@@ -45,11 +45,11 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
           }`}
         >
           {/* Mobile Icon */}
-          <Calendar className='w-6 h-6 sm:hidden' />
-          <span className='hidden sm:inline'>My Meetings</span>
+          {/* <Calendar className='w-6 h-6 sm:hidden' /> */}
+          <span className='sm:inline'>My Meetings</span>
         </button>
 
-        <button
+        {/* <button
           onClick={() => setActiveTab('recordings')}
           className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
             activeTab === 'recordings'
@@ -71,7 +71,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
         >
           <FilePenLine className='w-6 h-6 sm:hidden' />
           <span className='hidden sm:inline'>Notes</span>
-        </button>
+        </button> */}
       </div>
 
       {/* --- Tab Panels --- */}
@@ -123,7 +123,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
           </div>
         )}
 
-        {/* Recordings Panel */}
+        {/* Recordings Panel
         {activeTab === 'recordings' && (
           <div>
             {recordings.length === 0 ? (
@@ -165,10 +165,10 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
               </div>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Notes Panel */}
-        {activeTab === 'notes' && (
+        {/* {activeTab === 'notes' && (
           <div>
             {notes.length === 0 ? (
               <div className='text-center py-12'>
@@ -218,7 +218,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
               </div>
             )}
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
