@@ -1,22 +1,24 @@
+import type { APIContext, APIRoute } from "astro";
+import { PUBLIC_CF_ENV } from "astro:env/client";
+import { GRAFANA_API_KEY, GRAFANA_USERNAME } from "astro:env/server";
 import pino from "pino";
-import type { Env, WorkerContext, WorkerFunction } from "./types.ts";
 
 // Global log collection
 let pendingLogs: any[] = [];
 let flushScheduled = false;
 
 // Create a simple base logger
-const baseLogger = pino.pino({
+const baseLogger = pino({
   level: "info",
   browser: {
     asObject: true,
-    write: (o) => {
+    write: (_o) => {
       // This overrides the console.log call (default behavior)
     },
     transmit: {
       level: "info",
       send: (
-        level: string,
+        level: pino.Level,
         logEvent: { messages: any[]; bindings?: any[] }
       ) => {
         // Add to pending logs for batch sending
@@ -72,13 +74,14 @@ export function getLogger(options: { name?: string } = {}) {
  * };
  * ```
  */
-export async function logWrapper(context: WorkerContext, next: WorkerFunction) {
+export async function logWrapper(context: APIContext, next: APIRoute) {
   const result = await next(context);
+  const waitUntil = context.locals.runtime.ctx.waitUntil;
 
-  if (context.waitUntil && !flushScheduled) {
+  if (waitUntil && !flushScheduled) {
     flushScheduled = true;
-    context.waitUntil(
-      flushLogs(context.env).finally(() => {
+    waitUntil(
+      flushLogs().finally(() => {
         flushScheduled = false;
       })
     );
@@ -114,7 +117,7 @@ export function createConsoleLogger(name?: string) {
 /**
  * Send all pending logs to the OpenTelemetry collector
  */
-async function flushLogs(env: Env): Promise<void> {
+async function flushLogs(): Promise<void> {
   // Wait a small amount of time for any final logs
   await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -135,7 +138,7 @@ async function flushLogs(env: Env): Promise<void> {
         severity: logEntry.level.toUpperCase(), // Use the stored level, converted to uppercase
         body: message,
         attributes: {
-          "service.name": "cf-worker" + env.PUBLIC_PADDLE_ENVIRONMENT === "sandbox" ? "-staj" : "",
+          "service.name": "cf-worker" + PUBLIC_CF_ENV === 'staging' ? "-staj" : "",
           ...(logEntry.bindings?.[0] || {}), // Include child logger context from stored bindings
         },
       };
@@ -150,7 +153,7 @@ async function flushLogs(env: Env): Promise<void> {
           "Content-Type": "application/json",
           Authorization:
             "Basic " +
-            btoa(`${env.GRAFANA_USERNAME}:${env.GRAFANA_API_KEY}`),
+            btoa(`${GRAFANA_USERNAME}:${GRAFANA_API_KEY}`),
         },
         body: JSON.stringify({
           resourceLogs: [

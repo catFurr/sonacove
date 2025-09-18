@@ -1,24 +1,33 @@
 import React, { useState } from 'react';
-import { Calendar, CirclePlay, FilePenLine, CircleCheck } from 'lucide-react';
+import {
+  Calendar,
+  CirclePlay,
+  FilePenLine,
+  CircleCheck,
+  Trash2,
+} from 'lucide-react';
 import type { Meeting, Note, Recording } from './types';
 import ToggleSwitch from '../../../components/ToggleSwitch';
+import { deleteBooking } from './utils';
 
 interface Props {
   meetingsList: Meeting[];
   recordings: Recording[];
   notes: Note[];
+  token: string | undefined;
 }
 
-const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
+const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
   const [activeTab, setActiveTab] = useState<
     'meetings' | 'recordings' | 'notes'
   >('meetings');
-
   const [meetingsFilter, setMeetingsFilter] = useState('All');
   const [recordingsSort, setRecordingsSort] = useState<'newest' | 'oldest'>(
     'newest',
   );
   const [notesSort, setNotesSort] = useState<'newest' | 'oldest'>('newest');
+
+  const [localMeetings, setLocalMeetings] = useState(meetingsList);
 
   const sortedRecordings = [...recordings].sort((a, b) => {
     const timeA = new Date(a.date).getTime();
@@ -31,6 +40,25 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
     const timeB = new Date(b.date).getTime();
     return notesSort === 'newest' ? timeB - timeA : timeA - timeB;
   });
+
+  const handleDeleteMeeting = async (roomName: string) => {
+    try {
+      if(roomName.trim() && token){
+
+        await deleteBooking(roomName, token);
+        
+        // remove from UI
+        setLocalMeetings((prev) =>
+          prev.filter((meeting) => meeting.title !== roomName),
+      );
+      
+      console.log(`Meeting "${roomName}" deleted successfully`);
+    }
+    } catch (error) {
+      console.error('Failed to delete meeting:', error);
+      alert('Could not delete meeting. Please try again.');
+    }
+  };
 
   return (
     <div>
@@ -97,26 +125,36 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes }) => {
                   className='rounded-full mb-8'
                 />
                 <div className='space-y-6'>
-                  {meetingsList.map((meeting, i) => (
-                    <div
-                      key={i}
-                      className='flex flex-col sm:flex-row sm:items-start sm:gap-24 pb-4 border-b border-gray-100 last:border-b-0'
-                    >
-                      <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0'>
-                        <p className='font-semibold'>{meeting.date}</p>
-                        <p>{meeting.time}</p>
+                  {meetingsList &&
+                    meetingsList.map((meeting, i) => (
+                      <div
+                        key={i}
+                        className='flex flex-col sm:flex-row sm:items-start sm:gap-24 pb-4 border-b border-gray-100 last:border-b-0'
+                      >
+                        <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0'>
+                          <p className='font-semibold'>{meeting.date}</p>
+                          <p>{meeting.time}</p>
+                        </div>
+
+                        <div className='text-left'>
+                          <p className='text-2xl font-bold text-black mb-2'>
+                            {meeting.title}
+                          </p>
+                          <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
+                            <CircleCheck strokeWidth={3} className='w-4 h-4' />
+                            {meeting.status}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => handleDeleteMeeting(meeting.title)}
+                          className='ml-auto p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors'
+                          aria-label={`Delete meeting ${meeting.title}`}
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </div>
-                      <div className='text-left'>
-                        <p className='text-2xl font-bold text-black mb-2'>
-                          {meeting.title}
-                        </p>
-                        <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
-                          <CircleCheck strokeWidth={3} className='w-4 h-4' />
-                          {meeting.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}

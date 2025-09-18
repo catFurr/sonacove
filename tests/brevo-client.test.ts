@@ -2,10 +2,10 @@ import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import {
   BrevoClient,
   type BrevoContactAttributes,
-} from "../functions/components/brevo.js";
+} from "../src/lib/modules/brevo";
 
 // Test email constant - easy to update in one place
-const TEST_EMAIL = "mohammedbinahsan@gmail.com";
+const TEST_EMAIL = "test-1@sonacove.com";
 
 describe("BrevoClient", () => {
   const apiKey = process.env.BREVO_API_KEY || "";
@@ -27,7 +27,7 @@ describe("BrevoClient", () => {
     for (const email of createdContactEmails) {
       try {
         console.log(`Attempting to clean up test contact: ${email}`);
-        await BrevoClient.deleteContact(email, apiKey);
+        await BrevoClient.deleteContact(email);
       } catch (error) {
         console.error(`Failed to clean up contact ${email}:`, error);
       }
@@ -37,7 +37,7 @@ describe("BrevoClient", () => {
     for (const id of createdContactIds) {
       try {
         console.log(`Attempting to clean up test contact ID: ${id}`);
-        await BrevoClient.deleteContact(id, apiKey, true);
+        await BrevoClient.deleteContact(id, true);
       } catch (error) {
         console.error(`Failed to clean up contact ID ${id}:`, error);
       }
@@ -54,7 +54,7 @@ describe("BrevoClient", () => {
   };
 
   test("getContact should fetch an existing contact", async () => {
-    const contact = await BrevoClient.getContact(TEST_EMAIL, apiKey);
+    const contact = await BrevoClient.getContact(TEST_EMAIL);
     expect(contact).toBeDefined();
     expect(contact.email).toBe(TEST_EMAIL);
   });
@@ -69,7 +69,6 @@ describe("BrevoClient", () => {
       randomEmail,
       testAttributes,
       2, // default list ID
-      apiKey
     );
 
     // Track ID for cleanup
@@ -82,7 +81,7 @@ describe("BrevoClient", () => {
     expect(result.id).toBeDefined();
 
     // Verify the contact was created by fetching it
-    const fetchedContact = await BrevoClient.getContact(randomEmail, apiKey);
+    const fetchedContact = await BrevoClient.getContact(randomEmail);
 
     expect(fetchedContact).toBeDefined();
     expect(fetchedContact.email).toBe(randomEmail);
@@ -106,7 +105,7 @@ describe("BrevoClient", () => {
 
   test("updateContact should update an existing contact", async () => {
     // First, get the test contact
-    const contact = await BrevoClient.getContact(TEST_EMAIL, apiKey);
+    const contact = await BrevoClient.getContact(TEST_EMAIL);
 
     // Store original values to restore later
     const originalJobTitle = contact.attributes?.JOB_TITLE;
@@ -122,10 +121,10 @@ describe("BrevoClient", () => {
     };
 
     // Update the contact
-    await BrevoClient.updateContact(TEST_EMAIL, updates, apiKey);
+    await BrevoClient.updateContact(TEST_EMAIL, updates);
 
     // Fetch the contact again to verify updates
-    const updatedContact = await BrevoClient.getContact(TEST_EMAIL, apiKey);
+    const updatedContact = await BrevoClient.getContact(TEST_EMAIL);
 
     expect(updatedContact.attributes?.JOB_TITLE).toBe(
       updates.attributes.JOB_TITLE
@@ -143,7 +142,6 @@ describe("BrevoClient", () => {
           LASTNAME: originalLastName || "",
         },
       },
-      apiKey
     );
   });
 
@@ -158,7 +156,6 @@ describe("BrevoClient", () => {
       randomEmail,
       testAttributes,
       2, // default list ID
-      apiKey
     );
 
     // Track ID for cleanup
@@ -171,7 +168,6 @@ describe("BrevoClient", () => {
     const result = await BrevoClient.addContactToList(
       randomEmail,
       listId,
-      apiKey
     );
 
     expect(result).toBeDefined();

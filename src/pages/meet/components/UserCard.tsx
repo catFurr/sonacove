@@ -82,7 +82,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
           </p>
 
           {user.plan === 'trialing' && typeof minutesUsed === 'number' && (
-            <div className='mt-4 px-4'>
+            <div className='mt-4 pr-6'>
               <div className='flex justify-between text-sm font-medium text-gray-600 mb-1'>
                 <span>Free Minutes Used</span>
                 <span>
@@ -124,7 +124,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
       </div>
 
       {/* Tabs */}
-      <Tabs meetingsList={meetingsList} recordings={recordings} notes={notes} />
+      <Tabs meetingsList={meetingsList} recordings={recordings} notes={notes} token={token} />
     </div>
   );
 };

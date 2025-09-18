@@ -1,0 +1,2 @@
+ALTER TABLE "sonacove"."users" ADD COLUMN "total_host_minutes" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "sonacove"."users" ADD COLUMN "host_session_start_time" timestamp with time zone;

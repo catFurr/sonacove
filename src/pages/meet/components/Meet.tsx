@@ -78,7 +78,7 @@ export interface AppUser {
 }
 
 export default function Meet() {
-  const { isLoggedIn, user: oidcUser } = useAuth();
+  const { isLoggedIn, dbUser, user: oidcUser, meetings: meetingsList } = useAuth();
 
   const [appUser, setAppUser] = useState<AppUser | null>(null);
 
@@ -100,7 +100,8 @@ export default function Meet() {
   useEffect(() => {
     if (isLoggedIn && oidcUser) {
       const { name, email, context, picture } = oidcUser.profile;
-      const minutesUsed = context?.user?.minutes_used ?? 0;
+      // const minutesUsed = context?.user?.minutes_used ?? 0;
+      const minutesUsed = dbUser?.totalHostMinutes ?? 0;
 
       setAppUser({
         name: name ?? 'User',
@@ -139,7 +140,7 @@ export default function Meet() {
               meetingsList={meetingsList}
               recordings={recordings}
               notes={notes}
-              minutesUsed={750} // Hardcoded for now
+              minutesUsed={appUser.minutesUsed}
               token={appUser.token}
             />
           ) : (

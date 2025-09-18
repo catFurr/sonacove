@@ -1,7 +1,12 @@
 import nacl from "tweetnacl";
-import { BrevoClient } from "../components/brevo.ts";
-import { getLogger, logWrapper } from "../components/pino-logger.ts";
-import type { WorkerContext, WorkerFunction } from "../components/types.ts";
+import { BrevoClient } from "../../lib/modules/brevo";
+import { getLogger, logWrapper } from "../../lib/modules/pino-logger";
+import type { APIRoute } from "astro";
+
+import { DISCORD_BOT_TOKEN, DISCORD_PUBLIC_KEY } from "astro:env/server";
+
+
+export const prerender = false;
 const logger = getLogger();
 
 // Early Access list ID in Brevo
@@ -19,23 +24,16 @@ interface DiscordInteraction {
   };
 }
 
-export const onRequest: WorkerFunction = async (context) => {
-  return await logWrapper(context, WorkerHandler)
+export const POST: APIRoute = async (c) => {
+  return await logWrapper(c, WorkerHandler)
 }
 
-async function WorkerHandler(context: WorkerContext) {
-  const { request, env } = context;
-
+const WorkerHandler: APIRoute = async ({ request, locals }) => {
   // Update PUBLIC_KEY and BREVO_API_KEY with context.env values
-  const publicKey = env.DISCORD_PUBLIC_KEY || "";
-  const discordBotToken = env.DISCORD_BOT_TOKEN || "";
+  const publicKey = DISCORD_PUBLIC_KEY || "";
+  const discordBotToken = DISCORD_BOT_TOKEN || "";
 
   try {
-    // Only handle POST requests
-    if (request.method !== "POST") {
-      return new Response("Method not allowed", { status: 405 });
-    }
-
     // Get the signature and timestamp from the headers
     const signature = request.headers.get("X-Signature-Ed25519");
     const timestamp = request.headers.get("X-Signature-Timestamp");
@@ -48,20 +46,32 @@ async function WorkerHandler(context: WorkerContext) {
     // Get the raw body as text
     const body = await request.text();
 
-    // Verify the signature
-    const isVerified = nacl.sign.detached.verify(
-      new TextEncoder().encode(timestamp + body),
-      hexToUint8Array(signature),
-      hexToUint8Array(publicKey)
-    );
+    // Verify the signature with error handling
+    let isVerified = false;
+    try {
+      isVerified = nacl.sign.detached.verify(
+        new TextEncoder().encode(timestamp + body),
+        hexToUint8Array(signature),
+        hexToUint8Array(publicKey)
+      );
+    } catch (verifyError) {
+      logger.error(verifyError, "Error verifying signature:");
+      return new Response("Invalid request signature", { status: 401 });
+    }
 
     // If the signature is invalid, return a 401
     if (!isVerified) {
       return new Response("Invalid request signature", { status: 401 });
     }
 
-    // Parse the body as JSON
-    const interaction = JSON.parse(body) as DiscordInteraction;
+    // Parse the body as JSON with error handling
+    let interaction: DiscordInteraction;
+    try {
+      interaction = JSON.parse(body) as DiscordInteraction;
+    } catch (jsonError) {
+      logger.error("Invalid JSON in request body");
+      return new Response("Invalid JSON", { status: 400 });
+    }
 
     // Always respond with PONG (type: 1) for all interactions
     // This acknowledges the interaction to Discord
@@ -85,11 +95,10 @@ async function WorkerHandler(context: WorkerContext) {
         const email = emailMatch[1];
 
         // Process in the background so we can return PONG immediately
-        context.waitUntil(
+        locals.runtime.ctx.waitUntil(
           BrevoClient.addContactToList(
             email,
-            EARLY_ACCESS_LIST_ID,
-            env.BREVO_API_KEY
+            EARLY_ACCESS_LIST_ID
           )
             .then(() => {
               logger.info(`Successfully added ${email} to Early Access list`);
@@ -119,8 +128,8 @@ async function WorkerHandler(context: WorkerContext) {
 
     // Return PONG response immediately
     return pongResponse;
-  } catch (error) {
-    logger.error("Error handling Discord interaction:", error);
+  } catch (e) {
+    logger.error(e, "Error handling Discord interaction:");
     return new Response("Internal server error", { status: 500 });
   }
 };

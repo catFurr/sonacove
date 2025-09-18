@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect, type FormEvent } from 'react';
-import Button from '../../../components/Button';
-import DateRangePicker from './DateRangePicker';
-import { X, Calendar, User, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { type DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
-import { createPortal } from 'react-dom';
+import { X, Calendar, User, ChevronDown, Loader2 } from 'lucide-react';
+
+import Button from '../../../components/Button';
+import DateRangePicker from './DateRangePicker';
+import { useAuth } from '../../../hooks/useAuth';
+import { bookMeeting } from './utils';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -12,28 +15,29 @@ interface BookingModalProps {
 }
 
 const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
-  const [roomName, setRoomName] = useState('');
+  const { getAccessToken } = useAuth();
 
-  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  // --- Form State ---
+  const [roomName, setRoomName] = useState('');
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
+
+  // --- UI State ---
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
-
   const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 });
 
+  // Effects for picker positioning and closing (no changes here)
   useEffect(() => {
     if (isOpen && isDatePickerOpen && modalRef.current) {
-    const modalRect = modalRef.current.getBoundingClientRect();
-    setPickerPosition({
-        top: modalRect.top,
-        left: modalRect.right + 16, // Position to the right of the modal with a 1rem gap
-    });
-  }
- }, [isOpen, isDatePickerOpen]);
-  
+      const modalRect = modalRef.current.getBoundingClientRect();
+      setPickerPosition({ top: modalRect.top, left: modalRect.right + 16 });
+    }
+  }, [isOpen, isDatePickerOpen]);
 
-  // Close date picker when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -47,28 +51,48 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [datePickerRef]);
 
-    useEffect(() => {
-      if (isOpen) {
-        setRoomName('');
-        setSelectedRange(undefined);
-        setDatePickerOpen(false);
-      }
-    }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      setRoomName('');
+      setSelectedRange(undefined);
+      setDatePickerOpen(false);
+      setError(null);
+      setIsLoading(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;
   }
 
-  const handleModalContentClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
+  const handleModalContentClick = (e: React.MouseEvent) => e.stopPropagation();
+  const handleClearRoomName = () => setRoomName('');
 
-  const handleRoomNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRoomName(e.target.value);
-  };
-
-  const handleClearRoomName = () => {
-      setRoomName('');
+  const handleBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const token = getAccessToken();
+    console.log(selectedRange)
+    if (!roomName.trim() || !selectedRange?.to || !token) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const result = await bookMeeting(
+        roomName.trim(),
+        selectedRange.to,
+        token,
+      );
+      console.log('Success!', result);
+      onClose();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unknown error occurred.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const dateDisplayValue =
@@ -79,12 +103,13 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
         )}`
       : 'Select...';
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm'
     >
       <div
+        ref={modalRef}
         onClick={handleModalContentClick}
         className='relative bg-white rounded-xl shadow-lg p-8 w-full max-w-md sm:max-w-xl mx-4'
       >
@@ -98,26 +123,29 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <form className='space-y-4 text-center'>
+        <form onSubmit={handleBooking} className='space-y-4 text-center'>
+          {/* 1. Restored full class string for the input */}
           <div className='relative w-full'>
             <input
               className='w-full rounded-lg border border-gray-300 p-3 text-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors pr-10'
               placeholder='Room name'
-              onChange={handleRoomNameInput}
+              onChange={(e) => setRoomName(e.target.value)}
               value={roomName}
               required
             />
-            <span className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer'>
-              <X
-                size={16}
-                className='cursor-pointer text-gray-600'
-                onClick={handleClearRoomName}
-              />
-            </span>
+            {roomName && (
+              <span className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer'>
+                <X
+                  size={16}
+                  className='cursor-pointer text-gray-600'
+                  onClick={handleClearRoomName}
+                />
+              </span>
+            )}
           </div>
 
-          {/* Date Picker Input */}
-          <div className='relative' ref={datePickerRef}>
+          {/* 2. Restored full class string for the date picker button */}
+          <div className='relative'>
             <button
               type='button'
               onClick={() => setDatePickerOpen(!isDatePickerOpen)}
@@ -149,13 +177,16 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
               )}
           </div>
 
-          {/* Dropdown Select */}
+          {/* 3. Restored full class string for the select dropdown */}
           <div className='relative bg-white'>
             <User
               size={16}
               className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'
             />
-            <select required className='w-full bg-white appearance-none rounded-lg border border-gray-300 p-3 pl-10 text-md focus:outline-none focus:ring-2 focus:ring-primary-500'>
+            <select
+              required
+              className='w-full bg-white appearance-none rounded-lg border border-gray-300 p-3 pl-10 text-md focus:outline-none focus:ring-2 focus:ring-primary-500'
+            >
               <option>Enter</option>
               <option>Option 2</option>
               <option>Option 3</option>
@@ -166,16 +197,26 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          <Button
-            type='submit'
-            variant='primary'
-            className='px-20 w-full sm:w-auto tracking-wide !bg-primary-600 hover:!bg-primary-600 mt-6'
-          >
-            Book
-          </Button>
+          {/* 4. Wrapped the error and button in a div to preserve layout */}
+          <div className='pt-2'>
+            {error && <p className='text-red-500 text-sm mb-2'>{error}</p>}
+            <Button
+              type='submit'
+              variant='primary'
+              disabled={isLoading}
+              className='px-20 w-full sm:w-auto tracking-wide !bg-orange-600 hover:!bg-orange-600'
+            >
+              {isLoading ? (
+                <Loader2 className='mx-auto animate-spin' />
+              ) : (
+                'Book'
+              )}
+            </Button>
+          </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

@@ -1,29 +1,46 @@
 import React from 'react';
 import Header from '../../components/Header';
-import { TriangleAlert } from 'lucide-react';
+import { WifiOff } from 'lucide-react'; // A more specific and intuitive icon for "offline"
+import Button from '../../components/Button'; // Assuming you have a reusable Button component
 
 export default function OfflinePage() {
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
   return (
-    <>
+    <div className='bg-gray-50 min-h-screen'>
       <Header pageType='landing' />
-      <div className='flex flex-col w-full items-center justify-center px-4 py-[12.5vh]'>
-        <div className='rounded-xl p-10 max-w-sm w-full flex flex-col items-center text-center'>
-          <div className='flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400'>
-            <TriangleAlert size={30} strokeWidth={2} />
+
+      <div className='flex flex-grow flex-col items-center justify-center px-4 py-[15vh] text-center'>
+        {/* The main content card */}
+        <div className='bg-white rounded-2xl shadow-lg p-8 sm:p-12 max-w-lg w-full'>
+          {/* Icon/Illustration */}
+          <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100'>
+            <WifiOff className='w-12 h-12 text-red-600' strokeWidth={2} />
           </div>
 
-          {/* Title */}
-          <h1 className='text-2xl font-semibold my-6 text-black-700'>
-            Connection error
+          {/* Main Text Content */}
+          <h1 className='text-2xl sm:text-3xl font-bold tracking-tight text-gray-900'>
+            You're Currently Offline
           </h1>
-
-          {/* Message */}
-          <p className='text-black-600'>
-            Your device may be offline or our servers may be experiencing
-            problems.
+          <p className='mt-3 text-base text-md text-gray-500 max-w-md mx-auto'>
+            It looks like your device has lost its connection to the internet.
+            Please check your network connection and try again.
           </p>
+
+          {/* Call to Action Button */}
+          <div className='mt-10'>
+            <Button
+              variant='primary'
+              onClick={handleRetry}
+              className='w-full sm:w-auto'
+            >
+              Try Again
+            </Button>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

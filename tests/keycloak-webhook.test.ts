@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, mock } from "bun:test";
-import { PaddleClient } from "../functions/components/paddle.js";
-import { BrevoClient } from "../functions/components/brevo.js";
-import type { KeycloakUser } from "../functions/components/keycloak-types.js";
+import { PaddleClient } from "../src/lib/modules/paddle";
+import { BrevoClient } from "../src/lib/modules/brevo";
+import type { KeycloakUser } from "../src/lib/modules/keycloak-types";
 
 // Mock handlers
 const originalPaddleFetchCustomer = PaddleClient.fetchCustomer;
@@ -15,8 +15,8 @@ describe("Keycloak Webhook API", () => {
   let handler: any;
 
   beforeEach(async () => {
-    const module = await import("../functions/api/keycloak-webhook.js");
-    handler = module.onRequest;
+    const module = await import("../src/pages/api/keycloak-webhook");
+    handler = module.POST;
 
     // Reset mocks before each test
     PaddleClient.fetchCustomer = originalPaddleFetchCustomer;

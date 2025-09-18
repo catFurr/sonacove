@@ -6,15 +6,29 @@ export interface User {
     avatarUrl?: string;
     initialsAvatarUrl?: string;
   };
-  meetingsList: any[];
+  meetingsList: Meeting[];
   recordings: any[];
   notes: any[];
 }
 
+export interface DbUser {
+  user: {
+    id: number;
+    email: string;
+    isActiveHost: boolean;
+    maxBookings: number;
+    totalHostMinutes: number;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+  };
+  bookedRooms: any[];
+}
+
+
 export interface Meeting {
+  title: string;
   date: string;
   time: string;
-  title: string;
   status: string;
 }
 

@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from "react";
-import Button from "../../components/Button";
-import Header from "../../components/Header";
+import React, { useEffect, useState } from 'react';
+import Button from '../../components/Button';
+import Header from '../../components/Header';
+import { PartyPopper } from 'lucide-react'; // A great icon for a "thank you" or "finished" page
 
 const hints = [
-  "You can pin participants by clicking on their thumbnails.",
-  'You can tell others you have something to say by using the "Raise Hand" feature',
-  "You can learn about key shortcuts by pressing Shift+?",
-  "You can learn more about the state of everyone's connection by hovering on the bars in their thumbnail",
-  "You can hide all thumbnails by using the button in the bottom right corner",
+  'You can pin participants by clicking on their thumbnails.',
+  'You can tell others you have something to say by using the "Raise Hand" feature.',
+  'You can learn about key shortcuts by pressing Shift+?',
+  "You can learn more about the state of everyone's connection by hovering on the bars in their thumbnail.",
+  'You can hide all thumbnails by using the button in the bottom right corner.',
 ];
 
 const ClosePage: React.FC = () => {
-  const [hint, setHint] = useState<string>("");
+  // Your logic for selecting a random hint is perfect, no changes needed here.
+  const [hint, setHint] = useState<string>('');
 
   useEffect(() => {
     const l = hints.length - 1;
@@ -24,31 +26,47 @@ const ClosePage: React.FC = () => {
   }
 
   return (
-    <>
-      <Header pageType="landing" />
-      <div className="flex flex-col w-full items-center justify-center px-4 py-[12.5vh]">
-        <div className="rounded-xl p-10 max-w-3xl w-full text-center">
-          <h1 className="text-4xl font-bold mb-8 text-accent-700 md:whitespace-nowrap">
+    <div className='bg-gray-50 min-h-screen'>
+      <Header pageType='landing' />
+
+      <div className='flex flex-grow flex-col items-center justify-center px-4 py-16 text-center'>
+        <div className='bg-white rounded-2xl shadow-lg p-8 sm:p-12 max-w-2xl w-full'>
+          <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary-100'>
+            <PartyPopper
+              className='w-12 h-12 text-primary-600'
+              strokeWidth={1.5}
+            />
+          </div>
+
+          {/* Main Text Content */}
+          <h1 className='text-3xl sm:text-4xl font-bold tracking-wide text-gray-900'>
             Thank you for using Sonacove Meets
           </h1>
-
-          <hr className="h-px border-none bg-accent-700" />
-
-          <p className="text-lg text-accent-700 my-6">
-            <span className="font-bold">Did you know? </span>
-            <span id="hintMessage" className="font-medium">
-              {hint}
-            </span>
+          <p className='mt-3 text-base text-gray-500 max-w-md mx-auto'>
+            Your meeting has ended.
           </p>
 
-          <div className="py-12">
-            <Button variant="primary" onClick={handleClick}>
-              Go to Home Page
+          {/* Hint Box */}
+          <div className='mt-8 rounded-lg bg-gray-100 p-4 text-center'>
+            <p className='font-semibold text-gray-800'>💡 Did you know?</p>
+            <p id='hintMessage' className='mt-1 text-gray-600'>
+              {hint}
+            </p>
+          </div>
+
+          {/* Call to Action Button */}
+          <div className='mt-10'>
+            <Button
+              onClick={handleClick}
+              variant='primary'
+              className='w-full sm:w-auto'
+            >
+              Go to Homepage
             </Button>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

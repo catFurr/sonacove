@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeAll, beforeEach, mock } from "bun:test";
-import { PaddleClient } from "../functions/components/paddle.js";
-import { BrevoClient } from "../functions/components/brevo.js";
+import { PaddleClient } from "../src/lib/modules/paddle";
+import { BrevoClient } from "../src/lib/modules/brevo";
 
 // Mock handlers
 const originalPaddleCreateCustomer = PaddleClient.createCustomer;
@@ -13,8 +13,8 @@ describe("Registration Flow API", () => {
   let handler: any;
 
   beforeAll(async () => {
-    const module = await import("../functions/api/registration-flow.js");
-    handler = module.onRequest;
+    const module = await import("../src/pages/api/registration-flow");
+    handler = module.POST;
   });
 
   beforeEach(() => {
@@ -101,7 +101,7 @@ describe("Registration Flow API", () => {
     }));
 
     // Mock Brevo getContact to throw error for both email and CID
-    BrevoClient.getContact = mock(async (identifier, apiKey, useExtId) => {
+    BrevoClient.getContact = mock(async (_identifier, _useExtId) => {
       throw new Error("Contact not found");
     });
 
@@ -147,7 +147,7 @@ describe("Registration Flow API", () => {
     }));
 
     // Mock Brevo getContact to return an existing contact when searched by email
-    BrevoClient.getContact = mock(async (identifier, apiKey, useExtId) => {
+    BrevoClient.getContact = mock(async (identifier, useExtId) => {
       if (!useExtId && identifier === "existing@example.com") {
         return {
           id: 789,
@@ -199,7 +199,7 @@ describe("Registration Flow API", () => {
     }));
 
     // Mock Brevo getContact to fail for email but succeed for CID
-    BrevoClient.getContact = mock(async (identifier, apiKey, useExtId) => {
+    BrevoClient.getContact = mock(async (identifier, useExtId) => {
       if (useExtId && identifier === customerId) {
         return {
           id: 999,

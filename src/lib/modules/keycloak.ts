@@ -1,10 +1,14 @@
-import {
+// Helper for validating Keycloak JWTs using JWKS
+import { jwtVerify, createRemoteJWKSet } from "jose";
+import { KC_CLIENT_ID, KC_CLIENT_SECRET } from "astro:env/server";
+import type {
   KeycloakTokenResponse,
   KeycloakUser,
   KeycloakUserUpdate,
-} from "./keycloak-types.ts";
-import { getLogger } from "./pino-logger.ts";
-import type { Env } from "./types.ts";
+} from "./keycloak-types";
+import { getLogger } from "./pino-logger";
+import { PUBLIC_KC_HOSTNAME } from "astro:env/client";
+
 const logger = getLogger();
 
 const tokenEndpoint = "/realms/jitsi/protocol/openid-connect/token";
@@ -13,12 +17,18 @@ const userEndpoint = "/admin/realms/jitsi/users/";
 const tokenKey = "keycloak_token";
 const tokenExpiryKey = "keycloak_token_expiry";
 
-export class KeycloakClient {
-  private env: Env;
-  private token: string;
+const JWKS_URL = "/realms/jitsi/protocol/openid-connect/certs";
+const ISSUER = "/realms/jitsi";
+const AUDIENCE = "jitsi-web";
 
-  constructor(env: Env) {
-    this.env = env;
+
+export class KeycloakClient {
+  private token?: string;
+  private KV;
+  private jwks: any;
+
+  constructor(runtime: Runtime["runtime"]) {
+    this.KV = runtime.env.KV;
   }
 
   private async saveToken(
@@ -29,19 +39,19 @@ export class KeycloakClient {
     try {
       // Cache the token and its expiry time
       const expiryTime = Date.now() + expiresIn * 1000;
-      await this.env.KV.put(tokenKey, token);
-      await this.env.KV.put(tokenExpiryKey, expiryTime.toString());
-    } catch (error) {
-      logger.error("Error saving Keycloak token:", error);
-      throw error;
+      await this.KV.put(tokenKey, token);
+      await this.KV.put(tokenExpiryKey, expiryTime.toString());
+    } catch (e) {
+      logger.error(e, "Error saving Keycloak token:");
+      throw e;
     }
   }
 
   private async getToken(this: KeycloakClient): Promise<string | null> {
     try {
       // Check if we have a cached token in KV
-      const cachedToken = await this.env.KV.get(tokenKey);
-      const cachedExpiry = await this.env.KV.get(tokenExpiryKey);
+      const cachedToken = await this.KV.get(tokenKey);
+      const cachedExpiry = await this.KV.get(tokenExpiryKey);
 
       // If we have a cached token and it's not expired, use it
       if (cachedToken && cachedExpiry) {
@@ -54,9 +64,9 @@ export class KeycloakClient {
 
       // Return null if no valid token is found
       return null;
-    } catch (error) {
-      logger.error("Error getting Keycloak token:", error);
-      throw error;
+    } catch (e) {
+      logger.error(e, "Error getting Keycloak token:");
+      throw e;
     }
   }
 
@@ -69,10 +79,10 @@ export class KeycloakClient {
       // Otherwise, get a new token
       const formData = new URLSearchParams();
       formData.append("grant_type", "client_credentials");
-      formData.append("client_id", this.env.KC_CLIENT_ID);
-      formData.append("client_secret", this.env.KC_CLIENT_SECRET);
+      formData.append("client_id", KC_CLIENT_ID);
+      formData.append("client_secret", KC_CLIENT_SECRET);
 
-      const url = "https://" + this.env.KC_HOSTNAME + tokenEndpoint;
+      const url = "https://" + PUBLIC_KC_HOSTNAME + tokenEndpoint;
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -89,9 +99,9 @@ export class KeycloakClient {
       await this.saveToken(data.access_token, data.expires_in);
 
       this.token = data.access_token;
-    } catch (error) {
-      logger.error("Error fetching Keycloak token:", error);
-      throw error;
+    } catch (e) {
+      logger.error(e, "Error fetching Keycloak token:");
+      throw e;
     }
   }
 
@@ -111,7 +121,7 @@ export class KeycloakClient {
       const query = email
         ? `?email=${encodeURIComponent(email)}`
         : `?q=paddle_subscription_id:${subscriptionId}`;
-      const url = "https://" + this.env.KC_HOSTNAME + userEndpoint + query;
+      const url = "https://" + PUBLIC_KC_HOSTNAME + userEndpoint + query;
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${this.token}`,
@@ -126,8 +136,8 @@ export class KeycloakClient {
 
       // Return the first matching user, if any
       return data.length > 0 ? data[0] : null;
-    } catch (error) {
-      logger.error("Error getting Keycloak user:", error.message);
+    } catch (e) {
+      logger.error(e, "Error getting Keycloak user:");
       return null;
     }
   }
@@ -169,7 +179,7 @@ export class KeycloakClient {
       if (attributes.enabled !== undefined) userData.enabled = attributes.enabled;
 
       // Send the update
-      const url = "https://" + this.env.KC_HOSTNAME + userEndpoint + user.id;
+      const url = "https://" + PUBLIC_KC_HOSTNAME + userEndpoint + user.id;
       const updateResponse = await fetch(url, {
         method: "PUT",
         headers: {
@@ -184,9 +194,53 @@ export class KeycloakClient {
         throw new Error(`Failed to update user: ${error}`);
       }
       return true;
-    } catch (error) {
-      logger.error("Error updating Keycloak user:", error);
+    } catch (e) {
+      logger.error(e, "Error updating Keycloak user:");
       return false;
+    }
+  }
+
+  async validateToken(this: KeycloakClient, token: string) {
+    try {
+      if (!this.jwks) {
+        this.jwks = createRemoteJWKSet(new URL("https://" + PUBLIC_KC_HOSTNAME + JWKS_URL));
+      }
+      await jwtVerify(token, this.jwks, {
+        issuer: "https://" + PUBLIC_KC_HOSTNAME + ISSUER,
+        audience: AUDIENCE,
+      });
+      // Optionally check exp, email_verified, etc. here
+      return true;
+    } catch (e) {
+      logger.error(e, "JWT validation failed:");
+      return false;
+    }
+  }
+
+  // Potentially expensive operation. Avoid using until pagination is added.
+  async getAllUsers(this: KeycloakClient): Promise<KeycloakUser[]> {
+    try {
+      if (!this.token) await this.fetchToken();
+      if (!this.token) throw new Error("Failed to get Keycloak token");
+
+      const url = "https://" + PUBLIC_KC_HOSTNAME + userEndpoint;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Failed to get all Keycloak users: ${error}`);
+      }
+
+      const users = (await response.json()) as KeycloakUser[];
+      logger.info(`Retrieved ${users.length} users from Keycloak`);
+      return users;
+    } catch (e) {
+      logger.error(e, "Error getting all Keycloak users:");
+      return [];
     }
   }
 }
