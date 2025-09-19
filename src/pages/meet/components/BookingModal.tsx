@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { type DateRange } from 'react-day-picker';
 import { addYears, format } from 'date-fns';
-import { X, Calendar, User, ChevronDown, Loader2 } from 'lucide-react';
+import { X, Calendar, Loader2 } from 'lucide-react';
 
 import Button from '../../../components/Button';
 import DateRangePicker from './DateRangePicker';
@@ -19,7 +19,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
   // --- Form State ---
   const [roomName, setRoomName] = useState('');
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
-  // 1. New state to track if the booking is permanent
   const [isPermanent, setIsPermanent] = useState(false);
 
   // --- UI State ---
@@ -88,7 +87,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
       )}`
     : 'Select...';
 
-  // 4. Create a handler for the date picker's onApply prop
   const handleDateApply = (range: DateRange | undefined | null) => {
     if (range === null) {
       setIsPermanent(true);
@@ -131,7 +129,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
           <form onSubmit={handleBooking} className='space-y-4 text-center'>
             <div className='relative w-full'>
               <input
-                className='w-full rounded-lg border border-gray-300 p-3 text-md text-black font-semibold placeholder-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors pr-10'
+                className='w-full rounded-lg border border-gray-300 p-3 text-md text-black font-semibold placeholder-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-colors pr-10'
                 placeholder='Room name'
                 onChange={(e) => setRoomName(e.target.value)}
                 value={roomName}

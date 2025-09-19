@@ -21,9 +21,6 @@ export default defineConfig({
     defaultStrategy: 'hover',
   },
 
-  server: {
-    allowedHosts: ['martina-unmounted-weakheartedly.ngrok-free.app'],
-  },
 
   experimental: {
     fonts: [
