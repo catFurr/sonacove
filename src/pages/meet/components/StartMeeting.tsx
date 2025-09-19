@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { animatePlaceholder, generatePlaceholderWords } from './utils.ts';
+import { Lock } from 'lucide-react';
+import { getAuthService } from '../../../utils/AuthService'; // Import the auth service
 
 import Button from '../../../components/Button';
 import PageHeader from '../../../components/PageHeader';
@@ -7,9 +9,10 @@ import BookingModal from './BookingModal';
 
 interface Props {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  isLoggedIn: boolean;
 }
 
-const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
+const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const placeholderWords = generatePlaceholderWords(10); // generate random room names
 
@@ -32,7 +35,18 @@ const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
   const handleBookMeetingClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    setIsModalOpen(true);
+    if (isLoggedIn) {
+      setIsModalOpen(true);
+    } else {
+      const authService = getAuthService();
+      if (authService) {
+        authService.login();
+      } else {
+        alert(
+          'Authentication service is currently unavailable. Please try again later.',
+        );
+      }
+    }
   };
 
   return (
@@ -78,13 +92,22 @@ const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
               Book meeting
             </Button>
           </div>
+
+          {!isLoggedIn && (
+            <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 bg-gray-50 p-2 rounded-lg'>
+              <Lock size={14} className='text-gray-500 text-bold' />
+              <span>Login required to book a meeting.</span>
+            </div>
+          )}
         </form>
       </div>
 
-      <BookingModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {isLoggedIn && (
+        <BookingModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </>
   );
 };

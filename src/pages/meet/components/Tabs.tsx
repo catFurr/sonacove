@@ -5,10 +5,13 @@ import {
   FilePenLine,
   CircleCheck,
   Trash2,
+  CalendarPlus,
 } from 'lucide-react';
 import type { Meeting, Note, Recording } from './types';
 import ToggleSwitch from '../../../components/ToggleSwitch';
 import { deleteBooking } from './utils';
+import Button from '../../../components/Button';
+import BookingModal from './BookingModal';
 
 interface Props {
   meetingsList: Meeting[];
@@ -18,13 +21,11 @@ interface Props {
 }
 
 const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
-  const [activeTab, setActiveTab] = useState<
-    'meetings' | 'recordings' | 'notes'
-  >('meetings');
+  const [activeTab, setActiveTab] = useState<'meetings' | 'recordings' | 'notes'>('meetings');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [meetingsFilter, setMeetingsFilter] = useState('All');
-  const [recordingsSort, setRecordingsSort] = useState<'newest' | 'oldest'>(
-    'newest',
-  );
+  const [recordingsSort, setRecordingsSort] = useState<'newest' | 'oldest'>('newest');
   const [notesSort, setNotesSort] = useState<'newest' | 'oldest'>('newest');
 
   const [localMeetings, setLocalMeetings] = useState(meetingsList);
@@ -60,24 +61,31 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
     }
   };
 
-  return (
-    <div>
-      {/* --- Tab Buttons --- */}
-      <div className='flex justify-around sm:justify-start sm:gap-8 mb-6 border-b border-gray-200'>
-        <button
-          onClick={() => setActiveTab('meetings')}
-          className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
-            activeTab === 'meetings'
-              ? 'text-primary-500 border-b-2 border-primary-500'
-              : 'text-gray-400 hover:text-primary-500'
-          }`}
-        >
-          {/* Mobile Icon */}
-          {/* <Calendar className='w-6 h-6 sm:hidden' /> */}
-          <span className='sm:inline'>My Meetings</span>
-        </button>
+  const handleBookMeetingClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+ 
+    setIsModalOpen(true);
+  };
 
-        {/* <button
+  return (
+    <>
+      <div>
+        {/* --- Tab Buttons --- */}
+        <div className='flex justify-around sm:justify-start sm:gap-8 mb-6 border-b border-gray-200'>
+          <button
+            onClick={() => setActiveTab('meetings')}
+            className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
+              activeTab === 'meetings'
+                ? 'text-primary-500 border-b-2 border-primary-500'
+                : 'text-gray-400 hover:text-primary-500'
+            }`}
+          >
+            {/* Mobile Icon */}
+            {/* <Calendar className='w-6 h-6 sm:hidden' /> */}
+            <span className='sm:inline'>My Meetings</span>
+          </button>
+
+          {/* <button
           onClick={() => setActiveTab('recordings')}
           className={`tab-button flex flex-col items-center gap-1 pb-3 text-lg font-semibold flex-1 ${
             activeTab === 'recordings'
@@ -100,68 +108,86 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
           <FilePenLine className='w-6 h-6 sm:hidden' />
           <span className='hidden sm:inline'>Notes</span>
         </button> */}
-      </div>
+        </div>
 
-      {/* --- Tab Panels --- */}
-      <div>
-        {/* Meetings Panel */}
-        {activeTab === 'meetings' && (
-          <div>
-            {meetingsList.length === 0 ? (
-              <div className='text-center py-12'>
-                <p className='text-xl text-gray-500'>
-                  You have no scheduled meetings.
-                </p>
-                <button className='mt-4 px-6 py-3 bg-primary-500 text-white font-semibold rounded-full hover:bg-primary-600'>
-                  Book a Meeting
-                </button>
-              </div>
-            ) : (
-              <div className='text-center sm:text-left'>
-                <ToggleSwitch
-                  options={['All', 'Upcoming', 'Past']}
-                  activeOption={meetingsFilter}
-                  onOptionChange={(option) => setMeetingsFilter(option)}
-                  className='rounded-full mb-8'
-                />
-                <div className='space-y-6'>
-                  {meetingsList &&
-                    meetingsList.map((meeting, i) => (
-                      <div
-                        key={i}
-                        className='flex flex-col sm:flex-row sm:items-start sm:gap-24 pb-4 border-b border-gray-100 last:border-b-0'
-                      >
-                        <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0'>
-                          <p className='font-semibold'>{meeting.date}</p>
-                          <p>{meeting.time}</p>
-                        </div>
+        {/* --- Tab Panels --- */}
+        <div className=''>
+          {/* Meetings Panel */}
+          {activeTab === 'meetings' && (
+            <div>
+              {meetingsList.length === 0 ? (
+                <div className='text-center py-12'>
+                  <div className='flex flex-col items-center justify-center max-w-lg mx-auto p-12 rounded-xl'>
+                    <div className='flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-6'>
+                      <CalendarPlus className='w-8 h-8 text-primary-600' />
+                    </div>
 
-                        <div className='text-left'>
-                          <p className='text-2xl font-bold text-black mb-2'>
-                            {meeting.title}
-                          </p>
-                          <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
-                            <CircleCheck strokeWidth={3} className='w-4 h-4' />
-                            {meeting.status}
-                          </span>
-                        </div>
+                    <h3 className='text-xl font-semibold text-gray-800'>
+                      No upcoming meetings
+                    </h3>
+                    <p className='mt-2 text-gray-500'>
+                      Your scheduled meetings will appear here once you book
+                      them.
+                    </p>
 
-                        <button
-                          onClick={() => handleDeleteMeeting(meeting.title)}
-                          className='ml-auto p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors'
-                          aria-label={`Delete meeting ${meeting.title}`}
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
+                    <Button
+                      variant='primary'
+                      onClick={handleBookMeetingClick}
+                      className='tracking-wide text-lg mt-6'
+                    >
+                      Book a Meeting
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              ) : (
+                <div className='text-center sm:text-left'>
+                  <ToggleSwitch
+                    options={['All', 'Upcoming', 'Past']}
+                    activeOption={meetingsFilter}
+                    onOptionChange={(option) => setMeetingsFilter(option)}
+                    className='rounded-full mb-8'
+                  />
+                  <div className='space-y-6'>
+                    {meetingsList &&
+                      meetingsList.map((meeting, i) => (
+                        <div
+                          key={i}
+                          className='flex flex-col sm:flex-row sm:items-start sm:gap-24 pb-4 border-b border-gray-100 last:border-b-0'
+                        >
+                          <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0'>
+                            <p className='font-semibold'>{meeting.date}</p>
+                            <p>{meeting.time}</p>
+                          </div>
 
-        {/* Recordings Panel
+                          <div className='text-left'>
+                            <p className='text-2xl font-bold text-black mb-2'>
+                              {meeting.title}
+                            </p>
+                            <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
+                              <CircleCheck
+                                strokeWidth={3}
+                                className='w-4 h-4'
+                              />
+                              {meeting.status}
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => handleDeleteMeeting(meeting.title)}
+                            className='ml-auto p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors'
+                            aria-label={`Delete meeting ${meeting.title}`}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Recordings Panel
         {activeTab === 'recordings' && (
           <div>
             {recordings.length === 0 ? (
@@ -205,8 +231,8 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
           </div>
         )} */}
 
-        {/* Notes Panel */}
-        {/* {activeTab === 'notes' && (
+          {/* Notes Panel */}
+          {/* {activeTab === 'notes' && (
           <div>
             {notes.length === 0 ? (
               <div className='text-center py-12'>
@@ -257,8 +283,14 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
             )}
           </div>
         )} */}
+        </div>
       </div>
-    </div>
+
+      <BookingModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   );
 };
 

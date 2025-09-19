@@ -131,7 +131,7 @@ export default function Meet() {
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
-            <StartMeeting onSubmit={handleSubmit} />
+            <StartMeeting onSubmit={handleSubmit} isLoggedIn={isLoggedIn}/>
           </div>
 
           {appUser ? (
