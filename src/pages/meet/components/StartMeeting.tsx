@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, type FormEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { animatePlaceholder, generatePlaceholderWords } from './utils.ts';
 
 import Button from '../../../components/Button';
@@ -39,14 +39,11 @@ const StartMeeting: React.FC<Props> = ({ onSubmit }) => {
     <>
       <div>
         <PageHeader
-          title={
-            <h1 className='text-left'>Secure and high quality meetings</h1>
-          }
+          title='Secure and high quality meetings'
+          className='text-left'
         >
-          <p className='text-left'>
             The only online meeting platform that adapts to your teaching style,
             not the other way around.
-          </p>
         </PageHeader>
 
         <form id='room-form' className='max-w-lg' onSubmit={onSubmit}>

@@ -164,9 +164,7 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className='ml-[2vw] mr-[2vw] flex flex-1 items-center justify-between rounded-full md:border md:border-gray-200 p-3 mt-4 md:shadow-sm md:backdrop-blur-sm relative'>
       <div className='flex items-center gap-2 pl-4'>
-        <a href='/' className='flex items-center gap-2'>
           <Logo />
-        </a>
       </div>
       <div className='absolute left-1/2 transform -translate-x-1/2'>
         {renderNavLinks()}
