@@ -21,7 +21,7 @@ const supportLinks = [
   { name: 'Contact us', href: '/contact' },
   { name: 'Terms of Service', href: '/terms' },
   { name: 'Privacy Policy', href: '/privacy' },
-  { name: 'Manage Cookies', href: '#' },
+  { name: 'Refund Poilcy', href: '/policy' },
 ];
 
 const socialLinks = [

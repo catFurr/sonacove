@@ -1,11 +1,13 @@
 import React from 'react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge'
 
 type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   children: React.ReactNode;
+  className?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
@@ -25,10 +27,14 @@ export default function Button({
     tertiary: 'bg-gray-100 text-black border border-gray-200 hover:bg-gray-200',
   };
 
+  const mergeClasses = (...inputs: (string | undefined | null | false)[]) => {
+    return twMerge(clsx(...inputs));
+  };
+
   return (
     <button
       onClick={onClick}
-      className={clsx(baseStyles, variantStyles[variant], className)}
+      className={mergeClasses(baseStyles, variantStyles[variant], className)}
       {...props}
     >
       {children}

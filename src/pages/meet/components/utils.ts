@@ -79,20 +79,23 @@ export const bookMeeting = async (
   }
 
   try {
-    const response = await fetch('/api/manage-booking', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      'https://bea7461c-sonacove.catfurr.workers.dev/api/manage-booking',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          roomName,
+          password: '',
+          lobby: false,
+          maxOccupants: 100,
+          endDate,
+        }),
       },
-      body: JSON.stringify({
-        roomName,
-        password: '',
-        lobby: false,
-        maxOccupants: 100,
-        endDate,
-      }),
-    });
+    );
 
     if (!response.ok) {
       let errorMessage = `API error: ${response.status}`;
@@ -140,16 +143,19 @@ export const deleteBooking = async (roomName: string, token: string) => {
   }
 
   try {
-    const response = await fetch('/api/manage-booking', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+    const response = await fetch(
+      'https://bea7461c-sonacove.catfurr.workers.dev/api/manage-booking',
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          roomName: roomName.trim(),
+        }),
       },
-      body: JSON.stringify({
-        roomName: roomName.trim(),
-      }),
-    });
+    );
 
     if (!response.ok) {
       let errorMessage = `API error: ${response.status}`;
