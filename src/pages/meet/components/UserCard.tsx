@@ -4,8 +4,9 @@ import type { User } from './types';
 import Avatar from '../../../components/Avatar';
 
 interface UserCardProps extends User {
-  minutesUsed?: number;
   token?: string;
+  minutesUsed?: number;
+  maxBookings: number;
 }
 
 function capitalizeFirstLetter(str: string): string {
@@ -13,7 +14,7 @@ function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, notes, minutesUsed, token }) => {
+const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, notes, minutesUsed, token, maxBookings }) => {
   const [subscriptionUrl, setSubscriptionUrl] = useState('');
 
   // The token's validity is now determined entirely by the parent.
@@ -60,6 +61,12 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
     ? Math.min((minutesUsed / totalMinutes) * 100, 100)
     : 0;
 
+    const usedBookings = meetingsList.filter(
+      (m) => m.status === 'Upcoming',
+    ).length;
+    const bookingProgressPercentage =
+      maxBookings > 0 ? (usedBookings / maxBookings) * 100 : 0;
+
   return (
     <div className='bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3'>
       <div className='flex flex-col sm:flex-row sm:items-start gap-6 mb-8'>
@@ -82,8 +89,9 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
           </p>
 
           {user.plan === 'trialing' && typeof minutesUsed === 'number' && (
-            <div className='mt-4 pr-6'>
-              <div className='flex justify-between text-sm font-medium text-gray-600 mb-1'>
+            // UI for Trialing Users
+            <div className='pr-6'>
+              <div className='flex justify-between text-sm font-medium text-gray-600 mb-1 pt-3'>
                 <span>Free Minutes Used</span>
                 <span>
                   {minutesUsed} / {totalMinutes}
@@ -97,6 +105,30 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
               </div>
             </div>
           )}
+
+          {user.plan === 'active' && typeof minutesUsed === 'number' && (
+            <p className='text-sm text-gray-500 pt-3'>
+              Total Minutes Hosted:{' '}
+              <span className='font-semibold text-gray-800'>
+                {minutesUsed.toLocaleString()}
+              </span>
+            </p>
+          )}
+
+          <div className='mt-4 pr-6 mb-4'>
+            <div className='flex justify-between text-sm font-medium text-gray-600 mb-1'>
+              <span>Bookings Used</span>
+              <span>
+                {usedBookings} / {maxBookings}
+              </span>
+            </div>
+            <div className='w-full bg-gray-200 rounded-full h-2.5'>
+              <div
+                className='bg-blue-500 h-2.5 rounded-full transition-all duration-500'
+                style={{ width: `${bookingProgressPercentage}%` }}
+              ></div>
+            </div>
+          </div>
         </div>
 
         {/* Buttons */}
@@ -124,7 +156,12 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
       </div>
 
       {/* Tabs */}
-      <Tabs meetingsList={meetingsList} recordings={recordings} notes={notes} token={token} />
+      <Tabs
+        meetingsList={meetingsList}
+        recordings={recordings}
+        notes={notes}
+        token={token}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import StartMeeting from './StartMeeting';
 import UserCard from './UserCard';
 import meet_background from '../../../assets/meet-background.png';
@@ -74,6 +74,7 @@ export default function Meet() {
               notes={[]}
               minutesUsed={appUser.minutesUsed}
               token={appUser.token}
+              maxBookings={dbUser?.user.maxBookings ?? 1}
             />
           ) : (
             <div className='relative lg:col-span-3 w-full h-full mt-12 lg:mt-0'>

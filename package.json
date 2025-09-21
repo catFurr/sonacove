@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler pages dev ./dist",
+    "preview:wrangler": "wrangler pages dev ./dist",
     "test": "bun test tests/api/*.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
