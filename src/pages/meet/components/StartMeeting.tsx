@@ -55,7 +55,6 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
   };
 
   const finalRoomName = roomName.trim() || placeholder;
-  console.log(finalRoomName)
 
   return (
     <>

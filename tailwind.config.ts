@@ -37,7 +37,7 @@ export default {
         lora: ['var(--font-lora)', 'serif'],
       },
       cursor: {
-        custom: 'url(./src/assets/cursor.png), auto',
+        custom: 'url(/cursor.png), auto',
       },
     },
   },
