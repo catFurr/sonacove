@@ -33,6 +33,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        crimson: ['var(--font-crimson-pro)', 'serif'],
+        lora: ['var(--font-lora)', 'serif'],
       },
       cursor: {
         custom: 'url(./src/assets/cursor.png), auto',

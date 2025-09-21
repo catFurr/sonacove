@@ -43,7 +43,7 @@ const {
 
     <PostHog />
   </head>
-  <body class="min-h-screen bg-[#F9FAFB] flex flex-col cursor-custom">
+  <body class="min-h-screen bg-[#F9FAFB] flex flex-col font-crimson cursor-custom">
     <main class="flex-1">
       <slot />
     </main>
@@ -54,9 +54,5 @@ const {
 <style is:global>
   html {
     scroll-behavior: smooth;
-  }
-
-  body {
-    font-family: var(--font-crimson-pro), serif;
   }
 </style>

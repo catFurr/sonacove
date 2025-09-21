@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { getUserManager } from '../../../utils/oidc-client';
+import { getUserManager } from '../../../utils/AuthService';
 
 const SilentRenew: React.FC = () => {
   useEffect(() => {
