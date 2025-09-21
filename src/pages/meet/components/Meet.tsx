@@ -7,66 +7,6 @@ import { getAuthService } from '../../../utils/AuthService';
 import { getGravatarUrl } from '../../../utils/gravatar';
 import Header from '../../../components/Header';
 
-const meetingsList = [
-  {
-    date: 'August 25, 2025',
-    title: 'Design Workshop with Ibrahim',
-    time: '8:20 PM',
-    status: 'Upcoming',
-  },
-  {
-    date: 'August 25, 2025',
-    title: 'Design Workshop with Ibrahim',
-    time: '8:20 PM',
-    status: 'Upcoming',
-  },
-  {
-    date: 'August 26, 2025',
-    title: 'Project Sync-Up',
-    time: '10:00 AM',
-    status: 'Upcoming',
-  },
-  {
-    date: 'August 27, 2025',
-    title: 'Marketing Brainstorm',
-    time: '3:30 PM',
-    status: 'Upcoming',
-  },
-];
-const recordings = [
-  {
-    title: 'Design Workshop with Ibrahim',
-    date: 'August 20, 2025',
-    duration: '1h 15m',
-  },
-  { 
-    title: 'Project Sync-Up',
-     date: 'August 18, 2025',
-      duration: '45m'
-  },
-  { title: 'Marketing Brainstorm',
-     date: 'August 15, 2025',
-      duration: '30m'
-  }
-];
-const notes = [
-  {
-    title: 'Follow-up: Q3 Roadmap',
-    date: 'August 25, 2025',
-    content: 'Key takeaways from the design workshop...',
-  },
-  {
-    title: 'Ideas from Marketing Sync',
-    date: 'August 22, 2025',
-    content: 'We discussed potential new ad campaigns...',
-  },
-  {
-    title: 'Client Onboarding Feedback',
-    date: 'August 20, 2025',
-    content: 'The client found the initial setup process a bit confusing...',
-  },
-];
-
 // --- Type Definition for the User state object ---
 export interface AppUser {
   name: string;
@@ -138,8 +78,8 @@ export default function Meet() {
             <UserCard
               user={appUser}
               meetingsList={meetingsList}
-              recordings={recordings}
-              notes={notes}
+              recordings={[]}
+              notes={[]}
               minutesUsed={appUser.minutesUsed}
               token={appUser.token}
             />
