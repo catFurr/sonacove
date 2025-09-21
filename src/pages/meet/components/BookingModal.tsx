@@ -6,7 +6,7 @@ import { X, Calendar, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import DateRangePicker from './DateRangePicker';
 import { useAuth } from '../../../hooks/useAuth';
-import { bookMeeting } from './utils';
+import { bookMeeting } from '../../../lib/api';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -58,11 +58,11 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
       let result;
       if (isPermanent){
         const currentDate = new Date()
-        const futureDate = addYears(currentDate, 1).toISOString() // 1 Year from the current date
+        const futureDate = addYears(currentDate, 1) // 1 Year from the current date
 
         result = await bookMeeting(roomName.trim(), futureDate, token)
       }else{
-        const endDate = isPermanent ? null : selectedRange?.to?.toISOString;
+        const endDate = isPermanent ? null : selectedRange?.to;
 
         result = await bookMeeting(roomName.trim(), endDate, token);
       }

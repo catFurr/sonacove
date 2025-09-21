@@ -3,6 +3,7 @@ import { getAuthService } from '../utils/AuthService';
 import { format } from 'date-fns';
 import type { DbUser } from '../pages/meet/components/types';
 import type { User as OidcUser } from 'oidc-client-ts';
+import { fetchDbUser } from '../lib/api';
 
 export interface Meeting {
   title: string;
@@ -36,23 +37,9 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
-    const fetchDbUser = async (token: string) => {
+    const getUserData = async (token: string) => {
       try {
-        const response = await fetch(
-          'https://bea7461c-sonacove.catfurr.workers.dev/api/db-user',
-          {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            `API call failed with status: ${response.status}`,
-          );
-        }
-
-        const data: DbUser = await response.json();
+        const data = await fetchDbUser(token);
         setDbUser(data);
       } catch (error) {
         console.error('Failed to fetch user from DB:', error);
@@ -61,7 +48,7 @@ export function useAuth() {
     };
 
     if (isLoggedIn && oidcUser?.access_token) {
-      fetchDbUser(oidcUser.access_token);
+      getUserData(oidcUser.access_token);
     } else {
       setDbUser(null);
     }

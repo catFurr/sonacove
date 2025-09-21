@@ -4,9 +4,6 @@ import { WifiOff } from 'lucide-react';
 import Button from '../../components/Button';
 
 export default function OfflinePage() {
-  const handleRetry = () => {
-    window.location.reload();
-  };
 
   return (
     <div className='bg-gray-50 min-h-screen'>
@@ -31,13 +28,11 @@ export default function OfflinePage() {
 
           {/* Call to Action Button */}
           <div className='mt-10'>
-            <Button
-              variant='primary'
-              onClick={handleRetry}
-              className='w-full sm:w-auto'
-            >
-              Try Again
-            </Button>
+            <a href='/static/offline' className='w-full'>
+              <Button variant='primary' className='w-full sm:w-auto'>
+                Try Again
+              </Button>
+            </a>
           </div>
         </div>
       </div>
