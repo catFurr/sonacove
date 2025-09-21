@@ -62,7 +62,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
 
         result = await bookMeeting(roomName.trim(), futureDate, token)
       }else{
-        const endDate = isPermanent ? null : selectedRange?.to;
+        const endDate = isPermanent ? null : selectedRange?.to ?? null;
 
         result = await bookMeeting(roomName.trim(), endDate, token);
       }
