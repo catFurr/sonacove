@@ -1,7 +1,6 @@
-// src/components/TestimonialsCarousel.tsx
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Autoplay, Pagination, Keyboard } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -19,13 +18,18 @@ const TestimonialsCarousel: React.FC<TestimonialsCarouselProps> = ({
   return (
     <div>
       <Swiper
-        modules={[Pagination, Navigation]}
+        modules={[Pagination]}
         spaceBetween={20}
         slidesPerView={1}
-        pagination={{ clickable: true, type: 'fraction' }}
+        pagination={{ clickable: true }}
         className='pb-14'
         autoHeight={true}
-        navigation={true}
+        loop={true}
+        autoplay={{
+          delay: 1500,
+          disableOnInteraction: false, // Continue autoplay after user interaction
+          pauseOnMouseEnter: true, // Pause autoplay when the user hovers over the slider
+        }}
       >
         {testimonials.map((testimonial, index) => (
           <SwiperSlide key={index} className='h-full'>
