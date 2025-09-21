@@ -225,6 +225,10 @@ const OnboardingFlow: React.FC = () => {
     }
   }, [currentView]);
 
+  const getMeetLink = () => {
+    return `/meet/#access_token=${accessToken}`;
+  }
+
   return (
     <>
       <Header pageType='landing' />
@@ -285,19 +289,15 @@ const OnboardingFlow: React.FC = () => {
                     <Button
                       onClick={openPaddleCheckout}
                       variant='primary'
-                      className='w-full'
+                      className='w-full mb-4'
                     >
                       Subscribe Now for Full Access
                     </Button>
-                    <Button
-                      onClick={() =>
-                        (window.location.href = `/meet/#access_token=${accessToken}`)
-                      }
-                      variant='secondary'
-                      className='w-full'
-                    >
-                      Continue with Trial
-                    </Button>
+                    <a href={getMeetLink()} className='w-full'>
+                      <Button variant='secondary' className='w-full'>
+                        Continue with Trial
+                      </Button>
+                    </a>
                   </div>
                 </>
               ) : (
@@ -314,15 +314,11 @@ const OnboardingFlow: React.FC = () => {
                       <strong>Status:</strong> Active
                     </p>
                   </div>
-                  <Button
-                    onClick={() =>
-                      (window.location.href = `/meet/#access_token=${accessToken}`)
-                    }
-                    variant='primary'
-                    className='w-full'
-                  >
-                    Go to Sonacove Meets
-                  </Button>
+                  <a href={getMeetLink()} className='w-full'>
+                    <Button variant='primary' className='w-full'>
+                      Go to Sonacove Meets
+                    </Button>
+                  </a>
                 </>
               )}
             </div>
@@ -356,15 +352,15 @@ const OnboardingFlow: React.FC = () => {
               )}
 
               <div className='mt-8 space-y-4'>
-                <Button
-                  onClick={() => {
-                    window.location.href = updateRegistrationUrl();
-                  }}
-                  variant='primary'
-                  className='w-full'
-                >
-                  Try Again
-                </Button>
+                <a href={updateRegistrationUrl()} className='w-full'>
+                  <Button
+                    onClick={() => {}}
+                    variant='primary'
+                    className='w-full'
+                  >
+                    Try Again
+                  </Button>
+                </a>
                 <a
                   href='mailto:support@sonacove.com'
                   className='block text-center text-primary-600 font-medium hover:underline'

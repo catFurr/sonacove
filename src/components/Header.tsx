@@ -29,11 +29,6 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    const handleClick = () => {
-      window.location.href = '/meet'
-    }
-
-
   // Center nav links - now data-driven
   const renderNavLinks = () => {
     if (pageType === 'landing') {
@@ -94,13 +89,11 @@ const Header: React.FC<HeaderProps> = ({
     // Landing page
     return (
       <div className='hidden md:flex gap-4 items-center'>
-        <Button
-          variant='primary'
-          onClick={handleClick}
-          className='hidden md:block'
-        >
-          Visit Platform
-        </Button>
+        <a href='/meet' className='hidden md:block'>
+          <Button variant='primary' className='hidden md:block'>
+            Visit Platform
+          </Button>
+        </a>
       </div>
     );
   };
@@ -125,12 +118,9 @@ const Header: React.FC<HeaderProps> = ({
                 {item.name}
               </a>
             ))}
-            <Button
-              variant='primary'
-              onClick={handleClick}
-            >
-              Visit Platform
-            </Button>
+            <a href='/meet'>
+              <Button variant='primary'>Visit Platform</Button>
+            </a>
           </>
         ) : user ? (
           <Button variant='secondary' onClick={() => logout()}>

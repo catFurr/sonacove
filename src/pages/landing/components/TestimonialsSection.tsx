@@ -4,11 +4,6 @@ import TestimonialsCarousel from './TestimonialsCarousel';
 import type { Review, Company, Testimonial } from './types';
 import TestimonialCard from './TestimonialCard';
 
-interface TestimonialGroup {
-  company: Company;
-  review: Review;
-}
-
 const testimonialsData: Testimonial[] = [
   {
     company: { name: 'Looo', rating: 4.9 },

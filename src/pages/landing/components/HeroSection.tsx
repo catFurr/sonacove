@@ -6,10 +6,6 @@ import PageHeader from "../../../components/PageHeader";
 
 const HeroSection: React.FC = () => {
 
-  const handleClick = () => {
-    window.location.href = '/onboarding'
-  }
-
   return (
     <div className='bg-[#F9FAFB] px-4 p-2'>
       {/* Header */}
@@ -31,12 +27,9 @@ const HeroSection: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className='mb-20 flex flex-col items-center justify-center gap-4 sm:flex-row'>
-            <Button
-              variant='secondary'
-              onClick={handleClick}
-            >
-              Start Teaching for Free
-            </Button>
+            <a href='/onboarding'>
+              <Button variant='secondary'>Start Teaching for Free</Button>
+            </a>
             <Button variant='tertiary'>See How It Works</Button>
           </div>
 

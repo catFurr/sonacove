@@ -202,7 +202,7 @@ const featuresData: Feature[] = [
 const Features: React.FC = () => {
   return (
     <>
-      <Header pageType='landing' activePage='Features'/>
+      <Header pageType='landing' activePage='Features' />
       <main className='py-12'>
         <div className='container mx-auto px-4'>
           <PageHeader title='All the Features You Need'>
@@ -229,9 +229,14 @@ const Features: React.FC = () => {
               user-friendly meeting platform available.
             </p>
             <div className='text-center'>
-                <Button variant='primary' onClick={() => window.location.href = '/onboarding'} className='tracking-wide px-10'>
-                    Get Started
+              <a href='/onboarding'>
+                <Button
+                  variant='primary'
+                  className='tracking-wide px-10'
+                >
+                  Get Started
                 </Button>
+              </a>
             </div>
           </section>
         </div>

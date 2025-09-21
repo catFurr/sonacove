@@ -48,10 +48,6 @@ const advantagesData = [
 
 const Comparison: React.FC = () => {
 
-  const handleClick = () => {
-     window.location.href = '/onboarding';
-  }
-
   return (
     <>
       <Header pageType='landing' activePage='Comparison' />
@@ -108,9 +104,11 @@ const Comparison: React.FC = () => {
               platform built on ethics, privacy, and genuine user empowerment.
             </p>
             <div className='text-center'>
-              <Button variant='primary' onClick={handleClick}>
-                Try Sonacove Meets Today
-              </Button>
+              <a href='/onboardind'>
+                <Button variant='primary'>
+                  Try Sonacove Meets Today
+                </Button>
+              </a>
             </div>
           </section>
         </div>
