@@ -21,7 +21,6 @@ export default defineConfig({
     defaultStrategy: 'hover',
   },
 
-
   experimental: {
     fonts: [
       {
@@ -51,6 +50,11 @@ export default defineConfig({
     ssr: {
       noExternal: ['react-dom/server'],
       external: ['node:buffer', 'node:stream', 'node:events'],
+    },
+    resolve: {
+      alias: {
+        'react-dom/server': 'react-dom/server.node'
+      },
     },
   },
 });
