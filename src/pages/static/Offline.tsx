@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../../components/Header';
-import { WifiOff } from 'lucide-react'; // A more specific and intuitive icon for "offline"
-import Button from '../../components/Button'; // Assuming you have a reusable Button component
+import { WifiOff } from 'lucide-react';
+import Button from '../../components/Button';
 
 export default function OfflinePage() {
   const handleRetry = () => {

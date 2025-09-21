@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../../components/Header';
-import { SearchX, ArrowRight } from 'lucide-react'; // A great icon for "not found"
-import Button from '../../components/Button'; // Assuming you have a reusable Button component
+import { SearchX, ArrowRight } from 'lucide-react';
+import Button from '../../components/Button';
 
 const NotFound: React.FC = () => {
 
@@ -10,7 +10,6 @@ const NotFound: React.FC = () => {
   }
 
   return (
-    // Use a full-screen container with a subtle background color
     <div className='min-h-screen'>
       <Header pageType='landing' />
 

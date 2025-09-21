@@ -1,8 +1,7 @@
 import React from 'react';
 import Header from '../../components/Header';
-import { ShieldX, Download } from 'lucide-react'; // A great icon for security/compatibility issues
+import { ShieldX, Download } from 'lucide-react';
 
-// Array of recommended browsers for easy mapping
 const recommendedBrowsers = [
   {
     name: 'Google Chrome',

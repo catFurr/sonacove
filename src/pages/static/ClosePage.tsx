@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Button from '../../components/Button';
 import Header from '../../components/Header';
-import { PartyPopper } from 'lucide-react'; // A great icon for a "thank you" or "finished" page
+import { PartyPopper } from 'lucide-react';
 
 const hints = [
   'You can pin participants by clicking on their thumbnails.',
@@ -12,7 +12,6 @@ const hints = [
 ];
 
 const ClosePage: React.FC = () => {
-  // Your logic for selecting a random hint is perfect, no changes needed here.
   const [hint, setHint] = useState<string>('');
 
   useEffect(() => {

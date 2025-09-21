@@ -48,14 +48,14 @@ export function useAuth() {
 
         if (!response.ok) {
           throw new Error(
-            `Proxy API call failed with status: ${response.status}`,
+            `API call failed with status: ${response.status}`,
           );
         }
 
         const data: DbUser = await response.json();
         setDbUser(data);
       } catch (error) {
-        console.error('Failed to fetch user from DB via proxy:', error);
+        console.error('Failed to fetch user from DB:', error);
         setDbUser(null);
       }
     };
