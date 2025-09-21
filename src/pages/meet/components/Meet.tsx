@@ -56,14 +56,6 @@ export default function Meet() {
     }
   }, [isLoggedIn, oidcUser]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const input = document.getElementById('room-input') as HTMLInputElement;
-    if (input && input.placeholder) {
-      window.location.href = `/meet/${input.placeholder}`;
-    }
-  };
-
   return (
     <div className='bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4 overflow-x-hidden'>
       <div className='w-full max-w-[1700px] mx-auto px-8'>
@@ -71,7 +63,7 @@ export default function Meet() {
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
-            <StartMeeting onSubmit={handleSubmit} isLoggedIn={isLoggedIn}/>
+            <StartMeeting isLoggedIn={isLoggedIn}/>
           </div>
 
           {appUser ? (

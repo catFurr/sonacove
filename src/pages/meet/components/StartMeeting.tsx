@@ -8,17 +8,21 @@ import PageHeader from '../../../components/PageHeader';
 import BookingModal from './BookingModal';
 
 interface Props {
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoggedIn: boolean;
 }
 
-const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
+const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const placeholderWords = generatePlaceholderWords(10); // generate random room names
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [roomName, setRoomName] = useState('');
+  const [placeholder, setPlaceholder] = useState('');
+
+  const placeholderWords = generatePlaceholderWords(10); // generate random room names
+
 
   useEffect(() => {
+    setPlaceholder(placeholderWords[0]);
     if (!inputRef.current) return;
 
     const cleanup = animatePlaceholder(
@@ -27,6 +31,7 @@ const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
       100, // typing speed
       50, // erasing speed
       1500, // pause after typing
+      setPlaceholder
     );
 
     return cleanup;
@@ -49,6 +54,9 @@ const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
     }
   };
 
+  const finalRoomName = roomName.trim() || placeholder;
+  console.log(finalRoomName)
+
   return (
     <>
       <div>
@@ -56,16 +64,18 @@ const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
           title='Secure and high quality meetings'
           className='text-left'
         >
-            The only online meeting platform that adapts to your teaching style,
-            not the other way around.
+          The only online meeting platform that adapts to your teaching style,
+          not the other way around.
         </PageHeader>
 
-        <form id='room-form' className='max-w-lg' onSubmit={onSubmit}>
+        <form id='room-form' className='max-w-lg'>
           <div className='relative w-full'>
             <input
               ref={inputRef}
               id='room-input'
               type='text'
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
               placeholder='Enter meeting name'
               className='w-full bg-transparent border-0 border-b border-gray-300 py-3 pl-3 text-2xl sm:text-3xl font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-primary-500 transition-colors'
             />
@@ -76,13 +86,15 @@ const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
           </p>
 
           <div className='flex max-[450px]:flex-col items-center gap-4'>
-            <Button
-              type='submit'
-              variant='primary'
-              className='w-full max-[445px]:w-full shadow-sm transition-transform hover:scale-105 will-change-transform'
-            >
-              Join meeting
-            </Button>
+            <a href={`/meet/${finalRoomName}`} className='w-full'>
+              <Button
+                type='button'
+                variant='primary'
+                className='w-full max-[445px]:w-full shadow-sm transition-transform hover:scale-105 will-change-transform'
+              >
+                Join meeting
+              </Button>
+            </a>
 
             <Button
               onClick={handleBookMeetingClick}

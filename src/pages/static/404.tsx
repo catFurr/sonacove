@@ -5,10 +5,6 @@ import Button from '../../components/Button';
 
 const NotFound: React.FC = () => {
 
-  const handleClick = () => {
-    window.location.href = '/meet'
-  }
-
   return (
     <div className='min-h-screen'>
       <Header pageType='landing' />
@@ -35,13 +31,14 @@ const NotFound: React.FC = () => {
 
           {/* Call to Action Buttons */}
           <div className='mt-8 flex flex-col sm:flex-row items-center justify-center gap-6'>
-            <Button
-              onClick={handleClick}
-              variant='primary'
-              className='w-full sm:w-auto'
-            >
-              Go to Homepage
-            </Button>
+            <a href='/meet'>
+              <Button
+                variant='primary'
+                className='w-full sm:w-auto'
+              >
+                Go to Homepage
+              </Button>
+            </a>
             <a
               href='mailto:support@sonacove.com'
               className='inline-flex items-center gap-2 font-semibold text-gray-600 hover:text-gray-900 transition-colors'

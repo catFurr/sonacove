@@ -20,10 +20,6 @@ const ClosePage: React.FC = () => {
     setHint(hints[n]);
   }, []);
 
-  const handleClick = () => {
-    window.location.href = '/meet'
-  }
-
   return (
     <div className='bg-gray-50 min-h-screen'>
       <Header pageType='landing' />
@@ -55,13 +51,14 @@ const ClosePage: React.FC = () => {
 
           {/* Call to Action Button */}
           <div className='mt-10'>
-            <Button
-              onClick={handleClick}
-              variant='primary'
-              className='w-full sm:w-auto'
-            >
-              Go to Homepage
-            </Button>
+            <a href='/meet' className='w-full'>
+              <Button
+                variant='primary'
+                className='w-full sm:w-auto'
+              >
+                Go to Homepage
+              </Button>
+            </a>
           </div>
         </div>
       </div>

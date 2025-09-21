@@ -37,10 +37,6 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  const handleClick = () => {
-    window.location.href = '/meet';
-  };
-
   const renderNavLinks = () => {
     if (pageType === 'landing') {
       return (
@@ -99,13 +95,14 @@ const Header: React.FC<HeaderProps> = ({
     // Landing page
     return (
       <div className='hidden md:flex gap-4 items-center'>
-        <Button
-          variant='primary'
-          onClick={handleClick}
-          className='hidden md:block'
-        >
-          Visit Platform
-        </Button>
+        <a href='/meet'>
+          <Button
+            variant='primary'
+            className='hidden md:block'
+          >
+            Visit Platform
+          </Button>
+        </a>
       </div>
     );
   };
@@ -130,9 +127,11 @@ const Header: React.FC<HeaderProps> = ({
                 {item.name}
               </a>
             ))}
-            <Button variant='primary' onClick={handleClick}>
-              Visit Platform
-            </Button>
+            <a href='/meet'>
+              <Button variant='primary'>
+                Visit Platform
+              </Button>
+            </a>
           </>
         ) : user ? (
           <Button
