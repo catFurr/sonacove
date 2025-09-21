@@ -9,7 +9,7 @@ import customSchema from './astro-env-schema';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind(), vue(), react()],
-  output: 'server',
+  output: 'static',
 
   env: {
     schema: customSchema,
@@ -48,7 +48,6 @@ export default defineConfig({
       minify: false, // Let cloudflare handle this.
     },
     ssr: {
-      noExternal: ['react-dom/server'],
       external: ['node:buffer', 'node:stream', 'node:events'],
     },
     resolve: {
