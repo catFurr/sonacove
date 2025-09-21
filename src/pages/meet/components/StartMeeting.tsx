@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { animatePlaceholder, generatePlaceholderWords } from './utils.ts';
 import { Lock } from 'lucide-react';
-import { getAuthService } from '../../../utils/AuthService'; // Import the auth service
+import { getAuthService } from '../../../utils/AuthService';
 
 import Button from '../../../components/Button';
 import PageHeader from '../../../components/PageHeader';
@@ -94,7 +94,7 @@ const StartMeeting: React.FC<Props> = ({ onSubmit, isLoggedIn }) => {
           </div>
 
           {!isLoggedIn && (
-            <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 bg-gray-50 p-2 rounded-lg'>
+            <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 p-2 rounded-lg'>
               <Lock size={14} className='text-gray-500 text-bold' />
               <span>Login required to book a meeting.</span>
             </div>

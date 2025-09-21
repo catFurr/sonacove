@@ -41,17 +41,21 @@ const UnsupportedBrowser: React.FC = () => {
 
           {/* Recommended Browsers Section */}
           <div className='mt-8'>
-            <h3 className='font-semibold text-gray-700'>
+            <h3 className='font-semibold text-gray-700 mb-6'>
               We recommend one of these free browsers:
             </h3>
-            <div className='mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {recommendedBrowsers.map((browser) => (
+            <div className='flex flex-wrap gap-4'>
+              {recommendedBrowsers.map((browser, index) => (
                 <a
                   key={browser.name}
                   href={browser.href}
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-4 text-left transition-all hover:bg-gray-50 hover:shadow-sm'
+                  className={`
+                    flex-1 flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-4 text-left 
+                    transition-all hover:bg-gray-50 hover:shadow-sm
+                    w-full sm:w-[calc(50%-0.5rem)]
+                  `}
                 >
                   <span className='font-semibold text-gray-800'>
                     {browser.name}
