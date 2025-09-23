@@ -54,6 +54,7 @@ export default defineConfig({
       // alias: {
       //   postgres: 'postgres/dist/index.js',
       // },
+      conditions: ['node'],
     },
   },
 });

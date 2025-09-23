@@ -8,7 +8,6 @@
     "dist"
   ],
   "compilerOptions": {
-    "jsx": "preserve",
-    "conditions": ["node"]
+    "jsx": "preserve"
   }
 }
