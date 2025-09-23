@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { animatePlaceholder, generatePlaceholderWords } from './utils.ts';
+import { animatePlaceholder, generatePlaceholderWords } from '../../../utils/placeholder.ts';
 import { Lock } from 'lucide-react';
 import { getAuthService } from '../../../utils/AuthService';
 

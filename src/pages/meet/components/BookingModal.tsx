@@ -6,7 +6,7 @@ import { X, Calendar, Loader2 } from 'lucide-react';
 import Button from '../../../components/Button';
 import DateRangePicker from './DateRangePicker';
 import { useAuth } from '../../../hooks/useAuth';
-import { bookMeeting } from '../../../lib/api';
+import { bookMeeting } from '../../../utils/api';
 
 interface BookingModalProps {
   isOpen: boolean;

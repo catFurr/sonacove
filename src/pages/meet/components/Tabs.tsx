@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import type { Meeting, Note, Recording } from './types';
 import ToggleSwitch from '../../../components/ToggleSwitch';
-import { deleteBooking } from '../../../lib/api'; 
+import { deleteBooking } from '../../../utils/api'; 
 import Button from '../../../components/Button';
 import BookingModal from './BookingModal';
 
