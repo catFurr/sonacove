@@ -127,16 +127,14 @@ class authService {
   /**
    * Redirects the user to the Keycloak registration page.
    */
-  public signup(): void {
-    const settings = this.userManager.settings;
-    const registrationUrl =
-      `${settings.authority}/protocol/openid-connect/registrations` +
-      `?client_id=${settings.client_id}` +
-      `&response_type=${settings.response_type}` +
-      `&scope=${encodeURIComponent(settings.scope ?? '')}` +
-      `&redirect_uri=${encodeURIComponent(settings.redirect_uri)}`;
-
-    window.location.href = registrationUrl;
+  public signup(): Promise<void> {
+    return this.userManager.signinRedirect({
+      state: window.location.pathname + window.location.search,
+      extraQueryParams: {
+        prompt: 'create',
+        kc_action: 'register',
+      },
+    });
   }
 
   /**
