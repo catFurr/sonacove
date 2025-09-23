@@ -6,6 +6,8 @@ import { useAuth } from '../../../hooks/useAuth';
 import { getAuthService } from '../../../utils/AuthService';
 import { getGravatarUrl } from '../../../utils/gravatar';
 import Header from '../../../components/Header';
+import { AlertTriangle, X } from 'lucide-react';
+import Popup from '../../../components/Popup';
 
 // --- Type Definition for the User state object ---
 export interface AppUser {
@@ -21,19 +23,14 @@ export default function Meet() {
   const { isLoggedIn, dbUser, user: oidcUser, meetings: meetingsList } = useAuth();
 
   const [appUser, setAppUser] = useState<AppUser | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
-    const authService = getAuthService();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'login_failed') {
+      setLoginError('Authentication failed. Please try logging in again.');
 
-    if (authService && window.location.search.includes('code=')) {
-      authService.handleLoginCallback().then(() => {
-        // Clean the URL after the login is processed
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
-      });
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
@@ -41,7 +38,7 @@ export default function Meet() {
     if (isLoggedIn && oidcUser) {
       const { name, email, context, picture } = oidcUser.profile;
       // const minutesUsed = context?.user?.minutes_used ?? 0;
-      const minutesUsed = dbUser?.totalHostMinutes ?? 0;
+      const minutesUsed = dbUser?.user.totalHostMinutes ?? 0;
 
       setAppUser({
         name: name ?? 'User',
@@ -54,16 +51,23 @@ export default function Meet() {
     } else {
       setAppUser(null);
     }
-  }, [isLoggedIn, oidcUser]);
+  }, [isLoggedIn, oidcUser, dbUser]);
 
   return (
     <div className='bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4 overflow-x-hidden'>
+      <Popup
+        message={loginError}
+        type='error'
+        onClose={() => setLoginError(null)}
+      />
+
       <div className='w-full max-w-[1700px] mx-auto px-8'>
         <Header pageType='welcome' user={appUser ?? undefined} />
+
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
-            <StartMeeting isLoggedIn={isLoggedIn}/>
+            <StartMeeting isLoggedIn={isLoggedIn} />
           </div>
 
           {appUser ? (

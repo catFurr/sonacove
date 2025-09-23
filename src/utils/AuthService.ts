@@ -27,7 +27,7 @@ export function getUserManager(): UserManager {
   const settings: UserManagerSettings = {
     authority: 'https://staj.sonacove.com/auth/realms/jitsi',
     client_id: 'jitsi-web',
-    redirect_uri: window.location.origin + '/meet',
+    redirect_uri: window.location.origin + '/login-callback',
     post_logout_redirect_uri: window.location.origin + '/meet',
     silent_redirect_uri: window.location.origin + '/silent-renew',
     response_type: 'code',
@@ -119,7 +119,9 @@ class authService {
    * Kicks off the login process by redirecting to the login page.
    */
   public login(): Promise<void> {
-    return this.userManager.signinRedirect();
+    return this.userManager.signinRedirect({
+      state: window.location.pathname + window.location.search,
+    });
   }
 
   /**

@@ -52,7 +52,7 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        'react-dom/server': 'react-dom/server.node'
+        postgres: 'postgres/dist/index.js',
       },
     },
   },
