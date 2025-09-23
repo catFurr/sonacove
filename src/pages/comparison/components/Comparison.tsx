@@ -104,7 +104,7 @@ const Comparison: React.FC = () => {
               platform built on ethics, privacy, and genuine user empowerment.
             </p>
             <div className='text-center'>
-              <a href='/onboardind'>
+              <a href='/onboarding'>
                 <Button variant='primary'>
                   Try Sonacove Meets Today
                 </Button>
