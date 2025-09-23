@@ -20,7 +20,7 @@ export interface AppUser {
 }
 
 export default function Meet() {
-  const { isLoggedIn, dbUser, user: oidcUser, meetings: meetingsList } = useAuth();
+  const { isLoggedIn, dbUser, user: oidcUser, meetings: meetingsList, refetchMeetings } = useAuth();
 
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -79,6 +79,8 @@ export default function Meet() {
               minutesUsed={appUser.minutesUsed}
               token={appUser.token}
               maxBookings={dbUser?.user.maxBookings ?? 1}
+              onMeetingDeleted={refetchMeetings}
+              
             />
           ) : (
             <div className='relative lg:col-span-3 w-full h-full mt-12 lg:mt-0'>

@@ -6,10 +6,11 @@ import {
   CircleCheck,
   Trash2,
   CalendarPlus,
+  Loader2,
 } from 'lucide-react';
 import type { Meeting, Note, Recording } from './types';
 import ToggleSwitch from '../../../components/ToggleSwitch';
-import { deleteBooking } from '../../../utils/api'; 
+import { deleteBooking } from '../../../utils/api';
 import Button from '../../../components/Button';
 import BookingModal from './BookingModal';
 
@@ -18,9 +19,10 @@ interface Props {
   recordings: Recording[];
   notes: Note[];
   token: string | undefined;
+  onMeetingDeleted: () => void;
 }
 
-const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
+const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token, onMeetingDeleted }) => {
   const [activeTab, setActiveTab] = useState<'meetings' | 'recordings' | 'notes'>('meetings');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,7 +30,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
   const [recordingsSort, setRecordingsSort] = useState<'newest' | 'oldest'>('newest');
   const [notesSort, setNotesSort] = useState<'newest' | 'oldest'>('newest');
 
-  const [localMeetings, setLocalMeetings] = useState(meetingsList);
+  const [deletingMeetingId, setDeletingMeetingId] = useState<string | null>(null);
 
   const sortedRecordings = [...recordings].sort((a, b) => {
     const timeA = new Date(a.date).getTime();
@@ -43,27 +45,23 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
   });
 
   const handleDeleteMeeting = async (roomName: string) => {
+    setDeletingMeetingId(roomName); // Set loading state for this specific item
     try {
-      if(roomName.trim() && token){
-
+      if (roomName.trim() && token) {
         await deleteBooking(roomName, token);
-        
-        // remove from UI
-        setLocalMeetings((prev) =>
-          prev.filter((meeting) => meeting.title !== roomName),
-      );
-      
-      console.log(`Meeting "${roomName}" deleted successfully`);
-    }
+        onMeetingDeleted();
+        console.log(`Meeting "${roomName}" deleted successfully`);
+      }
     } catch (error) {
       console.error('Failed to delete meeting:', error);
-      alert('Could not delete meeting. Please try again.');
+      console.error('Could not delete meeting. Please try again.');
+    } finally {
+      setDeletingMeetingId(null); // Clear loading state regardless of outcome
     }
   };
 
   const handleBookMeetingClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
- 
     setIsModalOpen(true);
   };
 
@@ -116,7 +114,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
           {activeTab === 'meetings' && (
             <div>
               {meetingsList.length === 0 ? (
-                <div className='text-center py-12'>
+                <div className='flex flex-col justify-center text-center py-12 min-h-[400px]'>
                   <div className='flex flex-col items-center justify-center max-w-lg mx-auto p-12 rounded-xl'>
                     <div className='flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-6'>
                       <CalendarPlus className='w-8 h-8 text-primary-600' />
@@ -140,7 +138,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
                   </div>
                 </div>
               ) : (
-                <div className='text-center sm:text-left'>
+                <div className='text-center sm:text-left min-h-[400px]'>
                   <ToggleSwitch
                     options={['All', 'Upcoming', 'Past']}
                     activeOption={meetingsFilter}
@@ -149,38 +147,46 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token }) => {
                   />
                   <div className='space-y-6'>
                     {meetingsList &&
-                      meetingsList.map((meeting, i) => (
-                        <div
-                          key={i}
-                          className='flex flex-col sm:flex-row sm:items-start sm:gap-24 pb-4 border-b border-gray-100 last:border-b-0'
-                        >
-                          <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0'>
-                            <p className='font-semibold'>{meeting.date}</p>
-                            <p>{meeting.time}</p>
-                          </div>
-
-                          <div className='text-left'>
-                            <p className='text-2xl font-bold text-black mb-2'>
-                              {meeting.title}
-                            </p>
-                            <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
-                              <CircleCheck
-                                strokeWidth={3}
-                                className='w-4 h-4'
-                              />
-                              {meeting.status}
-                            </span>
-                          </div>
-
-                          <button
-                            onClick={() => handleDeleteMeeting(meeting.title)}
-                            className='ml-auto p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors'
-                            aria-label={`Delete meeting ${meeting.title}`}
+                      meetingsList.map((meeting, i) => {
+                        const isDeleting = deletingMeetingId === meeting.title;
+                        return (
+                          <div
+                            key={i}
+                            className={`flex flex-col sm:flex-row sm:items-start sm:gap-24 pb-4 border-b border-gray-100 last:border-b-0 transition-opacity ${
+                              isDeleting ? 'opacity-50' : ''
+                            }`}
                           >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      ))}
+                            <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0'>
+                              <p className='font-semibold'>{meeting.date}</p>
+                              <p>{meeting.time}</p>
+                            </div>
+                            <div className='text-left'>
+                              <p className='text-2xl font-bold text-black mb-2'>
+                                {meeting.title}
+                              </p>
+                              <span className='inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full'>
+                                <CircleCheck
+                                  strokeWidth={3}
+                                  className='w-4 h-4'
+                                />
+                                {meeting.status}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteMeeting(meeting.title)}
+                              className='ml-auto p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                              aria-label={`Delete meeting ${meeting.title}`}
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? (
+                                <Loader2 size={18} className='animate-spin' />
+                              ) : (
+                                <Trash2 size={18} />
+                              )}
+                            </button>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               )}

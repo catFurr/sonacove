@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getAuthService } from '../utils/AuthService';
 import { format } from 'date-fns';
 import type { DbUser } from '../pages/meet/components/types';
@@ -23,7 +23,6 @@ export function useAuth() {
   );
   const [dbUser, setDbUser] = useState<DbUser | null>(null);
 
-  // 1. New state to hold the transformed list of meetings
   const [meetings, setMeetings] = useState<Meeting[]>([]);
 
   // Effect to keep the hook's state in sync with the AuthService
@@ -34,6 +33,23 @@ export function useAuth() {
       setOidcUser(state.user);
     });
     return unsubscribe;
+  }, []);
+
+  const refetchMeetings = useCallback(async () => {
+    const token = authService?.getAccessToken();
+    if (!token) {
+      console.error('Refetch failed: No user is logged in.');
+      return;
+    }
+
+    console.log('Refetching meetings data...');
+    try {
+      const data = await fetchDbUser(token);
+      setDbUser(data);
+    } catch (error) {
+      console.error('Failed to refetch user from DB:', error);
+      setDbUser(null); // Clear data on a failed refetch
+    }
   }, []);
 
   useEffect(() => {
@@ -81,6 +97,7 @@ export function useAuth() {
     dbUser,
     user: oidcUser,
     meetings,
+    refetchMeetings,
     login: () => authService?.login(),
     logout: () => authService?.logout(),
     getAccessToken: () => authService?.getAccessToken() ?? null,

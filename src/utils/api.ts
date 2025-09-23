@@ -1,10 +1,6 @@
 import type { DbUser } from '../pages/meet/components/types';
-import { PUBLIC_CF_ENV } from 'astro:env/client';
 
-const API_BASE_URL =
-  PUBLIC_CF_ENV === 'production'
-    ? 'https://sonacove.com/api'
-    : 'https://bea7461c-sonacove.catfurr.workers.dev/api';
+const API_BASE_URL = 'api';
 
 
 async function handleApiResponse(response: Response) {

@@ -51,9 +51,9 @@ export default defineConfig({
       external: ['node:buffer', 'node:stream', 'node:events'],
     },
     resolve: {
-      alias: {
-        postgres: 'postgres/dist/index.js',
-      },
+      // alias: {
+      //   postgres: 'postgres/dist/index.js',
+      // },
     },
   },
 });
