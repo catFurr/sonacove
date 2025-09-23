@@ -24,6 +24,11 @@ export interface DbUser {
   bookedRooms: any[];
 }
 
+export interface LocalStorageMeeting {
+  conference: string;
+  date: number;
+  duration?: number;
+}
 
 export interface Meeting {
   title: string;

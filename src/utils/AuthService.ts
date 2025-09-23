@@ -1,7 +1,8 @@
-import { User } from 'oidc-client-ts';
 import {
+  User,
   UserManager,
   WebStorageStateStore,
+  InMemoryWebStorage,
   type UserManagerSettings,
 } from 'oidc-client-ts';
 
@@ -12,28 +13,29 @@ let userManager: UserManager | null = null;
  * This function ensures that UserManager and its settings are only created on the client-side.
  */
 export function getUserManager(): UserManager {
-  // If we are on the server, return a mock object to prevent crashes.
-  if (typeof window === 'undefined') {
-    return null as any;
-  }
-
-  // If the instance already exists, return it.
   if (userManager) {
     return userManager;
   }
 
-  // We are in the browser and the instance hasn't been created yet.
-  // Define the settings object here, where `window` is available.
+  const isServer = typeof window === 'undefined';
+
+  const siteUrl = isServer
+    ? import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321'
+    : window.location.origin;
+  const userStore = isServer
+    ? new WebStorageStateStore({ store: new InMemoryWebStorage() })
+    : new WebStorageStateStore({ store: window.localStorage });
+
   const settings: UserManagerSettings = {
     authority: 'https://staj.sonacove.com/auth/realms/jitsi',
     client_id: 'jitsi-web',
-    redirect_uri: window.location.origin + '/login-callback',
-    post_logout_redirect_uri: window.location.origin + '/meet',
-    silent_redirect_uri: window.location.origin + '/silent-renew',
+    redirect_uri: `${siteUrl}/login-callback`,
+    post_logout_redirect_uri: `${siteUrl}/meet`,
+    silent_redirect_uri: `${siteUrl}/silent-renew`,
     response_type: 'code',
     scope: 'openid profile email',
     automaticSilentRenew: true,
-    userStore: new WebStorageStateStore({ store: window.localStorage }),
+    userStore: userStore,
   };
 
   // Create the instance.
@@ -50,17 +52,13 @@ type AuthState = {
 
 type AuthStateListener = (state: AuthState) => void;
 
-class authService {
+class AuthService {
   private userManager = getUserManager();
   private state: AuthState = { user: null, isLoggedIn: false };
   private listeners: Set<AuthStateListener> = new Set();
 
   constructor() {
-    // The constructor should only kick off the process.
-    // getUserManager() will be null on the server, so we must guard it.
-    if (this.userManager) {
-      this.initialize();
-    }
+    this.initialize();
   }
 
   /**
@@ -71,17 +69,9 @@ class authService {
     const user = await this.userManager.getUser();
     this.updateState(user);
 
-    // Register events from the oidc-client library
-    this.userManager.events.addUserLoaded((user) => {
-      console.log('AuthService: User loaded');
-      this.updateState(user);
-    });
-
-    this.userManager.events.addUserUnloaded(() => {
-      console.log('AuthService: User unloaded');
-      this.updateState(null);
-    });
-
+    // It's safe to attach these on the server; they just won't be triggered.
+    this.userManager.events.addUserLoaded((user) => this.updateState(user));
+    this.userManager.events.addUserUnloaded(() => this.updateState(null));
     this.userManager.events.addSilentRenewError((error) => {
       console.error('AuthService: Silent renew error', error);
       this.updateState(null);
@@ -100,8 +90,6 @@ class authService {
     this.listeners.forEach((listener) => listener(this.state));
   }
 
-  // --- Public API ---
-
   /**
    * Subscribes to authentication state changes.
    * @param listener The callback function to execute on change.
@@ -115,10 +103,20 @@ class authService {
     return () => this.listeners.delete(listener);
   }
 
+  // --- Browser-Only Methods with Safety Checks ---
+  private ensureBrowser(): void {
+    if (typeof window === 'undefined') {
+      throw new Error(
+        'This authentication method can only be called in a browser environment.',
+      );
+    }
+  }
+
   /**
    * Kicks off the login process by redirecting to the login page.
    */
   public login(): Promise<void> {
+    this.ensureBrowser();
     return this.userManager.signinRedirect({
       state: window.location.pathname + window.location.search,
     });
@@ -128,6 +126,7 @@ class authService {
    * Redirects the user to the Keycloak registration page.
    */
   public signup(): Promise<void> {
+    this.ensureBrowser();
     return this.userManager.signinRedirect({
       state: window.location.pathname + window.location.search,
       extraQueryParams: {
@@ -142,6 +141,7 @@ class authService {
    * @returns The user object.
    */
   public handleLoginCallback(): Promise<User | null> {
+    this.ensureBrowser();
     return this.userManager.signinRedirectCallback();
   }
 
@@ -149,6 +149,7 @@ class authService {
    * Kicks off the logout process.
    */
   public logout(): Promise<void> {
+    this.ensureBrowser();
     return this.userManager.signoutRedirect();
   }
 
@@ -175,21 +176,12 @@ class authService {
   }
 }
 
-// --- Singleton Getter ---
-let authServiceInstance: authService | null = null;
+// --- Isomorphic Singleton Getter ---
+let authServiceInstance: AuthService | null = null;
 
-/**
- * A singleton getter for the AuthService.
- * Ensures the service is only instantiated on the client.
- */
-export function getAuthService(): authService {
-  // On the server, return a mock object.
-  if (typeof window === 'undefined') {
-    return null as any;
-  }
-
+export function getAuthService(): AuthService {
   if (!authServiceInstance) {
-    authServiceInstance = new authService();
+    authServiceInstance = new AuthService();
   }
 
   return authServiceInstance;
