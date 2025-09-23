@@ -11,9 +11,10 @@ import { bookMeeting } from '../../../utils/api';
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBookingSuccess: () => void;
 }
 
-const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
+const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingSuccess }) => {
   const { getAccessToken } = useAuth();
 
   // --- Form State ---
@@ -68,6 +69,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose }) => {
       }
 
       console.log('Success!', result);
+      onBookingSuccess();
       onClose();
     } catch (err) {
       setError(

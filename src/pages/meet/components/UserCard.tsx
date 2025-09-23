@@ -8,6 +8,7 @@ interface UserCardProps extends User {
   minutesUsed?: number;
   maxBookings: number;
   onMeetingDeleted: () => void;
+  onMeetingBooked: () => void;
 }
 
 function capitalizeFirstLetter(str: string): string {
@@ -15,7 +16,7 @@ function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, notes, minutesUsed, token, maxBookings, onMeetingDeleted }) => {
+const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, notes, minutesUsed, token, maxBookings, onMeetingDeleted, onMeetingBooked }) => {
   const [subscriptionUrl, setSubscriptionUrl] = useState('');
 
   // The token's validity is now determined entirely by the parent.
@@ -163,6 +164,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
         notes={notes}
         token={token}
         onMeetingDeleted={onMeetingDeleted}
+        onMeetingBooked={onMeetingBooked}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { animatePlaceholder, generatePlaceholderWords } from '../../../utils/placeholder.ts';
-import { Lock } from 'lucide-react';
+import { Info, Lock } from 'lucide-react';
 import { getAuthService } from '../../../utils/AuthService';
 
 import Button from '../../../components/Button';
@@ -9,9 +9,11 @@ import BookingModal from './BookingModal';
 
 interface Props {
   isLoggedIn: boolean;
+  onMeetingBooked: () => void;
+  isBookingLimitReached: boolean;
 }
 
-const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
+const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingLimitReached }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,6 +43,9 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
     e.preventDefault();
 
     if (isLoggedIn) {
+      // Prevent opening the modal if the limit is reached
+      if (isBookingLimitReached) return;
+
       setIsModalOpen(true);
     } else {
       const authService = getAuthService();
@@ -55,6 +60,8 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
   };
 
   const finalRoomName = roomName.trim() || placeholder;
+
+  const isButtonDisabled = isLoggedIn && isBookingLimitReached;
 
   return (
     <>
@@ -98,11 +105,19 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
             <Button
               onClick={handleBookMeetingClick}
               variant='secondary'
-              className='w-full max-[445px]:w-full shadow-sm transition-transform hover:scale-105 will-change-transform'
+              className='w-full max-[445px]:w-full shadow-sm transition-transform hover:scale-105 will-change-transform disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
+              disabled={isButtonDisabled}
             >
               Book meeting
             </Button>
           </div>
+
+          {isLoggedIn && isBookingLimitReached && (
+            <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-600 p-2 rounded-lg'>
+              <Info size={14} />
+              <span>Booking limit reached.</span>
+            </div>
+          )}
 
           {!isLoggedIn && (
             <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 p-2 rounded-lg'>
@@ -117,6 +132,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn }) => {
         <BookingModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          onBookingSuccess={onMeetingBooked}
         />
       )}
     </>

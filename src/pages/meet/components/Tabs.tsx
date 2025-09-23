@@ -20,9 +20,10 @@ interface Props {
   notes: Note[];
   token: string | undefined;
   onMeetingDeleted: () => void;
+  onMeetingBooked: () => void;
 }
 
-const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token, onMeetingDeleted }) => {
+const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token, onMeetingDeleted, onMeetingBooked }) => {
   const [activeTab, setActiveTab] = useState<'meetings' | 'recordings' | 'notes'>('meetings');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -295,6 +296,7 @@ const Tabs: React.FC<Props> = ({ meetingsList, recordings, notes, token, onMeeti
       <BookingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onBookingSuccess={onMeetingBooked}
       />
     </>
   );

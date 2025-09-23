@@ -53,6 +53,11 @@ export default function Meet() {
     }
   }, [isLoggedIn, oidcUser, dbUser]);
 
+    const usedBookings = meetingsList.filter((m) => m.status === 'Upcoming').length;
+    const maxBookings = dbUser?.user.maxBookings ?? 1;
+
+    const isBookingLimitReached = usedBookings >= maxBookings;
+
   return (
     <div className='bg-gradient-to-b from-[#F3F3F3] to-[#FAFAFA] min-h-screen p-4 overflow-x-hidden'>
       <Popup
@@ -67,7 +72,7 @@ export default function Meet() {
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
-            <StartMeeting isLoggedIn={isLoggedIn} />
+            <StartMeeting isLoggedIn={isLoggedIn} onMeetingBooked={refetchMeetings} isBookingLimitReached={isBookingLimitReached} />
           </div>
 
           {appUser ? (
@@ -80,7 +85,7 @@ export default function Meet() {
               token={appUser.token}
               maxBookings={dbUser?.user.maxBookings ?? 1}
               onMeetingDeleted={refetchMeetings}
-              
+              onMeetingBooked={refetchMeetings}
             />
           ) : (
             <div className='relative lg:col-span-3 w-full h-full mt-12 lg:mt-0'>

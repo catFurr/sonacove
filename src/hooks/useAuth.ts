@@ -42,7 +42,6 @@ export function useAuth() {
       return;
     }
 
-    console.log('Refetching meetings data...');
     try {
       const data = await fetchDbUser(token);
       setDbUser(data);
