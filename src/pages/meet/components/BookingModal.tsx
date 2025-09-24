@@ -106,7 +106,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
       className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm'
     >
       {isDatePickerOpen ? (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div className='w-full flex justify-center' onClick={(e) => e.stopPropagation()}>
           <DateRangePicker
             initialRange={selectedRange}
             onApply={handleDateApply}

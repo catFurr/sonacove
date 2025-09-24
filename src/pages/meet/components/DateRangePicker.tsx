@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DayPicker, type DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import Button from '../../../components/Button';
@@ -17,6 +17,28 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('Calendar');
   const [range, setRange] = useState<DateRange | undefined>(initialRange);
+
+  const useMediaQuery = (query: string) => {
+    const [matches, setMatches] = useState(false);
+
+    useEffect(() => {
+      if (typeof window === 'undefined') return;
+
+      const media = window.matchMedia(query);
+      if (media.matches !== matches) {
+        setMatches(media.matches);
+      }
+      const listener = () => setMatches(media.matches);
+      window.addEventListener('resize', listener);
+      return () => window.removeEventListener('resize', listener);
+    }, [matches, query]);
+
+    return matches;
+  };
+
+  const isDesktop = useMediaQuery('(min-width: 640px)');
+
+  const numberOfMonths = isDesktop ? 2 : 1;
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
@@ -49,7 +71,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     );
 
   return (
-    <div className='bg-white rounded-xl shadow-2xl p-4 border border-gray-200 w-[620px]'>
+    <div className='bg-white rounded-xl shadow-2xl p-4 border border-gray-200 w-full max-w-md sm:max-w-none sm:w-[640px]'>
       {/* Tabs */}
       <div className='flex border-b mb-4'>
         {['Calendar', 'Permanent'].map((tab) => (
@@ -68,48 +90,52 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         ))}
       </div>
 
-      <div className='min-h-[350px]'>
+      <div className='min-h-[350px] mb-5 flex justify-center'>
         {' '}
         {activeTab === 'Calendar' ? (
-      <DayPicker
-      hideNavigation
-        mode='range'
-        numberOfMonths={2}
-        selected={range}
-        onSelect={setRange}
-        showOutsideDays
-        className='inset-shadow-sm'
-        classNames={{
-          root: 'p-0',
-          months: 'flex flex-col sm:flex-row',
-          month: `space-y-4 w-full sm:w-1/2 border-y border-gray-200 p-4 border-2
-            sm:first-of-type:border-l sm:first-of-type:rounded-tl-xl first-of-type:border-r
-            sm:last-of-type:border-r sm:last-of-type:rounded-tr-xl first-of-type:border-l`,
-          month_caption: 'bg-gray-100 p-1 text-center tracking-wide rounded-md',
-          caption: 'flex justify-center items-center relative h-8',
-          caption_label: 'text-sm font-semibold',
-          nav: 'flex items-center',
-          table: 'w-full border-collapse space-y-1',
-          head_row: 'flex',
-          head_cell:
-            'text-gray-500 rounded-md w-9 font-semibold text-xs uppercase',
-          row: 'flex w-full mt-2',
-          cell: 'h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-orange-100 first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full focus-within:relative focus-within:z-20',
-          today: 'text-bold',
-          day: 'text-center h-9 w-9 p-2 font-normal transition-colors',
-          day_selected:
-            'bg-orange-500 text-white focus:bg-orange-600 rounded-full',
-          day_today: 'font-bold text-orange-500',
-          day_range_middle:
-            'aria-selected:bg-orange-100 aria-selected:text-black',
-          day_hidden: 'invisible',
-          day_outside: 'text-gray-400 opacity-50',
-          weekdays: 'text-black/40 font-medium',
-          range_middle: 'text-primary-800 bg-primary-500/40',
-          range_start: 'rounded-md text-white bg-primary-600',
-          range_end: 'rounded-md text-white bg-primary-600',
-        }}
-      />
+          <DayPicker
+            mode='range'
+            numberOfMonths={numberOfMonths}
+            selected={range}
+            onSelect={setRange}
+            showOutsideDays
+            pagedNavigation={true}
+            className='inset-shadow-sm flex'
+            classNames={{
+              root: 'p-0',
+              months: 'flex flex-col sm:flex-row',
+              month: `space-y-4 w-full sm:w-1/2 border-y border-gray-200 p-4 border-2
+                sm:first-of-type:border-l sm:first-of-type:rounded-l-xl first-of-type:border-r
+                sm:last-of-type:border-r sm:last-of-type:rounded-r-xl first-of-type:border-l`,
+              month_caption:
+                'bg-gray-100 p-1 text-center tracking-wide rounded-md',
+              caption: 'flex justify-center items-center relative h-8',
+              caption_label: 'text-sm font-semibold',
+              nav: 'flex items-center justify-center pr-2 pb-2',
+              table: 'w-full border-collapse space-y-1',
+              head_row: 'flex',
+              head_cell:
+                'text-gray-500 rounded-md w-9 font-semibold text-xs uppercase',
+              row: 'flex w-full mt-2',
+              cell: 'h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-orange-100 first:[&:has([aria-selected])]:rounded-l-full last:[&:has([aria-selected])]:rounded-r-full focus-within:relative focus-within:z-20',
+              today: 'text-primary-600',
+              day: 'text-center h-9 w-9 p-2 font-normal transition-colors hover:bg-gray-200/70 rounded-md',
+              day_selected:
+                'bg-orange-500 text-white focus:bg-orange-600 rounded-full',
+              day_today: 'font-bold text-orange-500',
+              day_range_middle:
+                'aria-selected:bg-orange-100 aria-selected:text-black aria-selected:rounded-none',
+              day_hidden: 'invisible',
+              day_outside: 'text-gray-400 opacity-50',
+              weekdays: 'text-black/40 font-medium',
+              range_middle:
+                'text-primary-800 bg-primary-500/40 hover:bg-primary-500/60 rounded-none',
+              range_start:
+                'rounded-md text-white bg-primary-600 hover:bg-orange-700',
+              range_end:
+                'rounded-md text-white bg-primary-600 hover:bg-orange-700',
+            }}
+          />
         ) : (
           <div className='flex flex-col items-center justify-center text-center h-full p-8 pt-16'>
             <div className='flex items-center justify-center h-20 w-20 rounded-full bg-primary-100 mb-4'>
@@ -127,9 +153,9 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
       </div>
 
       {/* Footer */}
-      <div className='flex items-center justify-between py-4 p-3 border-t'>
+      <div className='flex flex-col gap-3 sm:flex-row items-center justify-between py-4 p-3 border-t'>
         <span className='text-md text-gray-600 pl-3'>{footerContent}</span>
-        <div className='flex gap-2'>
+        <div className='flex flex-col sm:flex-row w-full sm:w-auto gap-2'>
           <Button variant='tertiary' onClick={onClose} className='px-10'>
             Cancel
           </Button>
