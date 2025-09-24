@@ -50,11 +50,5 @@ export default defineConfig({
     ssr: {
       external: ['node:buffer', 'node:stream', 'node:events'],
     },
-    resolve: {
-      // alias: {
-      //   postgres: 'postgres/dist/index.js',
-      // },
-      conditions: ['node'],
-    },
   },
 });

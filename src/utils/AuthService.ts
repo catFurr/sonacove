@@ -33,7 +33,7 @@ export function getUserManager(): UserManager {
     post_logout_redirect_uri: `${siteUrl}/meet`,
     silent_redirect_uri: `${siteUrl}/silent-renew`,
     response_type: 'code',
-    scope: 'openid profile email',
+    scope: 'openid profile email offline_access',
     automaticSilentRenew: true,
     userStore: userStore,
   };
@@ -65,11 +65,25 @@ class AuthService {
    * Initializes the service, loads the user, and sets up event listeners.
    */
   private async initialize(): Promise<void> {
-    // Load the user from storage on startup
-    const user = await this.userManager.getUser();
+    let user = await this.userManager.getUser();
+
+    // If the user is in storage but expired, try to renew the token silently
+    if (user && user.expired) {
+      try {
+        // signinSilent will use the refresh_token to get a new access_token
+        user = await this.userManager.signinSilent();
+      } catch (error) {
+        console.error(
+          'AuthService: Silent renew failed, user is logged out.',
+          error,
+        );
+        // If silent renew fails, the user is logged out.
+        user = null;
+      }
+    }
+
     this.updateState(user);
 
-    // It's safe to attach these on the server; they just won't be triggered.
     this.userManager.events.addUserLoaded((user) => this.updateState(user));
     this.userManager.events.addUserUnloaded(() => this.updateState(null));
     this.userManager.events.addSilentRenewError((error) => {
