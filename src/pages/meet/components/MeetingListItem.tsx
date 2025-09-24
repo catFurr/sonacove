@@ -1,6 +1,12 @@
 import React from 'react';
-import { CircleCheck, History, Loader2, Trash2 } from 'lucide-react';
-import type { Meeting } from './types'; // Make sure this path is correct
+import {
+  CircleCheck,
+  History,
+  Loader2,
+  Trash2,
+  AlertTriangle,
+} from 'lucide-react';
+import type { Meeting } from './types';
 
 /**
  * Props for the MeetingListItem component.
@@ -22,6 +28,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
   onDelete,
 }) => {
   const isUpcoming = meeting.status === 'Upcoming';
+  const isExpired = meeting.status === 'Expired';
 
   /**
    * Handles the click on the delete button.
@@ -42,7 +49,10 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
       >
         <div className='text-left text-gray-500 text-lg mb-3 sm:mb-0 sm:w-48 sm:flex-shrink-0'>
           <p className='font-semibold'>{meeting.date}</p>
-          <p>{meeting.time}</p>
+          <p className='text-sm text-gray-400'>
+            {isUpcoming ? 'Expires' : isExpired ? 'Expired' : 'Joined'} at{' '}
+            {meeting.time}
+          </p>
         </div>
 
         <div className='text-left min-w-0'>
@@ -55,12 +65,16 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
           <span
             className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${
               isUpcoming
-                ? 'bg-green-100 text-green-800'
-                : 'bg-gray-100 text-gray-700'
+                ? 'bg-green-100 text-green-800' // Style for Upcoming
+                : isExpired
+                ? 'bg-yellow-100 text-yellow-800' // Style for Expired
+                : 'bg-gray-100 text-gray-700' // Style for Past
             }`}
           >
             {isUpcoming ? (
               <CircleCheck strokeWidth={3} className='w-4 h-4' />
+            ) : isExpired ? (
+              <AlertTriangle strokeWidth={3} className='w-4 h-4' />
             ) : (
               <History strokeWidth={3} className='w-4 h-4' />
             )}
