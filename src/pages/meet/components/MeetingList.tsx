@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { CalendarPlus } from 'lucide-react';
 import type { Meeting } from './types';
-import Button from '../../../components/Button';
 import ToggleSwitch from '../../../components/ToggleSwitch';
 import MeetingListItem from './MeetingListItem';
+import EmptyMeetingList, { type EmptyMeetingListType } from './EmptyMeetingList';
 
 /**
- * Props for the MeetingList component.
+ * Props for the MeetingsPanel component.
  */
 interface MeetingsPanelProps {
   /** The combined list of all meetings (upcoming and past). */
@@ -22,7 +21,7 @@ interface MeetingsPanelProps {
   onBookMeeting: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-const MeetingList: React.FC<MeetingsPanelProps> = ({
+const MeetingsPanel: React.FC<MeetingsPanelProps> = ({
   meetings,
   deletingMeetingId,
   onDeleteMeeting,
@@ -37,28 +36,11 @@ const MeetingList: React.FC<MeetingsPanelProps> = ({
     return meeting.status === meetingsFilter;
   });
 
-  // Render the empty state if there are no meetings at all.
+  // The main empty state when there are no meetings of any kind.
   if (meetings.length === 0) {
     return (
       <div className='flex flex-col justify-center text-center py-12 min-h-[400px]'>
-        <div className='flex flex-col items-center justify-center max-w-lg mx-auto p-12 rounded-xl'>
-          <div className='flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-6'>
-            <CalendarPlus className='w-8 h-8 text-primary-600' />
-          </div>
-          <h3 className='text-xl font-semibold text-gray-800'>
-            You have no meetings
-          </h3>
-          <p className='mt-2 text-gray-500'>
-            Your scheduled and past meetings will appear here.
-          </p>
-          <Button
-            variant='primary'
-            onClick={onBookMeeting}
-            className='tracking-wide text-lg mt-6'
-          >
-            Book a Meeting
-          </Button>
-        </div>
+        <EmptyMeetingList type='none' onButtonClick={onBookMeeting} />
       </div>
     );
   }
@@ -73,18 +55,28 @@ const MeetingList: React.FC<MeetingsPanelProps> = ({
         className='rounded-full mb-8 flex-shrink-0 w-fit'
       />
 
-      <div className='space-y-6 overflow-y-auto pr-4'>
-        {displayedMeetings.map((meeting, i) => (
-          <MeetingListItem
-            key={`${meeting.title}-${i}`}
-            meeting={meeting}
-            isDeleting={deletingMeetingId === meeting.title}
-            onDelete={onDeleteMeeting}
-          />
-        ))}
+      <div className='space-y-6 overflow-y-auto pr-4 h-full'>
+        {displayedMeetings.length > 0 ? (
+          displayedMeetings.map((meeting, i) => (
+            <MeetingListItem
+              key={`${meeting.title}-${i}`}
+              meeting={meeting}
+              isDeleting={deletingMeetingId === meeting.title}
+              onDelete={onDeleteMeeting}
+            />
+          ))
+        ) : (
+          /* If the filtered list is empty, render the correct EmptyMeetingList based on the filter. */
+          <div className='flex items-center justify-center h-full'>
+            <EmptyMeetingList
+              type={meetingsFilter.toLowerCase() as EmptyMeetingListType}
+              onButtonClick={onBookMeeting}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default MeetingList;
+export default MeetingsPanel;
