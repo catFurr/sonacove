@@ -10,10 +10,11 @@ import popupService, { type PopupState } from '../utils/popupService';
  * @property {() => void} hidePopup - A function to call to hide the currently displayed popup.
  */
 export const usePopup = () => {
-  /** State to hold the popup's message and type, synced with the popupService. */
+  /** State to hold the popup's message, type and duration, synced with the popupService. */
   const [popup, setPopup] = useState<PopupState>({
     message: null,
     type: 'info',
+    duration: 3000
   });
 
   useEffect(() => {

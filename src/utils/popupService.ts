@@ -3,11 +3,12 @@ export type PopupType = 'error' | 'success' | 'info';
 export interface PopupState {
   message: string | null;
   type: PopupType;
+  duration?: number;
 }
 
 class PopupService {
   private listeners: Set<(state: PopupState) => void> = new Set();
-  private currentState: PopupState = { message: null, type: 'info' };
+  private currentState: PopupState = { message: null, type: 'info', duration: 3000 };
 
   subscribe(listener: (state: PopupState) => void): () => void {
     this.listeners.add(listener);
@@ -17,8 +18,8 @@ class PopupService {
   }
 
   // This is the function that any component can call to show a popup.
-  show(message: string, type: PopupType = 'info') {
-    this.currentState = { message, type };
+  show(message: string, type: PopupType = 'info', duration?: number) {
+    this.currentState = { message, type, duration: duration };
     this.listeners.forEach((listener) => listener(this.currentState));
   }
 

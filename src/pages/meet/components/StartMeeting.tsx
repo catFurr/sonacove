@@ -51,7 +51,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
     } else {
       const authService = getAuthService();
       if (authService) {
-        showPopup('Please log in to book a meeting.', 'error');
+        showPopup('Please log in to book a meeting.', 'error', 2500);
       } else {
         alert(
           'Authentication service is currently unavailable. Please try again later.',

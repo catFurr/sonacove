@@ -56,6 +56,7 @@ export default function Meet() {
       <Popup
         message={popup.message}
         type={popup.type}
+        duration={popup.duration}
         onClose={hidePopup}
       />
 

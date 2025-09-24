@@ -7,6 +7,7 @@ import Button from '../../../components/Button';
 import DateRangePicker from './DateRangePicker';
 import { useAuth } from '../../../hooks/useAuth';
 import { bookMeeting } from '../../../utils/api';
+import { showPopup } from '../../../utils/popupService';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -25,7 +26,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
   // --- UI State ---
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -33,7 +33,6 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
       setSelectedRange(undefined);
       setDatePickerOpen(false);
       setIsPermanent(false); // Reset permanent state on open
-      setError(null);
       setIsLoading(false);
     }
   }, [isOpen]);
@@ -46,11 +45,10 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     const token = getAccessToken();
 
     if (!roomName.trim() || (!selectedRange && !isPermanent) || !token) {
-      setError('Please fill in all required fields.');
+      showPopup('Please fill in all required fields.', 'error');
       return;
     }
 
@@ -72,9 +70,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
       onBookingSuccess();
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'An unknown error occurred.',
-      );
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      showPopup(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -167,8 +164,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
               </button>
             </div>
 
-            <div className='pt-2'>
-              {error && <p className='text-red-500 text-sm mb-2'>{error}</p>}
+            <div className=''>
               <Button
                 type='submit'
                 variant='primary'

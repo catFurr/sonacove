@@ -34,7 +34,7 @@ interface PopupProps {
 const Popup: React.FC<PopupProps> = ({
   message,
   type = 'error',
-  duration = 5000,
+  duration = 3000,
   onClose,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -62,7 +62,7 @@ const Popup: React.FC<PopupProps> = ({
 
   /** Base Tailwind classes for the popup container. */
   const baseClasses =
-    'fixed top-5 right-5 z-50 flex items-center justify-between gap-4 p-4 rounded-lg shadow-lg transition-all duration-300';
+    'fixed top-5 right-5 z-[100] flex items-center justify-between gap-4 p-4 rounded-lg shadow-lg transition-all duration-300';
 
   /** Style mappings for each popup type. */
   const typeStyles = {
