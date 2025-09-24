@@ -51,7 +51,7 @@ const ClosePage: React.FC = () => {
 
           {/* Call to Action Button */}
           <div className='mt-10'>
-            <a href='/meet' className='w-full'>
+            <a href='/' className='w-full'>
               <Button
                 variant='primary'
                 className='w-full sm:w-auto'

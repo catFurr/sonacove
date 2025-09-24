@@ -1,7 +1,6 @@
 import React from 'react';
 import Header from '../../components/Header';
 import { WifiOff } from 'lucide-react';
-import Button from '../../components/Button';
 
 export default function OfflinePage() {
 
@@ -11,7 +10,7 @@ export default function OfflinePage() {
 
       <div className='flex flex-grow flex-col items-center justify-center px-4 py-[15vh] text-center'>
         {/* The main content card */}
-        <div className='bg-white rounded-2xl shadow-lg p-8 sm:p-12 max-w-lg w-full'>
+        <div className='rounded-2xl p-8 sm:p-12 max-w-lg w-full'>
           {/* Icon/Illustration */}
           <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100'>
             <WifiOff className='w-12 h-12 text-red-600' strokeWidth={2} />
@@ -25,15 +24,6 @@ export default function OfflinePage() {
             It looks like your device has lost its connection to the internet.
             Please check your network connection and try again.
           </p>
-
-          {/* Call to Action Button */}
-          <div className='mt-10'>
-            <a href='/static/offline' className='w-full'>
-              <Button variant='primary' className='w-full sm:w-auto'>
-                Try Again
-              </Button>
-            </a>
-          </div>
         </div>
       </div>
     </div>

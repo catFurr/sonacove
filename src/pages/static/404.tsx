@@ -31,7 +31,7 @@ const NotFound: React.FC = () => {
 
           {/* Call to Action Buttons */}
           <div className='mt-8 flex flex-col sm:flex-row items-center justify-center gap-6'>
-            <a href='/meet'>
+            <a href='/'>
               <Button
                 variant='primary'
                 className='w-full sm:w-auto'

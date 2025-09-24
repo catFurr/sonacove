@@ -45,7 +45,7 @@ const UnsupportedBrowser: React.FC = () => {
               We recommend one of these free browsers:
             </h3>
             <div className='flex flex-wrap gap-4'>
-              {recommendedBrowsers.map((browser, index) => (
+              {recommendedBrowsers.map((browser) => (
                 <a
                   key={browser.name}
                   href={browser.href}
