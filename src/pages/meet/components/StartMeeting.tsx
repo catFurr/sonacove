@@ -6,6 +6,7 @@ import { getAuthService } from '../../../utils/AuthService';
 import Button from '../../../components/Button';
 import PageHeader from '../../../components/PageHeader';
 import BookingModal from './BookingModal';
+import { showPopup } from '../../../utils/popupService.ts';
 
 interface Props {
   isLoggedIn: boolean;
@@ -50,7 +51,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
     } else {
       const authService = getAuthService();
       if (authService) {
-        authService.login();
+        showPopup('Please log in to book a meeting.', 'error');
       } else {
         alert(
           'Authentication service is currently unavailable. Please try again later.',

@@ -16,7 +16,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
 }) => {
   return (
     <div
-      className={`inline-flex flex-wrap justify-center bg-gray-100 rounded-lg p-1 space-x-1 ${className}`}
+      className={`inline-flex flex-wrap justify-center bg-gray-100 rounded-lg p-1 space-x-1 inset-shadow-sm ${className}`}
     >
       {options.map((option) => {
         const isActive = activeOption === option;

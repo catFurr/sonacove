@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from './Button';
 import { TextAlignJustify } from 'lucide-react';
 import Logo from './icons/Logo';
-import type { AppUser } from '../pages/meet/components/Meet';
+import type { AppUser } from '../pages/meet/components/types';
 import Avatar from './Avatar';
 import { getAuthService } from '../utils/AuthService';
 

@@ -19,7 +19,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'px-7 py-3.5 font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+    'px-7 py-3.5 font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed inset-shadow-sm';
 
   const variantStyles = {
     primary: 'bg-primary-500 text-white hover:bg-primary-600',

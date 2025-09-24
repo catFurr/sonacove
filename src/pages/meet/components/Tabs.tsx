@@ -213,7 +213,7 @@ const Tabs: React.FC<Props> = ({
                   </div>
                 </div>
               ) : (
-                <div className='text-center sm:text-left h-[400px] flex flex-col'>
+                <div className='text-center sm:text-left h-[400px] flex flex-col inset-shadow-sm'>
                   <ToggleSwitch
                     options={['All', 'Upcoming', 'Past']}
                     activeOption={meetingsFilter}
