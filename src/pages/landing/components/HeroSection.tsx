@@ -30,7 +30,9 @@ const HeroSection: React.FC = () => {
             <a href='/onboarding'>
               <Button variant='secondary'>Start Teaching for Free</Button>
             </a>
-            <Button variant='tertiary'>See How It Works</Button>
+            <a href='/onboarding'>
+              <Button variant='tertiary'>See How It Works</Button>
+            </a>
           </div>
 
           {/* Hero Image */}
