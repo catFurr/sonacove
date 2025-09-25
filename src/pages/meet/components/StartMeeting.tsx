@@ -23,7 +23,6 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
 
   const placeholderWords = generatePlaceholderWords(10); // generate random room names
 
-
   useEffect(() => {
     setPlaceholder(placeholderWords[0]);
     if (!inputRef.current) return;
@@ -34,7 +33,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
       100, // typing speed
       50, // erasing speed
       1500, // pause after typing
-      setPlaceholder
+      setPlaceholder,
     );
 
     return cleanup;
@@ -63,6 +62,31 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
   const finalRoomName = roomName.trim() || placeholder;
 
   const isButtonDisabled = isLoggedIn && isBookingLimitReached;
+
+  /**
+   * Renders a contextual message below the action buttons based on auth state.
+   */
+  const renderBookingStatusMessage = () => {
+    if (isLoggedIn && isBookingLimitReached) {
+      return (
+        <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-600 p-2 rounded-lg'>
+          <Info size={14} />
+          <span>Booking limit reached.</span>
+        </div>
+      );
+    }
+
+    if (!isLoggedIn) {
+      return (
+        <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 p-2 rounded-lg'>
+          <Lock size={14} className='text-gray-500 text-bold' />
+          <span>Login required to book a meeting.</span>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <>
@@ -113,19 +137,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
             </Button>
           </div>
 
-          {isLoggedIn && isBookingLimitReached && (
-            <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-600 p-2 rounded-lg'>
-              <Info size={14} />
-              <span>Booking limit reached.</span>
-            </div>
-          )}
-
-          {!isLoggedIn && (
-            <div className='mt-4 flex items-center justify-center gap-2 text-sm text-gray-500 p-2 rounded-lg'>
-              <Lock size={14} className='text-gray-500 text-bold' />
-              <span>Login required to book a meeting.</span>
-            </div>
-          )}
+          {renderBookingStatusMessage()}
         </form>
       </div>
 

@@ -1,4 +1,4 @@
-import type { DbUser } from '../pages/meet/components/types';
+import type { DbUser } from '../pages/meet/types';
 
 const API_BASE_URL = 'api';
 

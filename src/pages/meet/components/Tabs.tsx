@@ -4,7 +4,7 @@ import ToggleSwitch from '../../../components/ToggleSwitch';
 import BookingModal from './BookingModal';
 import MeetingList from './MeetingList';
 
-import type { LocalStorageMeeting, Meeting, Note, Recording } from './types';
+import type { LocalStorageMeeting, Meeting, Note, Recording } from '../types';
 
 import { format } from 'date-fns';
 import { deleteBooking } from '../../../utils/api';

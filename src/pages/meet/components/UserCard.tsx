@@ -1,7 +1,9 @@
 import React, { useState, useEffect} from 'react';
 import Tabs from './Tabs';
-import type { User } from './types';
+import type { User } from '../types';
 import Avatar from '../../../components/Avatar';
+import UserInfo from './User.Info';
+import UserPlanDetails from './UserPlanDetails';
 
 interface UserCardProps extends User {
   token?: string;
@@ -80,58 +82,14 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
           className='user-avatar w-20 h-20 rounded-full object-cover mx-auto sm:mx-0'
         />
 
-        {/* User Info */}
-        <div className='flex-1 text-center sm:text-left flex flex-col justify-center'>
-          <h3 className='text-3xl font-bold text-black'>{user.name}</h3>
-          <p className='text-gray-500 text-lg'>{user.email}</p>
-          <p className='text-gray-500 text-lg mt-2 flex flex-row gap-2 justify-center sm:justify-normal'>
-            Plan:{' '}
-            <span className='font-bold text-black'>
-              {capitalizeFirstLetter(user.plan)}
-            </span>
-          </p>
-
-          {user.plan === 'trialing' && typeof minutesUsed === 'number' && (
-            // UI for Trialing Users
-            <div className='pr-6'>
-              <div className='flex justify-between text-sm font-medium text-gray-600 mb-1 pt-3'>
-                <span>Free Minutes Used</span>
-                <span>
-                  {minutesUsed} / {totalMinutes}
-                </span>
-              </div>
-              <div className='w-full bg-gray-200 rounded-full h-2.5'>
-                <div
-                  className='bg-primary-500 h-2.5 rounded-full'
-                  style={{ width: `${progressPercentage}%` }}
-                ></div>
-              </div>
-            </div>
-          )}
-
-          {user.plan === 'active' && typeof minutesUsed === 'number' && (
-            <p className='text-sm text-gray-500 pt-3'>
-              Total Minutes Hosted:{' '}
-              <span className='font-semibold text-gray-800'>
-                {minutesUsed.toLocaleString()}
-              </span>
-            </p>
-          )}
-
-          <div className='mt-4 pr-6 mb-4'>
-            <div className='flex justify-between text-sm font-medium text-gray-600 mb-1'>
-              <span>Bookings Used</span>
-              <span>
-                {usedBookings} / {maxBookings}
-              </span>
-            </div>
-            <div className='w-full bg-gray-200 rounded-full h-2.5'>
-              <div
-                className='bg-blue-500 h-2.5 rounded-full transition-all duration-500'
-                style={{ width: `${bookingProgressPercentage}%` }}
-              ></div>
-            </div>
-          </div>
+        <div className='flex-1 flex flex-col justify-center'>
+          <UserInfo user={user} />
+          <UserPlanDetails
+            plan={user.plan}
+            minutesUsed={minutesUsed ?? 0}
+            usedBookings={usedBookings}
+            maxBookings={maxBookings}
+          />
         </div>
 
         {/* Buttons */}

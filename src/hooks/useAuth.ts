@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAuthService } from '../utils/AuthService';
 import { format } from 'date-fns';
-import type { DbUser } from '../pages/meet/components/types';
+import type { DbUser } from '../pages/meet/types';
 import type { User as OidcUser } from 'oidc-client-ts';
 import { fetchDbUser } from '../utils/api';
 

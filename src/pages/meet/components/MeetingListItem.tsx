@@ -6,7 +6,7 @@ import {
   Trash2,
   AlertTriangle,
 } from 'lucide-react';
-import type { Meeting } from './types';
+import type { Meeting } from '../types';
 
 /**
  * Props for the MeetingListItem component.
@@ -30,14 +30,38 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
   const isUpcoming = meeting.status === 'Upcoming';
   const isExpired = meeting.status === 'Expired';
 
-  /**
-   * Handles the click on the delete button.
-   * Prevents the parent link from being triggered.
-   */
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     onDelete(meeting);
+  };
+
+  /**
+   * Renders the status badge with the correct color, icon, and text
+   * based on the meeting's status ('Upcoming', 'Expired', or 'Past').
+   * @returns {React.ReactElement} The rendered status badge.
+   */
+  const renderStatusBadge = () => {
+    return (
+      <span
+        className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${
+          isUpcoming
+            ? 'bg-green-100 text-green-800' // Style for Upcoming
+            : isExpired
+            ? 'bg-yellow-100 text-yellow-800' // Style for Expired
+            : 'bg-gray-100 text-gray-700' // Style for Past
+        }`}
+      >
+        {isUpcoming ? (
+          <CircleCheck strokeWidth={3} className='w-4 h-4' />
+        ) : isExpired ? (
+          <AlertTriangle strokeWidth={3} className='w-4 h-4' />
+        ) : (
+          <History strokeWidth={3} className='w-4 h-4' />
+        )}
+        {meeting.status}
+      </span>
+    );
   };
 
   return (
@@ -62,24 +86,8 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
           >
             {meeting.title}
           </p>
-          <span
-            className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${
-              isUpcoming
-                ? 'bg-green-100 text-green-800' // Style for Upcoming
-                : isExpired
-                ? 'bg-yellow-100 text-yellow-800' // Style for Expired
-                : 'bg-gray-100 text-gray-700' // Style for Past
-            }`}
-          >
-            {isUpcoming ? (
-              <CircleCheck strokeWidth={3} className='w-4 h-4' />
-            ) : isExpired ? (
-              <AlertTriangle strokeWidth={3} className='w-4 h-4' />
-            ) : (
-              <History strokeWidth={3} className='w-4 h-4' />
-            )}
-            {meeting.status}
-          </span>
+
+          {renderStatusBadge()}
         </div>
 
         <button

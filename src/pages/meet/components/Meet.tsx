@@ -9,7 +9,7 @@ import { usePopup } from '../../../hooks/usePopup';
 import { getGravatarUrl } from '../../../utils/gravatar';
 import { showPopup } from '../../../utils/popupService';
 
-import type { AppUser } from './types';
+import type { AppUser } from '../types';
 import meet_background from '../../../assets/meet-background.png';
 
 export default function Meet() {
@@ -66,6 +66,8 @@ export default function Meet() {
         {/* MAIN */}
         <main className='grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-[5vw] items-start pt-4 lg:pt-8 mt-4'>
           <div className='lg:col-span-2'>
+
+            {/* Left Column */}
             <StartMeeting
               isLoggedIn={isLoggedIn}
               onMeetingBooked={refetchMeetings}
@@ -73,6 +75,7 @@ export default function Meet() {
             />
           </div>
 
+          {/* Right Column */}
           {appUser ? (
             <UserCard
               user={appUser}

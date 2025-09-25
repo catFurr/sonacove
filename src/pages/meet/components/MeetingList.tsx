@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Meeting } from './types';
+import type { Meeting } from '../types';
 import ToggleSwitch from '../../../components/ToggleSwitch';
 import MeetingListItem from './MeetingListItem';
 import EmptyMeetingList, { type EmptyMeetingListType } from './EmptyMeetingList';
