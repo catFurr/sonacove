@@ -17,14 +17,12 @@ const companyLinks = [
   { name: 'Pricing', href: '/pricing' },
   { name: 'FAQ', href: '/faq' },
   { name: 'Career', href: '/careers' },
-  { name: 'Contact', href: '/contact' },
 ];
 
 const supportLinks = [
-  { name: 'Contact us', href: '/contact' },
   { name: 'Terms of Service', href: '/terms' },
-  { name: 'Refund Policy', href: '/refund'},
   { name: 'Privacy Policy', href: '/privacy' },
+  { name: 'Refund Policy', href: '/refund'},
 ];
 
 const socialLinks = [
