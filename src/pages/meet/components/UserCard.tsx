@@ -76,6 +76,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
         <Avatar
           src={user.avatarUrl}
           alt={user.name}
+          editable={true}
           className='user-avatar w-20 h-20 rounded-full object-cover mx-auto sm:mx-0'
         />
 

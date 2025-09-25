@@ -1,5 +1,8 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+import { Pencil } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
 
+/** A predefined array of colors for the generated initials avatars. */
 const avatarColors = [
   '#6A50D3',
   '#FF9B42',
@@ -12,6 +15,11 @@ const avatarColors = [
   '#00A8B3',
 ];
 
+/**
+ * Creates a data URI for an SVG avatar with the user's initials.
+ * @param {string} name - The user's name, used to generate initials and select a color.
+ * @returns {string} A data URI string representing the SVG avatar.
+ */
 export function createInitialsAvatar(name: string): string {
   if (!name) return '';
   const initials = name
@@ -27,7 +35,10 @@ export function createInitialsAvatar(name: string): string {
 
   const backgroundColor = avatarColors[charCodeSum % avatarColors.length];
 
-  const fontFamily = getComputedStyle(document.body).fontFamily;
+  const fontFamily =
+    typeof window !== 'undefined'
+      ? getComputedStyle(document.body).fontFamily
+      : 'sans-serif';
 
   const svg = `
     <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -41,20 +52,43 @@ export function createInitialsAvatar(name: string): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-
+/**
+ * Props for the Avatar component.
+ */
 interface AvatarProps {
+  /** The source URL for the avatar image. */
   src?: string;
+
+  /** The alt text for the avatar, also used to generate initials for the fallback. */
   alt?: string;
+
+  /** Additional CSS classes to apply to the main container. */
   className?: string;
+
+  /** If true, shows an edit icon on hover that links to Gravatar. Defaults to false. */
+  editable?: boolean;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ src, alt, className = '' }) => {
+/**
+ * Renders a user avatar that falls back to initials and shows an edit icon on hover.
+ * @param {AvatarProps} props - The props for the component.
+ * @returns {React.ReactElement} The rendered avatar component.
+ */
+const Avatar: React.FC<AvatarProps> = ({
+  src,
+  alt,
+  className = '',
+  editable = false, // Destructure the new prop, default to false
+}) => {
   const [imgSrc, setImgSrc] = useState(src);
 
   useEffect(() => {
     setImgSrc(src);
   }, [src]);
 
+  /**
+   * Handles image loading errors by replacing the source with a generated initials avatar.
+   */
   const handleLoadError = () => {
     const initialsAvatar = createInitialsAvatar(alt || '');
     if (imgSrc !== initialsAvatar) {
@@ -62,13 +96,36 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt, className = '' }) => {
     }
   };
 
+  const gravatarEditUrl = 'https://gravatar.com/profile/edit';
+
   return (
-    <img
-      src={imgSrc || createInitialsAvatar(alt || '')}
-      alt={alt || 'User avatar'}
-      className={className}
-      onError={handleLoadError}
-    />
+    <div
+      className={twMerge(
+        'relative flex-shrink-0',
+        editable ? 'group' : '',
+        className,
+      )}
+    >
+      <img
+        src={imgSrc || createInitialsAvatar(alt || '')}
+        alt={alt || 'User avatar'}
+        className='w-full h-full rounded-full object-cover'
+        onError={handleLoadError}
+      />
+
+      {/* The overlay and icon are now only rendered if `editable` is true. */}
+      {editable && (
+        <a
+          href={gravatarEditUrl}
+          target='_blank'
+          rel='noopener noreferrer'
+          aria-label='Edit Gravatar profile'
+          className='absolute inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200'
+        >
+          <Pencil className='w-1/3 h-1/3 text-white' />
+        </a>
+      )}
+    </div>
   );
 };
 
