@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import OnboardingFlow from "../components/OnboardingFlow.vue";
+import Header from "../components/Header.astro";
 ---
 
 <Layout title="Onboarding - Sonacove Meets">
+  <Header />
   <OnboardingFlow client:only />
 </Layout>
