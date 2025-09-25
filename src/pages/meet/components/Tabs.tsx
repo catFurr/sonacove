@@ -88,7 +88,7 @@ const Tabs: React.FC<Props> = ({
   const handleDeleteMeeting = async (meetingToDelete: Meeting) => {
     setDeletingMeetingId(meetingToDelete.title); // Set loading state for this specific item
     try {
-      if (meetingToDelete.status === 'Upcoming') {
+      if (meetingToDelete.status === 'Upcoming' || meetingToDelete.status === 'Expired') {
         if (meetingToDelete.title.trim() && token) {
           await deleteBooking(meetingToDelete.title, token);
           onMeetingDeleted();

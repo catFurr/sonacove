@@ -46,7 +46,7 @@ export default function Meet() {
     }
   }, [isLoggedIn, oidcUser, dbUser]);
 
-    const usedBookings = meetingsList.filter((m) => m.status === 'Upcoming').length;
+    const usedBookings = meetingsList.filter((m) => m.status === 'Upcoming' || m.status === 'Expired').length;
     const maxBookings = dbUser?.user.maxBookings ?? 1;
 
     const isBookingLimitReached = usedBookings >= maxBookings;

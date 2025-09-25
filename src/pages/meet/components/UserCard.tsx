@@ -64,7 +64,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
     : 0;
 
     const usedBookings = meetingsList.filter(
-      (m) => m.status === 'Upcoming',
+      (m) => m.status === 'Upcoming' || m.status === 'Expired',
     ).length;
     const bookingProgressPercentage =
       maxBookings > 0 ? (usedBookings / maxBookings) * 100 : 0;
