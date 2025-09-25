@@ -74,14 +74,6 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
   return (
     <div className='bg-white rounded-3xl p-6 border border-gray-200 shadow-sm lg:col-span-3'>
       <div className='flex flex-col sm:flex-row sm:items-start gap-6 mb-8'>
-        {/* Avatar */}
-        <Avatar
-          src={user.avatarUrl}
-          alt={user.name}
-          editable={true}
-          className='user-avatar w-20 h-20 rounded-full object-cover mx-auto sm:mx-0'
-        />
-
         <div className='flex-1 flex flex-col justify-center'>
           <UserInfo user={user} />
           <UserPlanDetails

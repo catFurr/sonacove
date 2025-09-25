@@ -21,7 +21,7 @@ const UserPlanDetails: React.FC<PlanUsageDetailsProps> = ({
   return (
     <>
       {plan === 'trialing' && (
-        <div className='pr-6'>
+        <div className='pr-20'>
           <div className='flex justify-between text-sm font-medium text-gray-600 mb-1 pt-3'>
             <span>Free Minutes Used</span>
             <span>
@@ -46,7 +46,7 @@ const UserPlanDetails: React.FC<PlanUsageDetailsProps> = ({
         </p>
       )}
 
-      <div className='mt-4 pr-6 mb-4'>
+      <div className='mt-4 pr-20 mb-4'>
         <div className='flex justify-between text-sm font-medium text-gray-600 mb-1'>
           <span>Bookings Used</span>
           <span>
