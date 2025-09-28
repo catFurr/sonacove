@@ -5,6 +5,7 @@ import {
   InMemoryWebStorage,
   type UserManagerSettings,
 } from 'oidc-client-ts';
+import { PUBLIC_CF_ENV } from 'astro:env/client';
 
 let userManager: UserManager | null = null;
 
@@ -22,12 +23,18 @@ export function getUserManager(): UserManager {
   const siteUrl = isServer
     ? import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321'
     : window.location.origin;
+
   const userStore = isServer
     ? new WebStorageStateStore({ store: new InMemoryWebStorage() })
     : new WebStorageStateStore({ store: window.localStorage });
 
+  const authorityUrl =
+    PUBLIC_CF_ENV === 'production'
+      ? 'auth.sonacove.com/auth'
+      : 'https://staj.sonacove.com/auth/realms/jitsi';
+
   const settings: UserManagerSettings = {
-    authority: 'https://staj.sonacove.com/auth/realms/jitsi',
+    authority: authorityUrl,
     client_id: 'jitsi-web',
     redirect_uri: `${siteUrl}/login-callback`,
     post_logout_redirect_uri: `${siteUrl}/meet`,
