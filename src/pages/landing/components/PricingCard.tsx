@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowRight, CircleCheck } from 'lucide-react';
+import { clsx } from 'clsx'
+import { MoveRight, CircleCheck } from 'lucide-react';
 import type { Plan } from './types';
 
 const PlanIcon: React.FC<{
@@ -17,7 +18,7 @@ const PlanIcon: React.FC<{
 // The new PricingCard component
 const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
   return (
-    <div key={plan.title}>
+    <>
       {/* --- Mobile Accordion View --- */}
       <details
         className={`lg:hidden rounded-2xl transition-shadow mb-4 group ${
@@ -63,7 +64,7 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
             }`}
           >
             <p
-              className={`text-lg font-semibold mb-4 ${
+              className={`text-lg font-semibold mb-4 tracking-wider ${
                 plan.highlighted ? 'text-white' : 'text-black'
               }`}
             >
@@ -83,7 +84,7 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
                   </span>
                   <span
                     className={`${
-                      plan.highlighted ? 'text-white/80' : 'text-gray-600'
+                      plan.highlighted ? 'text-white' : 'text-gray-600'
                     }`}
                   >
                     {feature}
@@ -101,8 +102,16 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
             }`}
           >
             <span className='pl-4'>{plan.button.text}</span>
-            <span className='w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 bg-primary-600 text-white will-change-transform'>
-              <ArrowRight />
+            <span
+              className={clsx(
+                'w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 text-white will-change-transform',
+                {
+                  'bg-primary-500': plan.highlighted,
+                  'bg-primary-600': !plan.highlighted,
+                },
+              )}
+            >
+              <MoveRight strokeWidth={2.5} />
             </span>
           </a>
         </div>
@@ -110,7 +119,7 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
 
       {/* --- Desktop Card View --- */}
       <div
-        className={`hidden lg:flex lg:flex-col rounded-2xl p-8 border transition-transform duration-300 ${
+        className={`hidden lg:flex lg:flex-col h-full rounded-2xl p-8 border transition-transform duration-300 ${
           plan.highlighted
             ? 'bg-primary-600 text-white shadow-2xl scale-105'
             : 'bg-white text-black border-gray-200 hover:scale-105 hover:shadow-lg'
@@ -140,7 +149,9 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
             }`}
           />
           <div>
-            <p className='text-lg font-semibold mb-4'>Benefits</p>
+            <p className='text-lg font-semibold mb-4 tracking-wider'>
+              Benefits
+            </p>
             <ul className='space-y-3'>
               {plan.features.map((feature, idx) => (
                 <li key={idx} className='flex items-start gap-3'>
@@ -153,7 +164,7 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
                   >
                     <CircleCheck className='w-4 h-4' />
                   </span>
-                  <span className='opacity-80'>{feature}</span>
+                  <span>{feature}</span>
                 </li>
               ))}
             </ul>
@@ -169,13 +180,21 @@ const PricingCard: React.FC<{ plan: Plan }> = ({ plan }) => {
             }`}
           >
             <span className='pl-4'>{plan.button.text}</span>
-            <span className='w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 bg-primary-600 text-white will-change-transform'>
-              <ArrowRight />
+            <span
+              className={clsx(
+                'w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 text-white will-change-transform',
+                {
+                  'bg-primary-500 shadow-lg': plan.highlighted,
+                  'bg-primary-600': !plan.highlighted,
+                },
+              )}
+            >
+              <MoveRight strokeWidth={2.5} />
             </span>
           </a>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -16,11 +16,12 @@ const initialPlans: Plan[] = [
     billingInfo: 'Per user/month, billed annually',
     icon: <Smile />,
     features: [
-      'Access to core AI tools',
       'Up to 1000 total meeting minutes',
       'Up to 100 guests per meeting',
       'End-to-end encryption',
-      'End-to-end encryption',
+      'Screen sharing',
+      'Live Recording',
+      'Breakout rooms',
     ],
     highlighted: false,
     button: { text: 'Try It Free', link: '/onboarding' },
@@ -31,8 +32,9 @@ const initialPlans: Plan[] = [
     billingInfo: 'Per user/month, billed annually',
     icon: <UsersRound />,
     features: [
-      'Access to core AI tools',
       'Unlimited meeting duration',
+      'Up to 100 guests per meeting',
+      'End-to-end encryption',
       'Screen sharing',
       'Live Recording',
       'Breakout rooms',
@@ -46,11 +48,9 @@ const initialPlans: Plan[] = [
     billingInfo: 'Per user/month, billed annually',
     icon: <School />,
     features: [
-      'Access to core AI tools',
       'All Premium features',
       'Up to 1000 guests',
       'Custom Authentication',
-      'Dedicated support',
     ],
     highlighted: false,
     button: { text: 'Contact Us', link: 'mailto:support@sonacove.com' },
@@ -163,7 +163,7 @@ export default function PricingSection() {
             /> */}
           </div>
 
-          <div className='mt-16 w-full mx-auto lg:max-w-7xl lg:grid lg:grid-cols-3 lg:gap-8'>
+          <div className='mt-16 w-full mx-auto lg:max-w-7xl lg:grid lg:grid-cols-3 lg:gap-8 lg:items-stretch'>
             {plans.map((plan) => (
               <PricingCard key={plan.title} plan={plan} />
             ))}
