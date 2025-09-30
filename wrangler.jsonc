@@ -43,5 +43,8 @@
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
+  },
+  "placement": {
+    "mode": "smart"
   }
 }

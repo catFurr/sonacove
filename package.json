@@ -18,8 +18,8 @@
     "astro": "^5.13.7",
     "drizzle-orm": "^0.44.5",
     "jose": "^6.1.0",
+    "pg": "^8.16.3",
     "pino": "^9.9.5",
-    "postgres": "^3.4.4",
     "tweetnacl": "^1.0.3",
     "vue": "^3.5.21"
   },
@@ -31,6 +31,7 @@
     "@cloudflare/workers-types": "^4.20250910.0",
     "@types/bun": "^1.2.21",
     "@types/node": "^24.3.1",
+    "@types/pg": "^8.15.5",
     "caniuse-lite": "^1.0.30001741",
     "dotenv": "^17.2.2",
     "drizzle-kit": "^0.31.4",
