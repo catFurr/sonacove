@@ -1,42 +1,25 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { initializePaddle, type Paddle } from '@paddle/paddle-js';
-import { validateKeycloakToken, parseUserFromToken } from '../../../utils/auth';
 
+import Button from '../../../components/Button';
 import Header from '../../../components/Header';
 import { CircleAlert, CircleCheck } from 'lucide-react';
-import Button from '../../../components/Button';
 
-interface UserInfo {
-  name?: string;
-  email?: string;
-  context?: {
-    user?: {
-      subscription_status?: string;
-    };
-  };
-}
+import { useAuth } from '../../../hooks/useAuth';
+import { getAuthService } from '../../../utils/AuthService';
 
-// Storage key constants
-const STORAGE_KEYS = {
-  AUTH_TOKEN: 'sonacove_auth_token',
-  USER_INFO: 'sonacove_user_info',
-  SUBSCRIPTION_STATUS: 'sonacove_subscription_status',
-};
+import { PUBLIC_PADDLE_CLIENT_TOKEN } from 'astro:env/client';
+import { PUBLIC_PADDLE_PRICE_ID } from 'astro:env/client';
 
 const OnboardingFlow: React.FC = () => {
-  // --- STATE MANAGEMENT ---
-  const [currentView, setCurrentView] = useState<
-    'initial' | 'success' | 'error'
-  >('initial');
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const authService = getAuthService()
+  const { isLoggedIn, user, login } = useAuth();
+
+  const [currentView, setCurrentView] = useState<'initial' | 'success' | 'error'>('initial');
   const [discountCode, setDiscountCode] = useState('');
-  const [userFriendlyError, setUserFriendlyError] = useState(
-    'We encountered an unexpected issue.',
-  );
-  const [detailedErrorMessage, setDetailedErrorMessage] = useState<
-    string | null
-  >(null);
+
+  const [userFriendlyError, setUserFriendlyError] = useState('We encountered an unexpected issue.');
+  const [detailedErrorMessage, setDetailedErrorMessage] = useState<string | null>(null);
   const [showDetailedError, setShowDetailedError] = useState(false);
 
   const paddle = useRef<Paddle | undefined>(undefined);
@@ -62,27 +45,13 @@ const OnboardingFlow: React.FC = () => {
     setCurrentView('error');
   };
 
-  const showSuccessContent = (skipped = false) => {
-    setCurrentView('success');
-    if (userInfo) {
-      try {
-        localStorage.setItem(
-          STORAGE_KEYS.SUBSCRIPTION_STATUS,
-          skipped ? 'trialing' : 'active',
-        );
-      } catch (e) {
-        handleError("Couldn't save your subscription status locally.", e);
-      }
-    }
-  };
-
   const setupPaddleCheckout = async () => {
     try {
       if (!paddle.current) {
         const environment =
           (env.PUBLIC_PADDLE_ENVIRONMENT as 'sandbox' | 'production') ||
           'sandbox';
-        const clientToken = env.PUBLIC_PADDLE_CLIENT_TOKEN;
+        const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN;
         if (!clientToken)
           throw new Error('Paddle client token is not configured');
 
@@ -90,12 +59,14 @@ const OnboardingFlow: React.FC = () => {
           environment,
           token: clientToken,
           eventCallback: (data) => {
-            if (data.name === 'checkout.completed') showSuccessContent(false);
-            else if (data.name === 'checkout.error')
+            if (data.name === 'checkout.completed') {
+              window.location.href = '/meet?subscription=success';
+            } else if (data.name === 'checkout.error') {
               handleError(
                 'There was a problem with the payment process.',
                 data.error,
               );
+            }
           },
         });
       }
@@ -106,128 +77,47 @@ const OnboardingFlow: React.FC = () => {
   };
 
   const openPaddleCheckout = async () => {
-    if (!paddle.current) {
-      try {
-        await setupPaddleCheckout();
-      } catch (error) {
-        handleError(
-          'The subscription service is currently unavailable.',
-          error,
-        );
-        return;
-      }
-    }
     try {
+      if (!paddle.current) {
+        await setupPaddleCheckout();
+      }
       await paddle.current?.Checkout.open({
-        items: [{ priceId: env.PUBLIC_PADDLE_PRICE_ID, quantity: 1 }],
+        items: [{ priceId: PUBLIC_PADDLE_PRICE_ID, quantity: 1 }],
         ...(discountCode && { discountCode }),
         settings: { displayMode: 'overlay' },
-        ...(userInfo?.email && { customer: { email: userInfo.email } }),
+        ...(user?.profile.email && { customer: { email: user.profile.email } }),
       });
     } catch (error) {
-      handleError('Could not open the subscription window.', error);
+      handleError('The subscription service is currently unavailable.', error);
     }
-  };
-
-  const updateRegistrationUrl = () => {
-    const redirectUri = new URL('/onboarding', window.location.origin);
-    if (discountCode) redirectUri.searchParams.set('discount', discountCode);
-    const keycloakBaseUrl = `https://${env.PUBLIC_KC_HOSTNAME}/realms/jitsi/protocol/openid-connect`;
-    return `${keycloakBaseUrl}/registrations?client_id=jitsi-web&redirect_uri=${encodeURIComponent(
-      redirectUri.toString(),
-    )}&response_type=token`;
   };
 
   // --- LIFECYCLE ---
+
+  // Effect to handle view changes based on authentication state
   useEffect(() => {
-    const init = async () => {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const discountFromQuery = urlParams.get('discount');
-        if (discountFromQuery) setDiscountCode(discountFromQuery);
+    if (isLoggedIn) {
+      setCurrentView('success');
+      setupPaddleCheckout().catch((error) => {
+        handleError('Could not initialize the subscription service.', error);
+      });
+    } else {
+      setCurrentView('initial');
+    }
+  }, [isLoggedIn]);
 
-        let tokenFromHash: string | null = null;
-        if (window.location.hash) {
-          const fragmentParams = new URLSearchParams(
-            window.location.hash.substring(1),
-          );
-          tokenFromHash = fragmentParams.get('access_token');
-          if (tokenFromHash) {
-            setAccessToken(tokenFromHash);
-            window.location.hash = '';
-          }
-        }
-
-        const tokenToValidate =
-          tokenFromHash || localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-
-        if (tokenToValidate) {
-          const isValid = await validateKeycloakToken(
-            tokenToValidate,
-            env.PUBLIC_KC_HOSTNAME,
-          );
-          if (isValid) {
-            const parsedUser = parseUserFromToken(tokenToValidate);
-            setUserInfo(parsedUser);
-            setAccessToken(tokenToValidate);
-            localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, tokenToValidate);
-            localStorage.setItem(
-              STORAGE_KEYS.USER_INFO,
-              JSON.stringify(parsedUser),
-            );
-
-            const tokenSubStatus =
-              parsedUser?.context?.user?.subscription_status;
-            const existingLocalStatus = localStorage.getItem(
-              STORAGE_KEYS.SUBSCRIPTION_STATUS,
-            );
-            if (
-              tokenSubStatus === 'active' ||
-              existingLocalStatus === 'active'
-            ) {
-              localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION_STATUS, 'active');
-            } else {
-              localStorage.setItem(
-                STORAGE_KEYS.SUBSCRIPTION_STATUS,
-                'trialing',
-              );
-            }
-            setCurrentView('success');
-            await setupPaddleCheckout();
-          } else {
-            localStorage.clear();
-            handleError(
-              'Your session appears to be invalid or has expired.',
-              'TokenValidationFalse',
-            );
-          }
-        } else {
-          setCurrentView('initial');
-        }
-      } catch (error) {
-        localStorage.clear();
-        handleError(
-          'We encountered a problem while setting up your session.',
-          error,
-        );
-      }
-    };
-    init();
+  // Effect to grab discount code from URL on initial load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const discountFromQuery = urlParams.get('discount');
+    if (discountFromQuery) {
+      setDiscountCode(discountFromQuery);
+    }
   }, []);
 
-  const isTrialing = useMemo(() => {
-    try {
-      return (
-        localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION_STATUS) === 'trialing'
-      );
-    } catch (e) {
-      return false;
-    }
-  }, [currentView]);
-
-  const getMeetLink = () => {
-    return `/meet/#access_token=${accessToken}`;
-  }
+  const isTrialing =
+    user?.profile.context?.user?.subscription_status !== 'active';
+  const firstName = user?.profile.name?.split(' ')[0] ?? 'there';
 
   return (
     <>
@@ -242,14 +132,24 @@ const OnboardingFlow: React.FC = () => {
                 Get Started
               </h1>
               <p className='text-lg text-gray-600 mb-8'>
-                To begin, please create an account or log in.
+                Create an account or log in to continue.
               </p>
-              <a
-                href={updateRegistrationUrl()}
-                className='block w-full px-8 py-4 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-transform hover:scale-105 shadow-md'
-              >
-                Create a New Account
-              </a>
+              <div className='space-y-4'>
+                <Button
+                  onClick={() => authService.signup()}
+                  variant='primary'
+                  className='w-full'
+                >
+                  Create a New Account
+                </Button>
+                <Button
+                  onClick={() => login()}
+                  variant='secondary'
+                  className='w-full'
+                >
+                  Log In
+                </Button>
+              </div>
               <p className='text-sm text-gray-500 mt-6'>
                 Need help? Contact us at{' '}
                 <a
@@ -263,12 +163,11 @@ const OnboardingFlow: React.FC = () => {
           )}
 
           {/* --- Success View --- */}
-          {currentView === 'success' && (
+          {currentView === 'success' && user && (
             <div className='text-center'>
               <CircleCheck className='w-16 h-16 mx-auto text-green-500' />
               <h1 className='text-4xl font-bold text-gray-900 mt-6 mb-2'>
-                Welcome aboard,{' '}
-                {userInfo?.name ? userInfo.name.split(' ')[0] : ''}!
+                Welcome aboard, {firstName}!
               </h1>
 
               {isTrialing ? (
@@ -279,21 +178,21 @@ const OnboardingFlow: React.FC = () => {
                   <div className='bg-gray-50 rounded-xl p-6 my-8 text-left space-y-2 border'>
                     <p className='font-semibold text-gray-800'>Your Account:</p>
                     <p className='text-gray-600'>
-                      <strong>Email:</strong> {userInfo?.email}
+                      <strong>Email:</strong> {user.profile.email}
                     </p>
                     <p className='text-gray-600'>
-                      <strong>Status:</strong> Free Trial (1000 minutes)
+                      <strong>Status:</strong> Free Trial
                     </p>
                   </div>
-                  <div className='space-y-4'>
+                  <div className='space-y-4 flex flex-col'>
                     <Button
                       onClick={openPaddleCheckout}
                       variant='primary'
-                      className='w-full mb-4'
+                      className='w-full'
                     >
                       Subscribe Now for Full Access
                     </Button>
-                    <a href={getMeetLink()} className='w-full'>
+                    <a href='/meet'>
                       <Button variant='secondary' className='w-full'>
                         Continue with Trial
                       </Button>
@@ -308,13 +207,13 @@ const OnboardingFlow: React.FC = () => {
                   <div className='bg-gray-50 rounded-xl p-6 my-8 text-left space-y-2 border'>
                     <p className='font-semibold text-gray-800'>Your Account:</p>
                     <p className='text-gray-600'>
-                      <strong>Email:</strong> {userInfo?.email}
+                      <strong>Email:</strong> {user.profile.email}
                     </p>
                     <p className='text-gray-600'>
                       <strong>Status:</strong> Active
                     </p>
                   </div>
-                  <a href={getMeetLink()} className='w-full'>
+                  <a href='/meet'>
                     <Button variant='primary' className='w-full'>
                       Go to Sonacove Meets
                     </Button>
@@ -352,15 +251,13 @@ const OnboardingFlow: React.FC = () => {
               )}
 
               <div className='mt-8 space-y-4'>
-                <a href={updateRegistrationUrl()} className='w-full'>
                   <Button
-                    onClick={() => {}}
+                    onClick={() => authService.signup()}
                     variant='primary'
                     className='w-full'
                   >
                     Try Again
                   </Button>
-                </a>
                 <a
                   href='mailto:support@sonacove.com'
                   className='block text-center text-primary-600 font-medium hover:underline'

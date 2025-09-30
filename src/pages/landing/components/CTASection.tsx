@@ -2,10 +2,15 @@ import React from 'react';
 import bgImage from '../../../assets/CTA-background.png';
 import ctaDesktopIcons from '../../../assets/CTA-desktop-icons.png';
 import ctaMobileIcons from '../../../assets/CTA-mobile-icons.png';
-import { signup } from '../../meet/components/utils';
 import Button from '../../../components/Button';
+import { getAuthService } from '../../../utils/AuthService';
 
 const CallToAction: React.FC = () => {
+
+  const handleSignup = () => {
+    const authService = getAuthService()
+    authService.signup()
+  }
 
   return (
     <section className='relative flex items-center justify-center min-h-screen bg-[#F9FAFB] bg-repeat py-20'>
@@ -133,7 +138,7 @@ const CallToAction: React.FC = () => {
           Start Teaching for Free
         </Button>
       </a>
-      <Button variant='tertiary' onClick={signup}>
+      <Button variant='tertiary' onClick={handleSignup}>
         Sign up Now
       </Button>
     </div>
