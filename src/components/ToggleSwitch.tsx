@@ -5,7 +5,7 @@ interface ToggleSwitchProps {
   options: string[];
   activeOption: string;
   onOptionChange: (option: string) => void;
-  className?: string; // Optional className for extra styling on the container
+  className?: string;
 }
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
@@ -16,21 +16,33 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
 }) => {
   return (
     <div
-      className={`inline-flex bg-gray-100 rounded-lg p-1 space-x-1 ${className}`}
+      className={`inline-flex flex-wrap justify-center bg-gray-100 rounded-lg p-1 space-x-1 inset-shadow-sm ${className}`}
     >
-      {options.map((option) => (
-        <button
-          key={option}
-          onClick={() => onOptionChange(option)}
-          className={`px-6 py-2 rounded-md text-sm font-semibold transition-colors duration-200 ${
-            activeOption === option
-              ? 'bg-white text-black shadow-sm' // Active state styles
-              : 'text-gray-500 hover:text-black' // Inactive state styles
-          }`}
-        >
-          {option}
-        </button>
-      ))}
+      {options.map((option) => {
+        const isActive = activeOption === option;
+
+        return (
+          <button
+            key={option}
+            type='button'
+            onClick={() => onOptionChange(option)}
+            aria-pressed={isActive}
+            className={`
+              rounded-md font-semibold transition-all duration-200 
+              whitespace-nowrap
+              px-4 py-2 text-xs 
+              sm:px-6 sm:py-2 sm:text-sm
+              ${
+                isActive
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-gray-500 hover:text-black'
+              }
+            `}
+          >
+            {option}
+          </button>
+        );
+      })}
     </div>
   );
 };
