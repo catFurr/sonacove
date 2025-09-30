@@ -30,7 +30,7 @@ export function getUserManager(): UserManager {
 
   const authorityUrl =
     PUBLIC_CF_ENV === 'production'
-      ? 'auth.sonacove.com/auth'
+      ? 'https://auth.sonacove.com/auth/realms/jitsi'
       : 'https://staj.sonacove.com/auth/realms/jitsi';
 
   const settings: UserManagerSettings = {
