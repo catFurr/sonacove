@@ -1,59 +1,10 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro"
+import ClosePage from "./ClosePage"
 
-const hints = [
-    'You can pin participants by clicking on their thumbnails.',
-    'You can tell others you have something to say by using the "Raise Hand" '
-        + 'feature',
-    'You can learn about key shortcuts by pressing Shift+?',
-    'You can learn more about the state of everyone\'s connection by hovering '
-        + 'on the bars in their thumbnail',
-    'You can hide all thumbnails by using the button in the bottom right corner'
-];
+title: 'Close Page'
 ---
 
 <Layout title="Close Page">
-  <div class="flex flex-col w-full items-center justify-center px-4 py-16">
-    <div class="rounded-xl p-10 max-w-3xl w-full text-center">
-      
-      <h1 class="text-4xl font-bold mb-8 text-gray-700 md:whitespace-nowrap">
-        Thank you for using Sonacove Meets
-      </h1>
-      
-      <hr style="height:1px;border:none;color:#333;background-color:#333;">
-      
-      <p class="text-lg text-gray-700 my-6">
-        <span class='font-bold'>
-            Did you know?
-        </span>
-        <span
-          id="hintMessage"
-          class="font-medium"
-        ></span>
-      </p>
-
-      <div class='py-12'>
-        <a 
-        class='text-center px-6 py-3 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-medium rounded-lg hover:opacity-90 transition-all transform hover:scale-[1.02] whitespace-nowrap'
-        href="/meet">Go to Home Page</a>
-      </div>
-    </div>
-  </div>
-
-    <script define:vars={{ hints }}>
-      function getHint() {
-          const l = hints.length - 1;
-          const n = Math.round(Math.random() * l);
-          return hints[n];
-      }
-      function insertTextMsg(id, msg) {
-          const el = document.getElementById(id);
-          if (el) {
-              el.innerHTML = msg;
-          }
-      }
-      window.onload = function() {
-        insertTextMsg('hintMessage', getHint());
-      };
-  </script>
+    <ClosePage client:load />
 </Layout>

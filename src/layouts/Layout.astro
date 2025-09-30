@@ -2,7 +2,6 @@
 import PostHog from "../components/posthog.astro";
 import Footer from "../components/Footer";
 import { Font } from 'astro:assets';
-import cursor from "../assets/cursor.png"
 
 interface Props {
   title: string;
@@ -40,16 +39,15 @@ const {
     
     <!-- Load and preload fonts -->
     <Font cssVariable="--font-crimson-pro" preload />
-    <Font cssVariable="--font-lora" preload />
+    <!-- <Font cssVariable="--font-lora"/> --> <!--Commented for now as it's not being used anywhere -->
 
     <PostHog />
   </head>
-  <body class="min-h-screen bg-[#F9FAFB] flex flex-col cursor-custom">
-    <!-- <Header /> -->
+  <body class="min-h-screen bg-[#F9FAFB] flex flex-col font-crimson cursor-custom">
     <main class="flex-1">
       <slot />
     </main>
-    <Footer client:load />
+    <Footer />
   </body>
 </html>
 
@@ -58,8 +56,28 @@ const {
     scroll-behavior: smooth;
   }
 
-  body {
-    font-family: var(--font-crimson-pro), serif;
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: #f7f7f7;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #d1d1d1;
+    border-radius: 10px;
+    border: 2px solid #f7f7f7;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #b3b3b3;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d1d1 #f7f7f7;
   }
 
 </style>

@@ -72,10 +72,10 @@ const Logo: React.FC<LogoProps> = ({
   return (
     <a href='/' className='flex items-center gap-2'>
       <Icon
-        className={`h-8 w-8 ${isWhite ? 'text-white' : 'text-primary-500'}`}
+        className={`h-10 w-10 ${isWhite ? 'text-white' : 'text-primary-500'}`}
       />
       <span
-        className={`text-xl font-semibold ${
+        className={`text-2xl font-semibold ${
           isWhite ? 'text-white' : 'text-black'
         }`}
       >

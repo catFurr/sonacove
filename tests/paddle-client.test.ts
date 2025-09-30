@@ -1,5 +1,5 @@
 import { describe, expect, test, afterAll } from "bun:test";
-import { PaddleClient } from "../functions/components/paddle.js";
+import { PaddleClient } from "../src/lib/modules/paddle";
 
 // Define test environment variables
 const env = {
@@ -28,7 +28,7 @@ describe("PaddleClient", () => {
     // Clean up all created customers
     for (const customerId of customersToCleanup) {
       console.log(`Cleaning up test customer: ${customerId}`);
-      await PaddleClient.deleteCustomer(customerId, env);
+      await PaddleClient.deleteCustomer(customerId);
     }
   });
 
@@ -46,7 +46,7 @@ describe("PaddleClient", () => {
       marketing_consent: false,
     };
 
-    const customer = await PaddleClient.createCustomer(customerData, env);
+    const customer = await PaddleClient.createCustomer(customerData);
 
     expect(customer).not.toBeNull();
     expect(customer?.email).toBe(testEmail);
@@ -71,7 +71,7 @@ describe("PaddleClient", () => {
       return;
     }
 
-    const customer = await PaddleClient.fetchCustomer(createdCustomerId, env);
+    const customer = await PaddleClient.fetchCustomer(createdCustomerId);
 
     expect(customer).not.toBeNull();
     expect(customer?.id).toBe(createdCustomerId);
@@ -93,8 +93,7 @@ describe("PaddleClient", () => {
 
     const customer = await PaddleClient.updateCustomer(
       createdCustomerId,
-      updatedData,
-      env
+      updatedData
     );
 
     expect(customer).not.toBeNull();
@@ -116,8 +115,7 @@ describe("PaddleClient", () => {
 
     const customer = await PaddleClient.updateCustomer(
       testEmail,
-      updatedData,
-      env
+      updatedData
     );
 
     expect(customer).not.toBeNull();

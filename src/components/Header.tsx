@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Button from './Button';
-import { login, logout, signup } from '../pages/meet/components/utils';
 import { TextAlignJustify } from 'lucide-react';
 import Logo from './icons/Logo';
+import type { AppUser } from '../pages/meet/types';
+import Avatar from './Avatar';
+import { getAuthService } from '../utils/AuthService';
 
 // Define the types for the component's props
 type PageType = 'welcome' | 'landing';
@@ -10,11 +12,10 @@ type ActivePage = 'Features' | 'Comparison' | 'Pricing' | 'FAQ'; // Possible act
 
 interface HeaderProps {
   pageType?: PageType;
-  user?: any;
-  activePage?: ActivePage; 
+  user?: AppUser;
+  activePage?: ActivePage;
 }
 
-// Define nav items in an array for easier mapping and management
 const navItems = [
   { name: 'Features', href: '/features' },
   { name: 'Comparison', href: '/comparison' },
@@ -29,7 +30,13 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Center nav links - now data-driven
+  const handleAuthAction = (action: 'login' | 'logout' | 'signup') => {
+    const authService = getAuthService();
+    if (authService) {
+      authService[action]();
+    }
+  };
+
   const renderNavLinks = () => {
     if (pageType === 'landing') {
       return (
@@ -38,11 +45,10 @@ const Header: React.FC<HeaderProps> = ({
             <a
               key={item.name}
               href={item.href}
-              // Conditionally apply active styles
               className={
                 activePage === item.name
-                  ? 'text-primary-500 font-semibold' // Style for the active page
-                  : 'text-gray-600 hover:text-primary-500' // Default style
+                  ? 'text-primary-500 font-semibold'
+                  : 'text-gray-600 hover:text-primary-500'
               }
             >
               {item.name}
@@ -61,23 +67,23 @@ const Header: React.FC<HeaderProps> = ({
         <div className='hidden md:flex gap-4 items-center'>
           {user ? (
             <>
-              <Button variant='secondary' onClick={() => logout()}>
+              <Button variant='secondary' onClick={() => handleAuthAction('logout')}>
                 Log Out
               </Button>
               {user.avatarUrl && (
-                <img
+                <Avatar
                   src={user.avatarUrl}
                   alt={user.name}
-                  className='w-10 h-10 rounded-full object-cover'
+                  className='user-avatar w-14 h-14 rounded-full object-cover mx-auto sm:mx-0'
                 />
               )}
             </>
           ) : (
             <>
-              <Button variant='secondary' onClick={() => login()}>
+              <Button variant='secondary' onClick={() => handleAuthAction('login')}>
                 Login
               </Button>
-              <Button variant='primary' onClick={() => signup()}>
+              <Button variant='primary' onClick={() => handleAuthAction('signup')}>
                 Signup
               </Button>
             </>
@@ -89,8 +95,11 @@ const Header: React.FC<HeaderProps> = ({
     // Landing page
     return (
       <div className='hidden md:flex gap-4 items-center'>
-        <a href='/meet' className='hidden md:block'>
-          <Button variant='primary' className='hidden md:block'>
+        <a href='/meet'>
+          <Button
+            variant='primary'
+            className='hidden md:block'
+          >
             Visit Platform
           </Button>
         </a>
@@ -119,19 +128,30 @@ const Header: React.FC<HeaderProps> = ({
               </a>
             ))}
             <a href='/meet'>
-              <Button variant='primary'>Visit Platform</Button>
+              <Button variant='primary'>
+                Visit Platform
+              </Button>
             </a>
           </>
         ) : user ? (
-          <Button variant='secondary' onClick={() => logout()}>
+          <Button
+            variant='secondary'
+            onClick={() => handleAuthAction('logout')}
+          >
             Log Out
           </Button>
         ) : (
           <>
-            <Button variant='secondary' onClick={() => login()}>
+            <Button
+              variant='secondary'
+              onClick={() => handleAuthAction('login')}
+            >
               Login
             </Button>
-            <Button variant='primary' onClick={() => signup()}>
+            <Button
+              variant='primary'
+              onClick={() => handleAuthAction('signup')}
+            >
               Signup
             </Button>
           </>
@@ -142,19 +162,12 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className='ml-[2vw] mr-[2vw] flex flex-1 items-center justify-between rounded-full md:border md:border-gray-200 p-3 mt-4 md:shadow-sm md:backdrop-blur-sm relative'>
-      {/* Left: Logo */}
       <div className='flex items-center gap-2 pl-4'>
-        {/* <a href='/' className='flex items-center gap-2'> */}
           <Logo />
-        {/* </a> */}
       </div>
-
-      {/* Center: Nav Links */}
       <div className='absolute left-1/2 transform -translate-x-1/2'>
         {renderNavLinks()}
       </div>
-
-      {/* Right: Auth Buttons / CTA */}
       <div className='flex items-center gap-2 md:gap-4'>
         {renderDesktopRight()}
         <div className='md:hidden flex items-center'>
@@ -162,7 +175,6 @@ const Header: React.FC<HeaderProps> = ({
             className='p-2'
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {/* Hamburger Icon */}
             <TextAlignJustify strokeWidth={3} size={26} />
           </button>
           {renderMobileMenu()}

@@ -1,0 +1,28 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Authenticating...</title>
+  </head>
+  <body>
+    <div style="hidden">
+    </div>
+    <script>
+      import { getUserManager } from '../utils/AuthService';
+
+      async function handleCallback() {
+        try {
+          const user = await getUserManager().signinRedirectCallback();
+          
+          window.location.href = user.state as string || '/meet';
+        } catch (error) {
+          console.error('Login callback error:', error);
+          window.location.href = '/meet?error=login_failed';
+        }
+      }
+
+      handleCallback();
+    </script>
+  </body>
+</html>

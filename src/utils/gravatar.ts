@@ -1,8 +1,11 @@
 import md5 from 'blueimp-md5';
 
-
+/**
+ * Gets a Gravatar URL that returns a 404 error if the user has no image.
+ */
 export function getGravatarUrl(email: string, size = 200): string {
-  if (!email) return 'https://www.gravatar.com/avatar/?d=mp&s=' + size;
+  if (!email) return ''; 
   const hash = md5(email.trim().toLowerCase());
-  return `https://www.gravatar.com/avatar/${hash}?d=mp&s=${size}`;
+
+  return `https://www.gravatar.com/avatar/${hash}?d=404&s=${size}`;
 }

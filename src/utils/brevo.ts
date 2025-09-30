@@ -1,3 +1,6 @@
+import { PUBLIC_BREVO_WEBHOOK_URL } from "astro:env/client";
+
+
 /**
  * Utility function to add a contact to Brevo (formerly Sendinblue) via webhook
  * @param email - The email address to add
@@ -7,7 +10,7 @@
 export async function addContactToBrevo(email: string, source: string): Promise<any> {
   try {
     // Get webhook URL from environment variables
-    const webhookUrl = import.meta.env.PUBLIC_BREVO_WEBHOOK_URL;
+    const webhookUrl = PUBLIC_BREVO_WEBHOOK_URL;
     
     if (!webhookUrl) {
       console.error('Brevo webhook URL is not configured');
