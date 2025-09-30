@@ -1,6 +1,7 @@
 ---
 import PostHog from "../components/posthog.astro";
-import Header from "../components/Header.astro";
+import Footer from "../components/Footer";
+import { Font } from 'astro:assets';
 
 interface Props {
   title: string;
@@ -35,37 +36,18 @@ const {
     <meta property="twitter:description" content={description} />
 
     <title>{title}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    
+    <!-- Load and preload fonts -->
+    <Font cssVariable="--font-crimson-pro" preload />
+    <!-- <Font cssVariable="--font-lora"/> --> <!--Commented for now as it's not being used anywhere -->
 
     <PostHog />
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
-    <Header />
-    <slot />
-    <footer class="py-6 text-center text-xs text-gray-500">
-      <div class="container mx-auto px-4">
-        <p>
-          © {new Date().getFullYear()} Sonacove Meets by Alfaz Studio. All rights
-          reserved.
-        </p>
-        <div class="mt-2 space-x-4">
-          <a href="/terms" class="hover:text-primary-600 transition-colors"
-            >Terms of Service</a
-          >
-          <a href="/privacy" class="hover:text-primary-600 transition-colors"
-            >Privacy Policy</a
-          >
-          <a href="/refund" class="hover:text-primary-600 transition-colors"
-            >Refund Policy</a
-          >
-        </div>
-      </div>
-    </footer>
+  <body class="min-h-screen bg-[#F9FAFB] flex flex-col font-crimson cursor-custom">
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
   </body>
 </html>
 
@@ -74,7 +56,27 @@ const {
     scroll-behavior: smooth;
   }
 
-  body {
-    font-family: "Inter", sans-serif;
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background-color: #f7f7f7;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #d1d1d1;
+    border-radius: 10px;
+    border: 2px solid #f7f7f7;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #b3b3b3;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d1d1 #f7f7f7;
   }
 </style>
