@@ -27,7 +27,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, meetingsList, recordings, not
 
   const authDomain =
     window.location.hostname === 'sonacove.com'
-      ? 'auth.sonacove.com'
+      ? 'auth.sonacove.com/auth'
       : 'staj.sonacove.com/auth';
   const manageAccountUrl = `https://${authDomain}/realms/jitsi/account`;
 
