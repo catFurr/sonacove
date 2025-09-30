@@ -22,12 +22,12 @@ const CTASection: React.FC = () => {
               {/* Stats */}
               <div className='mb-12 flex flex-col gap-10 sm:flex-row'>
                 <div>
-                  <p className='text-4xl font-bold lg:text-5xl'>50,000+</p>
+                  <p className='text-4xl font-bold lg:text-5xl'>100+</p>
                   <p className='text-lg text-white/90'>Educators</p>
                   <p className='mt-1 text-white/70'>Transforming teaching.</p>
                 </div>
                 <div>
-                  <p className='text-4xl font-bold lg:text-5xl'>1M+</p>
+                  <p className='text-4xl font-bold lg:text-5xl'>10K+</p>
                   <p className='text-lg text-white/90'>Hours</p>
                   <p className='mt-1 text-white/70'>
                     Seamless lessons delivered.
