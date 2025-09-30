@@ -1,0 +1,19 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Silent Renew</title>
+  </head>
+  <body>
+    <script>
+      import { getUserManager } from '../utils/AuthService';
+
+      getUserManager()
+        .signinSilentCallback()
+        .catch((err) => {
+          console.error('Silent renew error:', err);
+        });
+    </script>
+  </body>
+</html>
