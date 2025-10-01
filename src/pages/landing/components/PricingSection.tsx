@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { School, Smile, UsersRound } from 'lucide-react';
 import { initializePaddle } from '@paddle/paddle-js';
+import { applyDiscount, floorPrice } from '../utils';
+import type { Plan } from '../types';
+
+import { School, Smile, UsersRound } from 'lucide-react';
 import SectionHeader from '../../../components/SectionHeader';
 import ToggleSwitch from '../../../components/ToggleSwitch';
 import PricingCard from './PricingCard';
-import type { Plan } from '../types';
-import { applyDiscount, floorPrice } from '../utils';
 
+import {
+  PUBLIC_CF_ENV,
+  PUBLIC_PADDLE_CLIENT_TOKEN,
+  PUBLIC_PADDLE_ORGANIZATION_PRICE_ID,
+  PUBLIC_PADDLE_PREMIUM_PRICE_ID,
+} from 'astro:env/client';
 
 // initial static plan data
 const initialPlans: Plan[] = [
@@ -58,15 +65,15 @@ const initialPlans: Plan[] = [
 ];
 
 export default function PricingSection() {
-  const env = import.meta.env;
   const [plans, setPlans] = useState(initialPlans);
   const [billingCycle, setBillingCycle] = useState('Monthly billing');
 
   useEffect(() => {
     async function initPaddle() {
       try {
-        const environment = env.PUBLIC_PADDLE_ENVIRONMENT || 'sandbox';
-        const clientToken = env.PUBLIC_PADDLE_CLIENT_TOKEN;
+        const environment =
+            (PUBLIC_CF_ENV as 'staging' | 'production') === 'production' ? 'production' : 'sandbox';
+        const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN;
         if (!clientToken) return console.error('Missing Paddle client token');
 
         const paddle = await initializePaddle({
@@ -81,8 +88,8 @@ export default function PricingSection() {
 
         const result = await paddle.PricePreview({
           items: [
-            { priceId: env.PUBLIC_PADDLE_PREMIUM_PRICE_ID, quantity: 1 },
-            { priceId: env.PUBLIC_PADDLE_ORGANIZATION_PRICE_ID, quantity: 1 },
+            { priceId: PUBLIC_PADDLE_PREMIUM_PRICE_ID, quantity: 1 },
+            { priceId: PUBLIC_PADDLE_ORGANIZATION_PRICE_ID, quantity: 1 },
           ],
         });
 

@@ -4,7 +4,6 @@ import { MoveLeft } from 'lucide-react';
 import Header from '../../../components/Header';
 import PageHeader from '../../../components/PageHeader';
 import LegalContent from '../../privacy/components/LegalContent';
-import Footer from '../../../components/Footer';
 
 const Refund: React.FC = () => {
   const lastUpdated = new Date().toLocaleDateString('en-US', {
