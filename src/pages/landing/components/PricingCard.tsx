@@ -1,7 +1,7 @@
 import React from 'react';
 import { clsx } from 'clsx'
 import { MoveRight, CircleCheck } from 'lucide-react';
-import type { Plan } from './types';
+import type { Plan } from '../types';
 
 const PlanIcon: React.FC<{
   icon: React.ReactNode | string;

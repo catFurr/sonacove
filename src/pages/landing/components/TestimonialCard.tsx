@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Testimonial } from './types';
+import type { Testimonial } from '../types';
 
 interface TestimonialCardProps {
   testimonial: Testimonial;

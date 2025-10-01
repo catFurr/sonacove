@@ -1,7 +1,7 @@
 import React from 'react';
 import SectionHeader from '../../../components/SectionHeader';
 import TestimonialsCarousel from './TestimonialsCarousel';
-import type { Review, Company, Testimonial } from './types';
+import type { Review, Company, Testimonial } from '../types';
 import TestimonialCard from './TestimonialCard';
 
 const testimonialsData: Testimonial[] = [

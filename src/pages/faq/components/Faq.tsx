@@ -3,7 +3,7 @@ import React from 'react';
 import Header from '../../../components/Header';
 import PageHeader from '../../../components/PageHeader';
 import FaqItem from './FaqItem';
-import SupportCta from './SupportCta';
+import SupportCTA from './SupportCTA';
 import type { FAQ } from '../types';
 
 const faqCategories: { category: string; items: FAQ[] }[] = [
@@ -96,7 +96,7 @@ const Faq: React.FC = () => {
             ))}
           </div>
 
-          <SupportCta />
+          <SupportCTA />
         </div>
       </main>
     </>

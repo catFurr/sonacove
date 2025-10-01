@@ -4,7 +4,7 @@ import { initializePaddle } from '@paddle/paddle-js';
 import SectionHeader from '../../../components/SectionHeader';
 import ToggleSwitch from '../../../components/ToggleSwitch';
 import PricingCard from './PricingCard';
-import type { Plan } from './types';
+import type { Plan } from '../types';
 import { applyDiscount, floorPrice } from '../utils';
 
 

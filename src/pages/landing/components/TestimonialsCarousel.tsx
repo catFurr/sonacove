@@ -6,7 +6,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
 import TestimonialCard from './TestimonialCard';
-import type { Testimonial } from './types';
+import type { Testimonial } from '../types';
 
 interface TestimonialsCarouselProps {
   testimonials: Testimonial[];

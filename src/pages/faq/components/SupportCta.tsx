@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SupportCta: React.FC = () => {
+const SupportCTA: React.FC = () => {
   return (
     <section className='mt-20 text-center bg-white p-12 rounded-2xl border border-gray-200 max-w-4xl mx-auto'>
       <h3 className='text-3xl font-bold text-gray-900'>
@@ -19,4 +19,4 @@ const SupportCta: React.FC = () => {
   );
 };
 
-export default SupportCta;
+export default SupportCTA;
