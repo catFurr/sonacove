@@ -49,7 +49,7 @@ const OnboardingFlow: React.FC = () => {
     try {
       if (!paddle.current) {
         const environment =
-          (PUBLIC_CF_ENV as 'sandbox' | 'production') || 'sandbox';
+            (PUBLIC_CF_ENV as 'staging' | 'production') === 'production' ? 'production' : 'sandbox';
         const clientToken = PUBLIC_PADDLE_CLIENT_TOKEN;
         if (!clientToken)
           throw new Error('Paddle client token is not configured');
