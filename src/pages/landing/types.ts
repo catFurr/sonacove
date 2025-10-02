@@ -173,3 +173,28 @@ export interface TestimonialGroup {
    */
   review: Review;
 }
+
+/**
+ * Represents the information for a single company logo to be displayed.
+ */
+export interface LogoInfo {
+  /**
+   * The display name of the company or brand associated with the logo.
+   */
+  name: string;
+
+  /**
+   * The imported logo image object, which contains the source path.
+   */
+  logo: {
+    /**
+     * The source URL or path of the logo image file.
+     */
+    src: string;
+  };
+
+  /**
+   * The destination URL to navigate to when the logo is clicked.
+   */
+  url?: string;
+}
