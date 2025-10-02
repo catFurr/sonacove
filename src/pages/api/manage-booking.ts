@@ -75,7 +75,8 @@ const WorkerHandler: APIRoute = async ({ request, url }) => {
     // Query database for user and room booking in a single query using LEFT JOIN
     let userRecord, roomBooking;
     try {
-      const userAndRoomData = await db
+      // Add timeout to prevent hanging requests
+      const queryPromise = db
         .select({
           // User fields
           userId: users.id,
@@ -100,6 +101,13 @@ const WorkerHandler: APIRoute = async ({ request, url }) => {
         .leftJoin(bookedRooms, eq(bookedRooms.roomName, roomName))
         .where(eq(users.email, email))
         .limit(1);
+
+      // Add 5 second timeout to prevent hanging requests
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 5000)
+      );
+
+      const userAndRoomData = await Promise.race([queryPromise, timeoutPromise]) as any[];
 
       if (userAndRoomData.length === 0) {
         logger.error(`User not found: ${email}`);
@@ -136,8 +144,11 @@ const WorkerHandler: APIRoute = async ({ request, url }) => {
       } : null;
 
     } catch (e) {
-      console.log("error fetching user and room ", e);
-      return new Response(null, { status: 500 } );
+      logger.error(e, "Database error fetching user and room:");
+      return new Response(JSON.stringify({ error: "Database connection failed" }), { 
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
     // If user is already an active host, return negative
