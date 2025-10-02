@@ -75,21 +75,19 @@ const Terms: React.FC = () => {
               </p>
 
               <h2 className='text-xl font-semibold tracking-wide'>
-                <span className='text-3xl'>7</span>. Refund Policy
+                <span className='text-3xl'>7</span>. Refund Poilcy
               </h2>
-              <div className='p-4 my-4 bg-primary-50 border-l-4 border-primary-500 rounded-md'>
-                <p>
-                  If you cancel your subscription, you will not be charged for
-                  the next billing period, but you will retain access to premium
-                  features until the end of your current billing period. If you
-                  request a refund, we may provide a full refund at our
-                  discretion. Upon refund, you will immediately lose access to
-                  premium features.
-                </p>
-              </div>
+              <p className='pb-6'>
+                If you cancel your subscription, you will not be charged for the
+                next billing period, but you will retain access to premium
+                features until the end of your current billing period. If you
+                request a refund, we may provide a full refund at our
+                discretion. Upon refund, you will immediately lose access to
+                premium features.
+              </p>
 
               <h2 className='text-xl font-semibold tracking-wide'>
-                <span className='text-3xl'>13</span>. Contact Us
+                <span className='text-3xl'>8</span>. Contact Us
               </h2>
               <div className='p-4 my-4 bg-gray-50 border border-gray-200 rounded-lg'>
                 <p>

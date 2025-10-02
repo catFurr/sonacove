@@ -141,7 +141,7 @@ const Footer: React.FC = () => {
           {/* Company Column (takes full width on mobile, half on desktop) */}
           <div className='md:col-span-6'>
             <h4 className='text-xl font-semibold mb-6'>Site Map</h4>
-            <ul className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-400'>
+            <ul className='flex flex-col flex-wrap gap-4 text-gray-400'>
               {companyLinks.map((link) => (
                 <li key={link.name + Math.random()}>
                   <a

@@ -101,14 +101,12 @@ const Privacy: React.FC = () => {
               <h2 className='text-xl font-semibold tracking-wide'>
                 <span className='text-3xl'>5</span>. Data Security
               </h2>
-              <div className='p-4 my-4 bg-primary-50 border-l-4 border-primary-500 rounded-md'>
-                <p>
-                  We implement appropriate technical and organizational measures
-                  to protect your personal information. However, no method of
-                  transmission over the Internet or electronic storage is 100%
-                  secure.
-                </p>
-              </div>
+              <p className='pb-6'>
+                We implement appropriate technical and organizational measures
+                to protect your personal information. However, no method of
+                transmission over the Internet or electronic storage is 100%
+                secure.
+              </p>
 
               <h2 className='text-xl font-semibold tracking-wide'>
                 <span className='text-3xl'>6</span>. Your Rights
@@ -128,7 +126,7 @@ const Privacy: React.FC = () => {
               </ul>
 
               <h2 className='text-xl font-semibold tracking-wide'>
-                <span className="text-3xl">9</span>. Contact Us
+                <span className='text-3xl'>9</span>. Contact Us
               </h2>
               <div className='p-4 my-4 bg-gray-50 border border-gray-200 rounded-lg'>
                 <p>
