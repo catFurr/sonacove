@@ -14,9 +14,8 @@ import { addContactToBrevo } from '../utils/brevo';
 const companyLinks = [
   { name: 'Home', href: '/' },
   { name: 'Features', href: '/features' },
-  { name: 'Pricing', href: '/pricing' },
+  { name: 'Pricing', href: '/#pricing' },
   { name: 'FAQ', href: '/faq' },
-  { name: 'Career', href: '/careers' },
 ];
 
 const supportLinks = [
@@ -141,7 +140,7 @@ const Footer: React.FC = () => {
         <div className='grid grid-cols-1 md:grid-cols-12 gap-12'>
           {/* Company Column (takes full width on mobile, half on desktop) */}
           <div className='md:col-span-6'>
-            <h4 className='text-xl font-semibold mb-6'>Company</h4>
+            <h4 className='text-xl font-semibold mb-6'>Site Map</h4>
             <ul className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-400'>
               {companyLinks.map((link) => (
                 <li key={link.name + Math.random()}>
