@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import { schema } from "./schema";
 import {
   DB_HOST,
@@ -11,7 +11,7 @@ import {
 
 // Create a drizzle instance with environment-specific configuration
 export function createDb() {
-  const client = postgres({
+  const pool = new Pool({
     host: DB_HOST,
     port: DB_PORT,
     user: DB_USER,
@@ -20,5 +20,5 @@ export function createDb() {
     ssl: true,
   });
 
-  return drizzle(client, { schema });
+  return drizzle({ client: pool, schema });
 }
