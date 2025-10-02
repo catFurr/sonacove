@@ -1,9 +1,10 @@
 import React from "react";
-import gdprBadge from "../../../assets/gdpr-compliant.png";
-import soc2Badge from "../../../assets/soc2-type2-certified.png";
-import uptimeBadge from "../../../assets/uptime-guarantee.png";
-import isoBadge from "../../../assets/iso-certified.png";
 import SectionHeader from "../../../components/SectionHeader";
+
+import gdprBadge from "../../../assets/gdpr-compliant.png";
+import uptimeBadge from "../../../assets/uptime-guarantee.png";
+import sslBadge from '../../../assets/ssl-encryption.png';
+import wcagBadge from '../../../assets/wcag-compliant.png';
 
 const badges = [
   {
@@ -11,16 +12,16 @@ const badges = [
     text: "GDPR Compliant",
   },
   {
-    img: soc2Badge,
-    text: "SOC 2 Type II Certified",
+    img: sslBadge,
+    text: "SSL Encryption",
   },
   {
     img: uptimeBadge,
     text: "99.9% Uptime Guarantee",
   },
   {
-    img: isoBadge,
-    text: "ISO 27001 Security Standards",
+    img: wcagBadge,
+    text: "WCAG 2.1 A/AA Compliant",
   },
 ];
 
