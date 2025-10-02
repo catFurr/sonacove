@@ -69,7 +69,7 @@ const FeaturesSection: React.FC = () => {
     <section className='py-20 md:py-28 bg-[#F9FAFB]'>
       <div className='container mx-auto px-4'>
         <SectionHeader tagline='Features' className='mb-8'>
-          Make magic with your passionate service with Sonacove Meets
+          Everything you need. Nothing you don't.
         </SectionHeader>
 
         {/* Features */}

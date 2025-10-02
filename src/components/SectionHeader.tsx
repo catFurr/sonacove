@@ -13,7 +13,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`text-center max-w-4xl mx-auto ${className}`}>
+    <div className={`text-center max-w-4xl mx-auto tracking-widest ${className}`}>
       <p className='text-2xl font-semibold text-primary-500 mb-2'>{tagline}</p>
       <h2 className='text-4xl md:text-5xl font-bold text-gray-900 leading-tight'>
         {children}
