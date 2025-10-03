@@ -21,7 +21,7 @@ const UserPlanDetails: React.FC<PlanUsageDetailsProps> = ({
   return (
     <>
       {plan === 'trialing' && (
-        <div className='pr-20'>
+        <div className='px-6 sm:px-0 sm:pr-20'>
           <div className='flex justify-between text-sm font-medium text-gray-600 mb-1 pt-3'>
             <span>Free Minutes Used</span>
             <span>
@@ -38,7 +38,7 @@ const UserPlanDetails: React.FC<PlanUsageDetailsProps> = ({
       )}
 
       {plan === 'active' && (
-        <p className='text-sm text-gray-500 pt-3'>
+        <p className='text-sm text-gray-500 pt-3 sm:mx-0 mx-auto'>
           Total Minutes Hosted:{' '}
           <span className='font-semibold text-gray-800'>
             {minutesUsed.toLocaleString()}
@@ -46,7 +46,7 @@ const UserPlanDetails: React.FC<PlanUsageDetailsProps> = ({
         </p>
       )}
 
-      <div className='mt-4 pr-20 mb-4'>
+      <div className='mt-4 mb-4 px-6 sm:px-0 sm:pr-20'>
         <div className='flex justify-between text-sm font-medium text-gray-600 mb-1'>
           <span>Bookings Used</span>
           <span>
