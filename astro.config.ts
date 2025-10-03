@@ -2,13 +2,12 @@ import { defineConfig, fontProviders } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react"
-import vue from "@astrojs/vue";
 
 import customSchema from './astro-env-schema';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), vue(), react()],
+  integrations: [tailwind(), react()],
   output: 'static',
 
   env: {
