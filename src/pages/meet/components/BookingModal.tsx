@@ -10,16 +10,17 @@ import { bookMeeting } from '../../../utils/api';
 import { showPopup } from '../../../utils/popupService';
 
 interface BookingModalProps {
+  roomName?: string;
   isOpen: boolean;
   onClose: () => void;
   onBookingSuccess: () => void;
 }
 
-const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingSuccess }) => {
+const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpen, onClose, onBookingSuccess }) => {
   const { getAccessToken } = useAuth();
 
   // --- Form State ---
-  const [roomName, setRoomName] = useState('');
+  const [roomName, setRoomName] = useState(_roomName || '');
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
   const [isPermanent, setIsPermanent] = useState(false);
 
@@ -29,7 +30,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, onBookingS
 
   useEffect(() => {
     if (isOpen) {
-      setRoomName('');
+      setRoomName(_roomName || '');
+
       setSelectedRange(undefined);
       setDatePickerOpen(false);
       setIsPermanent(false); // Reset permanent state on open

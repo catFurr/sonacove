@@ -143,6 +143,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
 
       {isLoggedIn && (
         <BookingModal
+          roomName={finalRoomName}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onBookingSuccess={onMeetingBooked}
