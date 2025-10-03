@@ -34,7 +34,8 @@
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^3.4.18",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "vue": "^3.5.22"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
