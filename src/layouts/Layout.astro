@@ -47,8 +47,7 @@ const {
     <main class="flex-1">
       <slot />
     </main>
-    <Footer />
-  </body>
+    <Footer client:load />
 </html>
 
 <style is:global>
@@ -78,5 +77,19 @@ const {
   * {
     scrollbar-width: thin;
     scrollbar-color: #d1d1d1 #f7f7f7;
+  }
+
+  @keyframes autoscroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-autoscroll {
+    /* You can adjust the duration (80s) to make the scroll faster or slower */
+    animation: autoscroll 70s linear infinite;
   }
 </style>

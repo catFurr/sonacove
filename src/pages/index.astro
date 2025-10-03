@@ -1,31 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Header from "../components/Header.astro";
-import HeroSection from "../components/HeroSection.astro";
-import FeatureSection from "../components/FeatureSection.astro";
-import AdvancedFeaturesSection from "../components/AdvancedFeaturesSection.astro";
-import PricingSection from "../components/PricingSection.astro";
-import FAQSection from "../components/FAQSection.astro";
-import WaitlistCTA from "../components/WaitlistCTA.astro";
+import Landing from "./landing/components/Landing";
 ---
 
 <Layout title="Sonacove Meets - Fast, Simple, Secure Online Meetings">
-  <Header />
   <main>
-    <HeroSection />
-
-    <div id="features">
-      <FeatureSection />
-    </div>
-
-    <AdvancedFeaturesSection />
-
-    <div id="pricing">
-      <PricingSection />
-    </div>
-
-    <FAQSection />
-
-    <WaitlistCTA />
+    <Landing client:load />
   </main>
 </Layout>
