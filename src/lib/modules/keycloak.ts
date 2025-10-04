@@ -243,4 +243,36 @@ export class KeycloakClient {
       return [];
     }
   }
+
+  /**
+   * Deletes a user from Keycloak by user ID
+   * @param userId The ID of the user to delete
+   * @returns Whether the deletion was successful
+   */
+  async deleteUser(this: KeycloakClient, userId: string): Promise<boolean> {
+    try {
+      if (!this.token) await this.fetchToken();
+      if (!this.token) throw new Error("Failed to get Keycloak token");
+
+      const url = "https://" + PUBLIC_KC_HOSTNAME + userEndpoint + userId;
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        logger.error(`Failed to delete Keycloak user ${userId}: ${response.status} ${error}`);
+        return false;
+      }
+
+      logger.info(`Successfully deleted Keycloak user ${userId}`);
+      return true;
+    } catch (e) {
+      logger.error(e, `Error deleting Keycloak user ${userId}:`);
+      return false;
+    }
+  }
 }

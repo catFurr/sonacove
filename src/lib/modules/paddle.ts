@@ -507,21 +507,43 @@ async function setCustomer(customerData: Partial<PaddleCustomerInput>): Promise<
 }
 
 /**
- * Deletes a Paddle customer by ID
- * @param customerId The ID of the customer to delete
- * @param env Environment variables containing API keys
- * @returns Whether the deletion was successful
- *
- * FIXME: Will be implemented in the future when Paddle API supports customer deletion
- * or when we decide to implement a soft-delete strategy
+ * Archives a Paddle customer by ID (soft delete)
+ * Paddle doesn't support permanent customer deletion for compliance reasons,
+ * so this function archives the customer instead, making them inactive.
+ * @param customerId The ID of the customer to archive
+ * @returns Whether the archival was successful
  */
 async function deleteCustomer(customerId: string): Promise<boolean> {
-  logger.info(
-    `[NOT IMPLEMENTED] Would delete customer with ID: ${customerId}`
-  );
-  // Paddle API doesn't currently support customer deletion
-  // This function is here as a placeholder for test cleanup
-  return true;
+  try {
+    const baseUrl = getPaddleBaseUrl();
+    const customerEndpoint = `${baseUrl}/customers/${customerId}`;
+
+    const response = await fetch(customerEndpoint, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${PADDLE_API_KEY}`,
+      },
+      body: JSON.stringify({
+        status: "archived"
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error(
+        `Failed to archive Paddle customer ${customerId}: ${response.status} ${errorText}`
+      );
+      return false;
+    }
+
+    const archivedCustomer = await response.json();
+    logger.info(`Successfully archived Paddle customer ${customerId}`);
+    return true;
+  } catch (error) {
+    logger.error(`Error archiving Paddle customer ${customerId}: ${error}`);
+    return false;
+  }
 }
 
 export const PaddleClient = {
@@ -532,5 +554,5 @@ export const PaddleClient = {
   updateCustomer,
   setCustomer,
   createCustomerPortalSession,
-  deleteCustomer,
+  deleteCustomer, // Archives customer (soft delete)
 };

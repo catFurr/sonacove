@@ -409,16 +409,26 @@ const PostWorkerHandler: APIRoute = async ({ request, locals }) => {
       logger.error(dbError, "Database error creating booking:");
 
       // Check if it's a unique constraint violation (room name already exists)
-      if (dbError.code === '23505' && dbError.constraint === 'booked_rooms_room_name_key') {
-        return new Response(
-          JSON.stringify({ error: "Room is already booked" }),
-          {
-            status: 409,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+      // PostgreSQL error code 23505 is for unique constraint violations
+      if (dbError.code === '23505') {
+        // Check if the constraint is related to room_name uniqueness
+        const constraintName = dbError.constraint || '';
+        const errorDetail = dbError.detail || '';
+        
+        // Drizzle with custom schema generates constraint names like: sonacove_booked_rooms_room_name_unique
+        if (constraintName.includes('room_name') || errorDetail.includes('room_name')) {
+          logger.info(`Room booking conflict detected: ${roomName} is already booked`);
+          return new Response(
+            JSON.stringify({ error: "Room is already booked" }),
+            {
+              status: 409,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+        }
       }
 
+      // For any other database error, return 500
       return new Response(
         JSON.stringify({ error: "Failed to create booking" }),
         {
