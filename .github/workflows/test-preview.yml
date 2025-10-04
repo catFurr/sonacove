@@ -1,0 +1,172 @@
+name: Test Preview Deployment
+
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types:
+      - completed
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test-preview:
+    name: Test Preview Deployment
+    runs-on: ubuntu-latest
+    # Only run if the deploy workflow was successful and it was a PR
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Checkout the PR branch, not the default branch
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Get Preview URL from Deploy Workflow
+        id: get-preview-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get the workflow run that triggered this workflow
+            const deployWorkflowRun = context.payload.workflow_run;
+            
+            // Get the PR number from the deploy workflow
+            const prNumber = deployWorkflowRun.pull_requests[0]?.number;
+            
+            if (!prNumber) {
+              core.setFailed('Could not find PR number from deploy workflow');
+              return;
+            }
+            
+            // Get the PR to find the preview URL from comments
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            
+            // Find the preview deployment comment
+            const previewComment = comments.find(comment => 
+              comment.body && comment.body.includes('🚀 Preview Deployment')
+            );
+            
+            if (!previewComment) {
+              core.setFailed('Could not find preview deployment comment');
+              return;
+            }
+            
+            // Extract preview URL from comment
+            const urlMatch = previewComment.body.match(/\*\*Preview URL:\*\* (.+)/);
+            if (!urlMatch || !urlMatch[1] || urlMatch[1].includes('Preview deployment created successfully')) {
+              // If no URL in comment, construct it from the PR number
+              // Cloudflare Pages typically uses this pattern for preview deployments
+              const previewUrl = `https://${deployWorkflowRun.head_sha.substring(0, 8)}.sonacove.pages.dev`;
+              core.setOutput('preview_url', previewUrl);
+              core.setOutput('pr_number', prNumber);
+              console.log(`Constructed preview URL: ${previewUrl}`);
+            } else {
+              const previewUrl = urlMatch[1].trim();
+              core.setOutput('preview_url', previewUrl);
+              core.setOutput('pr_number', prNumber);
+              console.log(`Found preview URL: ${previewUrl}`);
+            }
+
+      - name: Wait for deployment to be ready
+        run: |
+          echo "Waiting for preview deployment to be ready..."
+          PREVIEW_URL="${{ steps.get-preview-url.outputs.preview_url }}"
+          
+          # Wait up to 5 minutes for the deployment to be ready
+          for i in {1..30}; do
+            if curl -s --head --fail "$PREVIEW_URL" > /dev/null 2>&1; then
+              echo "✅ Preview deployment is ready!"
+              break
+            fi
+            echo "⏳ Waiting for deployment... (attempt $i/30)"
+            sleep 10
+          done
+          
+          # Final check
+          if ! curl -s --head --fail "$PREVIEW_URL" > /dev/null 2>&1; then
+            echo "❌ Preview deployment is not responding after 5 minutes"
+            exit 1
+          fi
+
+      - name: Set up test environment
+        run: |
+          # Copy test environment template and update with preview URL
+          cp .env.test .env.test.preview
+          
+          # Replace localhost with the actual preview URL
+          PREVIEW_URL="${{ steps.get-preview-url.outputs.preview_url }}"
+          sed -i "s|TEST_API_ENDPOINT=.*|TEST_API_ENDPOINT=${PREVIEW_URL}|g" .env.test.preview
+          
+          echo "🔧 Test environment configured:"
+          echo "Preview URL: $PREVIEW_URL"
+          
+          # Verify the preview URL is accessible
+          echo "🔍 Testing preview URL accessibility..."
+          curl -s --head --fail "$PREVIEW_URL" || (echo "❌ Preview URL not accessible" && exit 1)
+
+      - name: Run API tests against preview deployment
+        run: |
+          echo "🧪 Running API tests against preview deployment..."
+          
+          # Load test environment
+          export $(cat .env.test.preview | grep -v '^#' | xargs)
+          
+          # Run the API tests
+          bun test tests/api/ --timeout 30000
+        env:
+          # Ensure test environment is loaded
+          NODE_ENV: test
+
+      - name: Comment test results on PR
+        if: always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview-testing
+          message: |
+            ## 🧪 Preview Testing Results
+
+            **Status:** ${{ job.status == 'success' && '✅ All tests passed' || '❌ Some tests failed' }}
+            **Preview URL:** ${{ steps.get-preview-url.outputs.preview_url }}
+            **Test Suite:** API Tests
+            **Commit:** ${{ github.event.workflow_run.head_sha }}
+
+            ${{ job.status == 'success' && '🎉 All API tests passed successfully against the preview deployment!' || '⚠️ Some tests failed. Please check the workflow logs for details.' }}
+
+            ---
+            *This comment is automatically updated when tests run against preview deployments.*
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "test-results-${{ github.event.workflow_run.head_sha }}"
+          path: |
+            test-results/
+            *.log
+          retention-days: 7
