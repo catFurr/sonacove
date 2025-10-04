@@ -135,25 +135,20 @@ jobs:
           wranglerVersion: "4.35.0"
           packageManager: bun
 
-      - name: Extract Preview URL
+      - name: Save preview URL for tests
         if: github.event_name == 'pull_request'
-        id: extract-preview-url
         run: |
-          # Try to extract preview URL from deployment output
-          DEPLOYMENT_URL="${{ steps.deploy.outputs.deployment-url }}"
-          
-          if [[ -n "$DEPLOYMENT_URL" && "$DEPLOYMENT_URL" != "null" ]]; then
-            echo "PREVIEW_URL=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
-            echo "Found deployment URL: $DEPLOYMENT_URL"
-          else
-            # Construct preview URL based on Cloudflare Pages pattern
-            # Format: https://{commit-hash}.{project-name}.pages.dev
-            COMMIT_SHORT="${{ github.sha }}"
-            COMMIT_SHORT="${COMMIT_SHORT:0:8}"
-            CONSTRUCTED_URL="https://${COMMIT_SHORT}.sonacove.pages.dev"
-            echo "PREVIEW_URL=$CONSTRUCTED_URL" >> $GITHUB_OUTPUT
-            echo "Constructed preview URL: $CONSTRUCTED_URL"
-          fi
+          PREVIEW_URL="${{ steps.deploy.outputs.deployment-url }}"
+          echo "$PREVIEW_URL" > preview-url.txt
+          echo "Preview URL saved: $PREVIEW_URL"
+
+      - name: Upload preview URL artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-url
+          path: preview-url.txt
+          retention-days: 1
 
       - name: Update PR comment with preview
         if: github.event_name == 'pull_request' && job.status == 'success'
@@ -165,7 +160,7 @@ jobs:
 
             **Status:** ✅ Successfully deployed
             **Deployment Type:** Version Upload + Deploy
-            **Preview URL:** ${{ steps.extract-preview-url.outputs.PREVIEW_URL }}
+            **Preview URL:** ${{ steps.deploy.outputs.deployment-url || 'Preview deployment created successfully' }}
             **Commit:** ${{ github.sha }}
 
             ---
