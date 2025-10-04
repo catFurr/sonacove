@@ -135,21 +135,6 @@ jobs:
           wranglerVersion: "4.35.0"
           packageManager: bun
 
-      - name: Save preview URL for tests
-        if: github.event_name == 'pull_request'
-        run: |
-          PREVIEW_URL="${{ steps.deploy.outputs.deployment-url }}"
-          echo "$PREVIEW_URL" > preview-url.txt
-          echo "Preview URL saved: $PREVIEW_URL"
-
-      - name: Upload preview URL artifact
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: preview-url
-          path: preview-url.txt
-          retention-days: 1
-
       - name: Update PR comment with preview
         if: github.event_name == 'pull_request' && job.status == 'success'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -160,7 +145,7 @@ jobs:
 
             **Status:** ✅ Successfully deployed
             **Deployment Type:** Version Upload + Deploy
-            **Preview URL:** ${{ steps.deploy.outputs.deployment-url || 'Preview deployment created successfully' }}
+            **Preview URL:** ${{ steps.upload.outputs.deployment-url || 'Preview deployment created successfully' }}
             **Commit:** ${{ github.sha }}
 
             ---
