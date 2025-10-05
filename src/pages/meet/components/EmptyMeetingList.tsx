@@ -49,7 +49,7 @@ const EmptyMeetingList: React.FC<EmptyStateProps> = ({ type, onButtonClick }) =>
       </div>
       <h3 className='text-xl font-semibold text-gray-800'>{title}</h3>
       <p className='mt-2 text-gray-500'>{message}</p>
-      {showButton && onButtonClick && (
+      {/* {showButton && onButtonClick && (
         <Button
           variant='primary'
           onClick={onButtonClick}
@@ -57,7 +57,7 @@ const EmptyMeetingList: React.FC<EmptyStateProps> = ({ type, onButtonClick }) =>
         >
           Book a Meeting
         </Button>
-      )}
+      )} */}
     </div>
   );
 };

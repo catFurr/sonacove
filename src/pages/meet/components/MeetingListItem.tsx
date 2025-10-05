@@ -92,7 +92,7 @@ const MeetingListItem: React.FC<MeetingListItemProps> = ({
 
         <button
           onClick={handleDeleteClick}
-          className='absolute top-4 right-0 sm:relative sm:top-auto sm:right-auto sm:ml-auto p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+          className='absolute top-4 right-0 sm:relative sm:top-auto sm:right-auto sm:ml-auto p-2 pr-4 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
           aria-label={`Delete meeting ${meeting.title}`}
           disabled={isDeleting}
         >
