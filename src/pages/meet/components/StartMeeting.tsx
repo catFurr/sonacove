@@ -105,7 +105,6 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
 
         const result = await bookMeeting(finalRoomName, futureDate, token);
 
-        showPopup(`Meeting "${finalRoomName}" booked successfully!`, 'success');
         onMeetingBooked();
       } catch (error) {
         console.error('Booking failed:', error);
