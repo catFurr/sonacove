@@ -6,26 +6,12 @@ import { showPopup } from '../../../utils/popupService.ts';
 import BookingModal from './BookingModal';
 import Button from '../../../components/Button';
 import PageHeader from '../../../components/PageHeader';
-import { AlertCircle, CheckCircle2, Info, Loader2, Lock, XCircle } from 'lucide-react';
+import { Info, Loader2, Lock } from 'lucide-react';
 import { addYears } from 'date-fns';
-import { bookMeeting, checkRoomAvailability } from '../../../utils/api.ts';
+import { bookMeeting } from '../../../utils/api.ts';
 import { useAuth } from '../../../hooks/useAuth.ts';
 import { useRoomAvailability } from '../../../hooks/useRoomAvailability.ts';
 import RoomAvailabilityStatus from './RoomAvailabilityStatus.tsx';
-
-// A custom hook for debouncing a value
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
-}
 
 interface Props {
   isLoggedIn: boolean;
