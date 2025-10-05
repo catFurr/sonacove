@@ -144,7 +144,6 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
 
   const finalRoomName = roomName.trim() || placeholder;
 
-  const isJoinButtonDisabled = isRoomNameInvalid || isAvailable === false;
   const isBookButtonDisabled = (isLoggedIn && isBookingLimitReached) || isBooking;
 
   /**
@@ -223,7 +222,6 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
                 type='button'
                 variant='primary'
                 className='w-full max-[445px]:w-full shadow-sm transition-transform hover:scale-105 will-change-transform'
-                disabled={isJoinButtonDisabled}
               >
                 Join meeting
               </Button>
