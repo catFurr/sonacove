@@ -41,7 +41,7 @@ export const useRoomAvailability = (
 
   useEffect(() => {
     const shouldCheck =
-      isLoggedIn && debouncedRoomName.trim().length > 2 && !isInvalid;
+      isLoggedIn && debouncedRoomName.trim() && !isInvalid;
 
     if (!shouldCheck) {
       setAvailability({ isChecking: false, isAvailable: null, error: null });
