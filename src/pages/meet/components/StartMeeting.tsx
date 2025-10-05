@@ -6,10 +6,12 @@ import { showPopup } from '../../../utils/popupService.ts';
 import BookingModal from './BookingModal';
 import Button from '../../../components/Button';
 import PageHeader from '../../../components/PageHeader';
-import { AlertCircle, Info, Loader2, Lock } from 'lucide-react';
+import { Info, Loader2, Lock } from 'lucide-react';
 import { addYears } from 'date-fns';
 import { bookMeeting } from '../../../utils/api.ts';
 import { useAuth } from '../../../hooks/useAuth.ts';
+import { useRoomAvailability } from '../../../hooks/useRoomAvailability.ts';
+import RoomAvailabilityStatus from './RoomAvailabilityStatus.tsx';
 
 interface Props {
   isLoggedIn: boolean;
@@ -19,13 +21,15 @@ interface Props {
 
 const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingLimitReached }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { getAccessToken } = useAuth()
-
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomName, setRoomName] = useState('');
   const [placeholder, setPlaceholder] = useState('');
   const [isRoomNameInvalid, setIsRoomNameInvalid] = useState(false);
   const [isBooking, setIsBooking] = useState(false);
+  
+  const { getAccessToken } = useAuth()
+  const { isChecking, isAvailable, error: availabilityError } = useRoomAvailability(roomName, isRoomNameInvalid);
 
   const placeholderWords = generatePlaceholderWords(10); // generate random room names
 
@@ -52,10 +56,8 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
     const newRoomName = e.target.value;
     setRoomName(newRoomName);
 
-    // Check if room name has invalid characters
-    const hasInvalidChars = isRoomNameValid(newRoomName);
-
-    setIsRoomNameInvalid(hasInvalidChars);
+    // Check room name for invalid characters
+    setIsRoomNameInvalid(isRoomNameValid(newRoomName));
   };
 
   /**
@@ -179,19 +181,21 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
             />
           </div>
 
-          {/* Display validation error message */}
-          {isRoomNameInvalid && (
-            <div className='mt-3 mb-8 flex items-center gap-2 text-sm text-red-600'>
-              <AlertCircle size={14} />
-              <p>Room name cannot contain special characters.</p>
-            </div>
-          )}
+          <RoomAvailabilityStatus
+            isInvalid={isRoomNameInvalid}
+            isChecking={isChecking}
+            isAvailable={isAvailable}
+            error={availabilityError}
+          />
 
-          {!isRoomNameInvalid && (
-            <p className='mt-3 mb-8 text-sm text-gray-500'>
-              Enter subject or Meeting ID to get started
-            </p>
-          )}
+          {!isChecking &&
+            isAvailable === null &&
+            !availabilityError &&
+            !isRoomNameInvalid && (
+              <p className='mt-3 mb-8 text-sm text-gray-500'>
+                Enter subject or Meeting ID to get started
+              </p>
+            )}
 
           <div className='flex max-[450px]:flex-col items-center gap-4'>
             <a
