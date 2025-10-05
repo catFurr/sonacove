@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { type DateRange } from 'react-day-picker';
 import { addYears, format } from 'date-fns';
-import { X, Calendar, Loader2 } from 'lucide-react';
+import { X, Calendar, Loader2, AlertCircle } from 'lucide-react';
 
 import Button from '../../../components/Button';
 import DateRangePicker from './DateRangePicker';
 import { useAuth } from '../../../hooks/useAuth';
 import { bookMeeting } from '../../../utils/api';
 import { showPopup } from '../../../utils/popupService';
+import { isRoomNameValid } from '../../../utils/placeholder';
 
 interface BookingModalProps {
   roomName?: string;
@@ -23,6 +24,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpe
   const [roomName, setRoomName] = useState(_roomName || '');
   const [selectedRange, setSelectedRange] = useState<DateRange | undefined>();
   const [isPermanent, setIsPermanent] = useState(false);
+  const [isRoomNameInvalid, setIsRoomNameInvalid] = useState(false);
 
   // --- UI State ---
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
@@ -48,6 +50,11 @@ const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpe
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = getAccessToken();
+
+    if (isRoomNameInvalid) {
+      showPopup('Room name contains invalid characters.', 'error', 2500);
+      return
+    }
 
     if (!roomName.trim() || (!selectedRange && !isPermanent) || !token) {
       showPopup('Please fill in all required fields.', 'error');
@@ -79,6 +86,20 @@ const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpe
     }
   };
 
+    /**
+     * Handles changes to the room name input and validates its content.
+     */
+    const handleRoomNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newRoomName = e.target.value;
+      setRoomName(newRoomName);
+  
+      // Check if room name has invalid characters
+      const hasInvalidChars = isRoomNameValid(newRoomName);
+  
+      setIsRoomNameInvalid(hasInvalidChars);
+    };
+  
+
   const dateDisplayValue = isPermanent
     ?  'Permanent (No End Date)'
     : selectedRange?.from && selectedRange.to
@@ -105,7 +126,10 @@ const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpe
       className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm'
     >
       {isDatePickerOpen ? (
-        <div className='w-full flex justify-center' onClick={(e) => e.stopPropagation()}>
+        <div
+          className='w-full flex justify-center'
+          onClick={(e) => e.stopPropagation()}
+        >
           <DateRangePicker
             initialRange={selectedRange}
             onApply={handleDateApply}
@@ -132,7 +156,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpe
               <input
                 className='w-full rounded-lg border border-gray-300 p-3 text-md text-black font-semibold placeholder-gray-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-colors pr-10'
                 placeholder='Room name'
-                onChange={(e) => setRoomName(e.target.value)}
+                onChange={handleRoomNameChange}
                 value={roomName}
                 required
               />
@@ -146,6 +170,13 @@ const BookingModal: React.FC<BookingModalProps> = ({ roomName : _roomName, isOpe
                 </span>
               )}
             </div>
+
+            {isRoomNameInvalid && (
+              <div className='mt-1 mb-1 flex items-center gap-2 text-sm text-red-600'>
+                <AlertCircle size={14} />
+                <p>Room name cannot contain special characters.</p>
+              </div>
+            )}
 
             <div className='relative'>
               <button
