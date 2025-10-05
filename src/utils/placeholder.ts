@@ -62,3 +62,11 @@ export function animatePlaceholder(
 
   return () => clearTimeout(timeoutId);
 }
+
+export function isRoomNameValid(roomName: string){
+  // Array of characters that are not allowed in the room name.
+  const INVALID_ROOM_CHARS = ['?', '&', ':', "'", '"', '%', '#', '.'];
+  const hasInvalidChars = INVALID_ROOM_CHARS.some((char) => roomName.includes(char));
+
+  return hasInvalidChars;
+}
