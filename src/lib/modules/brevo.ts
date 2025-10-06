@@ -279,25 +279,70 @@ async function setContact(
 }
 
 /**
- * Deletes a contact from Brevo by email or ID
- *
- * FIXME: Will be implemented in the future when needed for test cleanup
- * This is currently just a placeholder that logs the deletion intent but doesn't perform any action
+ * Deletes a contact from Brevo by email, ID, or external ID
+ * @param identifier The email, ID, or external ID of the contact to delete
+ * @param identifierType The type of identifier: 'email_id', 'contact_id', or 'ext_id'
+ * @returns Whether the deletion was successful
  */
 async function deleteContact(
   identifier: string | number,
-  isId: boolean = false
+  identifierType: 'email_id' | 'contact_id' | 'ext_id' = 'email_id'
 ): Promise<boolean> {
-  // Log the deletion intent
-  logger.info(
-    `[NOT IMPLEMENTED] Would delete contact: ${identifier} (${
-      isId ? "by ID" : "by email"
-    })`
-  );
+  try {
+    let endpoint = apiEndpoint;
+    
+    // Handle different identifier types
+    if (identifierType === 'contact_id' && typeof identifier === 'number') {
+      // For contact ID, use the direct endpoint
+      endpoint += identifier;
+    } else if (identifierType === 'ext_id') {
+      // For external ID, use the ext/ prefix
+      endpoint += `ext/${identifier}`;
+    } else {
+      // For email or string contact ID, encode if necessary
+      const encodedIdentifier = typeof identifier === 'string' 
+        ? encodeURIComponent(identifier) 
+        : identifier;
+      endpoint += encodedIdentifier;
+    }
 
-  // In the future, this will use DELETE request to Brevo API
-  // For now, just return success
-  return true;
+    // Add identifierType query parameter if not using default email_id
+    const url = identifierType !== 'email_id' 
+      ? `${endpoint}?identifierType=${identifierType}`
+      : endpoint;
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "api-key": BREVO_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage = `Failed to delete contact: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData && errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch (e) {
+        // If JSON parsing fails, use the error text as is
+        if (errorText) {
+          errorMessage += ` - ${errorText}`;
+        }
+      }
+      logger.error(errorMessage);
+      return false;
+    }
+
+    logger.info(`Successfully deleted Brevo contact: ${identifier}`);
+    return true;
+  } catch (error) {
+    logger.error(`Error deleting Brevo contact ${identifier}: ${error}`);
+    return false;
+  }
 }
 
 export const BrevoClient = {
