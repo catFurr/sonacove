@@ -2,7 +2,6 @@ import type { DbUser } from '../pages/meet/types';
 
 const API_BASE_URL = 'api';
 
-
 async function handleApiResponse(response: Response) {
   if (!response.ok) {
     let errorMessage = `API Error: ${response.status}`;
@@ -16,8 +15,7 @@ async function handleApiResponse(response: Response) {
       ) {
         errorMessage += ` - ${(errorData as { error: string }).error}`;
       }
-    } catch {
-    }
+    } catch {}
     throw new Error(errorMessage);
   }
 
@@ -98,4 +96,37 @@ export const deleteBooking = async (roomName: string, token: string) => {
     }),
   });
   return handleApiResponse(response);
+};
+
+/**
+ * Checks if a room name is available or already booked.
+ * @param {string} roomName The name of the room to check.
+ * @param {string} token The user's JWT access token.
+ * @returns An object indicating if the room is available.
+ */
+export const checkRoomAvailability = async (
+  roomName: string,
+  token: string,
+): Promise<{ available: boolean; roomName: string }> => {
+  if (!roomName.trim()) {
+    throw new Error('A room name is required for the availability check.');
+  }
+
+  // Safely encode the room name to be used as a URL parameter
+  const encodedRoomName = encodeURIComponent(roomName.trim());
+
+  const response = await fetch(
+    `${API_BASE_URL}/room-availability?roomName=${encodedRoomName}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  return handleApiResponse(response) as Promise<{
+    available: boolean;
+    roomName: string;
+  }>;
 };

@@ -5,27 +5,52 @@ import type { DbUser } from '../pages/meet/types';
 import type { User as OidcUser } from 'oidc-client-ts';
 import { fetchDbUser } from '../utils/api';
 
+/**
+ * A simplified representation of a booked meeting for UI display.
+ */
 export interface Meeting {
+  /** The name of the meeting room. */
   title: string;
+  /** The formatted end date of the meeting. */
   date: string;
+  /** The formatted time the meeting was created. */
   time: string;
+  /** The status of the meeting, e.g., 'Upcoming' or 'Expired'. */
   status: string;
 }
 
 const authService = getAuthService();
 
+/**
+ * A comprehensive custom hook to manage the entire user authentication lifecycle and session data.
+ * It handles OIDC authentication state, fetches custom user data from the database,
+ * and provides derived state like a formatted list of meetings.
+ *
+ * @returns {object} An object containing auth state, user data, and action methods.
+ * @property {boolean} isLoggedIn - True if the user is currently authenticated with the OIDC provider.
+ * @property {DbUser | null} dbUser - The user's full profile from the custom application database, including booked rooms.
+ * @property {OidcUser | null} user - The raw user object from the OIDC provider.
+ * @property {Meeting[]} meetings - A formatted list of the user's booked meetings.
+ * @property {() => Promise<void>} refetchMeetings - A function to manually re-fetch the user's data from the database.
+ * @property {() => void | undefined} login - A function to initiate the OIDC login flow.
+ * @property {() => void | undefined} logout - A function to initiate the OIDC logout flow.
+ * @property {() => string | null} getAccessToken - A function to retrieve the user's current JWT access token.
+ */
 export function useAuth() {
+  /** State to hold the OIDC authentication status. */
   const [isLoggedIn, setIsLoggedIn] = useState(
     () => authService?.isLoggedIn() ?? false,
   );
+
   const [oidcUser, setOidcUser] = useState<OidcUser | null>(
     () => authService?.getUser() ?? null,
   );
+  /** State for the user profile fetched from the application's database. */
   const [dbUser, setDbUser] = useState<DbUser | null>(null);
-
+  /** State for the formatted list of meetings derived from the dbUser. */
   const [meetings, setMeetings] = useState<Meeting[]>([]);
 
-  // Effect to keep the hook's state in sync with the AuthService
+  // Effect to subscribe to the global AuthService and keep local state in sync.
   useEffect(() => {
     if (!authService) return;
     const unsubscribe = authService.subscribe((state) => {
@@ -35,6 +60,10 @@ export function useAuth() {
     return unsubscribe;
   }, []);
 
+  /**
+   * Manually triggers a re-fetch of the user's data from the database.
+   * Useful after performing an action like booking a meeting.
+   */
   const refetchMeetings = useCallback(async () => {
     const token = authService?.getAccessToken();
     if (!token) {
@@ -47,7 +76,7 @@ export function useAuth() {
       setDbUser(data);
     } catch (error) {
       console.error('Failed to refetch user from DB:', error);
-      setDbUser(null); // Clear data on a failed refetch
+      setDbUser(null);
     }
   }, []);
 
@@ -79,9 +108,9 @@ export function useAuth() {
 
         return {
           title: room.roomName,
-          date: format(endDate, 'MMMM dd, yyyy'), // Format the end date for display
-          time: format(createdAt, 'p'), // Format the creation time for display (e.g., 8:34 PM)
-          status: endDate > currentDate ? 'Upcoming' : 'Expired', // Determine status based on end date
+          date: format(endDate, 'MMMM dd, yyyy'),
+          time: format(createdAt, 'p'),
+          status: endDate > currentDate ? 'Upcoming' : 'Expired',
         };
       });
 
