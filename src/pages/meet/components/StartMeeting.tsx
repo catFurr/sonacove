@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { animatePlaceholder, generatePlaceholderWords, isRoomNameValid } from '../../../utils/placeholder.ts';
+import { animatePlaceholder, generatePlaceholderWords, isRoomNameValid } from '../../../utils/placeholder.ts';
 import { getAuthService } from '../../../utils/AuthService';
 import { showPopup } from '../../../utils/popupService.ts';
+import { showPopup } from '../../../utils/popupService.ts';
 
+import BookingModal from './BookingModal';
 import BookingModal from './BookingModal';
 import Button from '../../../components/Button';
 import PageHeader from '../../../components/PageHeader';
@@ -116,6 +119,46 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
       } finally {
         setIsBooking(false); // Stop loading
       }
+      if (isBookingLimitReached) {
+        showPopup('You have reached your booking limit.', 'error');
+        return;
+      }
+
+      const finalRoomName = roomName.trim() || placeholder;
+
+      if (isRoomNameValid(finalRoomName)) {
+        showPopup('Room name contains invalid characters.', 'error');
+        return;
+      }
+
+      if (!finalRoomName) {
+        showPopup('Please enter a meeting name to book.', 'error');
+        return;
+      }
+
+      const token = getAccessToken();
+      if (!token) {
+        showPopup('Authentication error. Please log in again.', 'error');
+        return;
+      }
+
+      setIsBooking(true); // Start loading
+
+      try {
+        const currentDate = new Date();
+        const futureDate = addYears(currentDate, 1); // 1 Year from the current date
+
+        const result = await bookMeeting(finalRoomName, futureDate, token);
+
+        onMeetingBooked();
+      } catch (error) {
+        console.error('Booking failed:', error);
+        const errorMessage =
+          error instanceof Error ? error.message : 'An unknown error occurred.';
+        showPopup(`Error: ${errorMessage}`, 'error');
+      } finally {
+        setIsBooking(false); // Stop loading
+      }
     } else {
       const authService = getAuthService();
       if (authService) {
@@ -130,6 +173,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
 
   const finalRoomName = roomName.trim() || placeholder;
 
+  const isBookButtonDisabled = (isLoggedIn && isBookingLimitReached) || isBooking;
   const isBookButtonDisabled = (isLoggedIn && isBookingLimitReached) || isBooking;
 
   /**
@@ -176,6 +220,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
               type='text'
               value={roomName}
               onChange={handleRoomNameChange}
+              onChange={handleRoomNameChange}
               placeholder='Enter meeting name'
               className='w-full bg-transparent border-0 border-b border-gray-300 py-3 pl-3 text-2xl sm:text-3xl font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-primary-500 transition-colors'
             />
@@ -204,6 +249,12 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
               onClick={handleJoinClick}
               role='button'
             >
+            <a
+              href={`/meet/${finalRoomName}`}
+              className='w-full'
+              onClick={handleJoinClick}
+              role='button'
+            >
               <Button
                 type='button'
                 variant='primary'
@@ -218,7 +269,15 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
               variant='secondary'
               className='w-full max-[445px]:w-full shadow-sm transition-transform hover:scale-105 will-change-transform disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100'
               disabled={isBookButtonDisabled}
+              disabled={isBookButtonDisabled}
             >
+              {isBooking ? (
+                <>
+                  <Loader2 className='mx-auto h-5 w-5 animate-spin' />
+                </>
+              ) : (
+                'Book meeting'
+              )}
               {isBooking ? (
                 <>
                   <Loader2 className='mx-auto h-5 w-5 animate-spin' />
@@ -235,6 +294,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
 
       {isLoggedIn && (
         <BookingModal
+          roomName={finalRoomName}
           roomName={finalRoomName}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
