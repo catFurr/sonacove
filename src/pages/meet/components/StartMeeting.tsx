@@ -108,6 +108,7 @@ const StartMeeting: React.FC<Props> = ({ isLoggedIn, onMeetingBooked, isBookingL
         const result = await bookMeeting(finalRoomName, futureDate, token);
 
         onMeetingBooked();
+        setRoomName('');
       } catch (error) {
         console.error('Booking failed:', error);
         const errorMessage =
